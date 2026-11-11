@@ -5,11 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>儒学词典 · 儒藏本体论</title>
   <link rel="stylesheet" href="style/common.css">
+  <style>
+    .dict-item { scroll-margin-top: 100px; transition: background 0.6s; }
+    .dict-item.highlight {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent-color);
+      padding-left: calc(var(--padding, 16px) - 3px);
+    }
+    .dict-search {
+      margin-bottom: 20px;
+    }
+    .dict-search input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-size: 15px;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .dict-search input:focus { border-color: var(--accent-color); }
+    .dict-search .hit {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+  </style>
 </head>
 <body>
   <div class="main-content">
     <h1 class="page-title">儒学词典</h1>
     <p class="page-subtitle">儒家核心概念释义 · 附经典原文出处</p>
+
+    <div class="dict-search">
+      <input type="text" id="dictSearch" placeholder="检索词条（如 仁、理、知行合一）…">
+      <div class="hit" id="dictHit"></div>
+    </div>
 
     <div class="dict-list" id="dictList">
       <!-- 词典条目由JS生成 -->
@@ -21,18 +54,70 @@
     initPage('dictionary.html');
     renderFooter();
 
-    // 渲染词典
     const dictList = document.getElementById('dictList');
-    Object.entries(CONCEPTS).forEach(([term, data]) => {
-      const item = document.createElement('div');
-      item.className = 'dict-item';
-      item.innerHTML = `
-        <div class="dict-term">${term}</div>
-        <div class="dict-def">${data.def}</div>
-        <div class="dict-source">${data.source}</div>
-      `;
-      dictList.appendChild(item);
+    const searchInput = document.getElementById('dictSearch');
+    const hitInfo = document.getElementById('dictHit');
+    const allTerms = Object.keys(CONCEPTS);
+
+    // 渲染词典条目
+    function renderDict(filter = '') {
+      dictList.innerHTML = '';
+      const kw = filter.trim().toLowerCase();
+      const terms = kw ? allTerms.filter(t => t.toLowerCase().includes(kw)) : allTerms;
+      hitInfo.textContent = kw ? `匹配 ${terms.length} / ${allTerms.length} 条` : `共 ${allTerms.length} 条`;
+      terms.forEach(term => {
+        const data = CONCEPTS[term];
+        const anchor = encodeURIComponent(term);
+        const item = document.createElement('div');
+        item.className = 'dict-item';
+        item.id = anchor;
+        item.dataset.term = term;
+        item.innerHTML = `
+          <div class="dict-term">${term}</div>
+          <div class="dict-def">${data.def}</div>
+          <div class="dict-source">${data.source}</div>
+        `;
+        dictList.appendChild(item);
+      });
+      // 渲染后处理hash定位
+      handleHash();
+    }
+
+    // 根据hash跳转到对应词条
+    function handleHash() {
+      document.querySelectorAll('.dict-item.highlight').forEach(el => el.classList.remove('highlight'));
+      const hash = decodeURIComponent(location.hash.replace(/^#/, ''));
+      if (!hash) return;
+      const el = document.getElementById(encodeURIComponent(hash));
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          el.classList.add('highlight');
+          setTimeout(() => el.classList.remove('highlight'), 2500);
+        }, 80);
+      } else {
+        // 词条不在当前筛选结果里，清掉筛选再找
+        searchInput.value = '';
+        renderDict('');
+        const el2 = document.getElementById(encodeURIComponent(hash));
+        if (el2) {
+          setTimeout(() => {
+            el2.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            el2.classList.add('highlight');
+            setTimeout(() => el2.classList.remove('highlight'), 2500);
+          }, 80);
+        }
+      }
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      renderDict(e.target.value);
     });
+
+    window.addEventListener('hashchange', handleHash);
+
+    // 初始渲染
+    renderDict('');
   </script>
 </body>
 </html>
