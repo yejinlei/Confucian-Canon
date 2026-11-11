@@ -10,6 +10,7 @@
       display: flex;
       gap: 20px;
       min-height: calc(100vh - 220px);
+      position: relative;
     }
     .chapter-sidebar {
       width: 220px;
@@ -22,13 +23,20 @@
       top: 100px;
       max-height: calc(100vh - 120px);
       overflow-y: auto;
+      /* 完全隐藏滚动条但保留滚动功能 */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
+    .chapter-sidebar::-webkit-scrollbar { display: none; }
     .chapter-sidebar h3 {
       font-size: 16px;
       margin: 0 0 12px 0;
       color: var(--accent-color);
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .chapter-list {
       list-style: none;
@@ -100,11 +108,88 @@
       font-size: 12px;
       opacity: 0.7;
     }
+    /* 移动端目录按钮 */
+    .mobile-toc-btn {
+      display: none;
+      position: fixed;
+      right: 20px;
+      bottom: 80px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      color: var(--bg-primary);
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    /* 页内搜索框 */
+    .reader-search {
+      margin-bottom: 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .reader-search input {
+      flex: 1;
+      padding: 6px 10px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+    }
+    .reader-search input:focus {
+      border-color: var(--accent-color);
+    }
+    .reader-search .search-count {
+      font-size: 12px;
+      color: var(--text-secondary);
+      align-self: center;
+      white-space: nowrap;
+    }
+    /* 搜索高亮 */
+    mark.search-hit {
+      background: var(--accent-color);
+      color: var(--bg-primary);
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+    mark.search-current {
+      background: #d93025;
+      color: #fff;
+    }
     @media (max-width: 1200px) {
       .chapter-sidebar {
-        display: none;
+        position: fixed;
+        left: -260px;
+        top: 80px;
+        width: 240px;
+        height: calc(100vh - 80px);
+        z-index: 200;
+        border-radius: 0 var(--radius) var(--radius) 0;
+        transition: left 0.3s;
+        background: var(--bg-primary);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+      }
+      .chapter-sidebar.show {
+        left: 0;
+      }
+      .mobile-toc-btn {
+        display: block;
       }
     }
+    /* 移动端遮罩 */
+    .toc-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 150;
+    }
+    .toc-mask.show { display: block; }
   </style>
 </head>
 <body>
@@ -129,6 +214,10 @@
     <div class="reader-container">
       <div class="chapter-sidebar" id="chapterSidebar">
         <h3>📑 卷次目录</h3>
+        <div class="reader-search">
+          <input type="text" id="readerSearch" placeholder="页内检索…">
+          <span class="search-count" id="searchCount"></span>
+        </div>
         <ul class="chapter-list" id="chapterList"></ul>
       </div>
       <div class="reader-body">
@@ -142,12 +231,16 @@
     </div>
   </div>
 
+  <!-- 移动端目录按钮与遮罩 -->
+  <button class="mobile-toc-btn" id="tocBtn" title="目录">☰</button>
+  <div class="toc-mask" id="tocMask"></div>
+
   <script src="data/common.js"></script>
   <script>
     initPage('library.html');
     renderFooter();
 
-    // 获取URL参数
+    // ========== 全局状态 ==========
     const params = new URLSearchParams(window.location.search);
     const bookPath = params.get('b');
     const [bookCat, bookFile] = bookPath.split('/');
@@ -159,39 +252,50 @@
     document.getElementById('readerTitle').textContent = bookName;
     document.title = `${bookName} · 儒藏本体论`;
 
-    // 全局状态
     let allParagraphs = [];
     let chapters = [];
     let currentChapter = 0;
-    let renderedStart = 0;
-    const BATCH_SIZE = 200; // 每次渲染200段，避免DOM过大
+    let renderedEnd = 0;
+    const BATCH_SIZE = 200;
+    let BOOKS_INDEX = [];   // 完整书单，用于上/下一部
+    let currentBookIdx = -1;
+    let searchHits = [];
+    let currentHitIdx = -1;
+    let searchTerm = '';
 
-    // 识别章节/卷次标题（自动适配古籍格式）
+    // ========== 章节标题识别（增强版） ==========
     function isChapterTitle(line) {
-      const t = line.trim();
+      const t = line.trim().replace(/\s+/g, ' ');
       if (!t) return false;
-      // 匹配春秋左传正义/十三经注疏类：卷X 第X 某某
-      if (/^卷[一二三四五六七八九十百零\d]+/.test(t)) return true;
-      // 匹配论语/孟子等：第X篇、学而第一、为政第二
-      if (/^第[一二三四五六七八九十百\d]+[篇章卷]/.test(t)) return true;
-      if (/^[一二三四五六七八九十百]+、/.test(t) && t.length < 30) return true;
-      // 匹配尚书/礼记：某某篇第X
+      // 排除短正文（注疏行首"○"是段落标记，不是标题）
+      if (t.length < 2) return false;
+
+      // 1. 卷/篇类标题（优先匹配）
+      // 卷X、卷第X、卷X 第X、卷之X、卷X X公
+      if (/^卷[之第]?[一二三四五六七八九十百零\d]+/.test(t)) return true;
+      // 第X篇/章/卷/节（独立成行，如"学而第一""为政第二"）
+      if (/^[一二三四五六七八九十百\d]+[篇章卷]第[一二三四五六七八九十百\d]*/.test(t)) return true;
+      if (/^第[一二三四五六七八九十百零\d]+[篇章卷]/.test(t)) return true;
+      if (/^[一二三四五六七八九十百]+[、.．]\s*\S/.test(t) && t.length < 30) return true;
+      // 某某篇第X
       if (/篇第[一二三四五六七八九十百\d]+$/.test(t)) return true;
       return false;
     }
 
-    // 分块解析章节
+    // ========== 章节解析（只解析一次，绝不重排） ==========
     function parseChapters(paragraphs) {
       const chaps = [];
       let currentChapTitle = '卷首';
       let currentStart = 0;
-      
+      let foundTitleCount = 0;
+
       for (let i = 0; i < paragraphs.length; i++) {
         const p = paragraphs[i].trim();
         if (isChapterTitle(p)) {
+          foundTitleCount++;
           if (i > 0) {
             chaps.push({
-              title: currentChapTitle,
+              title: p.replace(/\s+/g, ' ').substring(0, 30),
               start: currentStart,
               end: i
             });
@@ -207,148 +311,152 @@
         end: paragraphs.length
       });
 
-      // 如果全书没有识别到章节，全书作为一章
-      if (chaps.length <= 1 && paragraphs.length > BATCH_SIZE) {
-        // 自动按段落匹配"第X节"标识，没有的话再按200段分块
-        let foundSections = false;
-        for (let i = 0; i < paragraphs.length; i++) {
-          const p = paragraphs[i].trim();
-          if (/^第[一二三四五六七八九十百\d]+节$/.test(p) || /^[一二三四五六七八九十百]+、/.test(p)) {
-            foundSections = true;
-            chaps.push({
-              title: p.substring(0,20),
-              start: i,
-              end: paragraphs.length
-            });
-            // 补全前一章end
-            if (chaps.length > 1) chaps[chaps.length-2].end = i;
-          }
-        }
-        // 还是没找到的话按200段分块
-        if (!foundSections || chaps.length <=1) {
-          chaps.length = 0;
+      // 如果全书确实没有识别到任何卷次标题（短篇），只分一段，不做"第X节"流水切分
+      if (foundTitleCount === 0) {
+        chaps.length = 0;
+        // 短篇（<300段）全书作为一章
+        if (paragraphs.length < BATCH_SIZE * 1.5) {
+          chaps.push({ title: '全文', start: 0, end: paragraphs.length });
+        } else {
+          // 长篇无标题：按每200段分块，但不叫"第X节"，叫"分段"
           const blocks = Math.ceil(paragraphs.length / BATCH_SIZE);
           for (let i = 0; i < blocks; i++) {
             chaps.push({
-              title: `第${i+1}节`,
+              title: `分段 ${i+1}`,
               start: i * BATCH_SIZE,
               end: Math.min((i+1) * BATCH_SIZE, paragraphs.length)
             });
           }
         }
+      } else {
+        // 有真实卷次标题：去除开头"目录"块造成的重复（同一标题只保留最后一次=正文处）
+        const _last = {};
+        chaps.forEach((c, i) => { _last[c.title] = i; });
+        const filtered = chaps.filter((c, i) => _last[c.title] === i);
+        for (let i = 0; i < filtered.length; i++) {
+          filtered[i].end = (i + 1 < filtered.length) ? filtered[i + 1].start : paragraphs.length;
+        }
+        return filtered;
       }
-
-      // 去除开头「目录」块造成的重复：同一标题只保留最后一次出现（即正文处），并重算区间
-      const _last = {};
-      chaps.forEach((c, i) => { _last[c.title] = i; });
-      const _merged = chaps.filter((c, i) => _last[c.title] === i);
-      for (let i = 0; i < _merged.length; i++) {
-        _merged[i].end = (i + 1 < _merged.length) ? _merged[i + 1].start : paragraphs.length;
-      }
-      return _merged;
+      return chaps;
     }
 
-    // 渲染指定范围段落
-    function renderRange(start, end) {
+    // ========== 渲染段落范围 ==========
+    function renderRange(start, end, append = true) {
       const endIdx = Math.min(end, allParagraphs.length);
       const container = document.getElementById('readerContent');
-      const frag = document.createDocumentFragment();
 
+      if (!append) {
+        container.innerHTML = '';
+        renderedEnd = 0;
+      }
+      if (start >= endIdx) return;
+
+      const frag = document.createDocumentFragment();
       for (let i = start; i < endIdx; i++) {
         const p = allParagraphs[i].trim();
         if (!p) continue;
         const el = document.createElement('p');
         if (isChapterTitle(p)) {
           el.className = 'chapter-heading';
-          el.id = `chap-${i}`;
-        } else {
-          el.id = `p-${i}`;
         }
+        el.id = `p-${i}`;
+        el.dataset.idx = i;
+        // 段落内容（带概念标注）
         el.innerHTML = annotateConcepts(p);
         frag.appendChild(el);
       }
-
-      if (start === 0) {
-        container.innerHTML = '';
-      }
       container.appendChild(frag);
-      renderedStart = endIdx;
+      renderedEnd = endIdx;
 
       // 更新进度
-      const progress = Math.min(100, (endIdx / allParagraphs.length) * 100);
+      const progress = Math.min(100, (renderedEnd / allParagraphs.length) * 100);
       document.getElementById('progressBar').style.width = `${progress}%`;
+
+      // 如果有搜索，重新高亮已渲染段落
+      if (searchTerm) {
+        highlightSearch();
+      }
     }
 
-    // 滚动自动加载更多
+    // ========== 滚动加载 ==========
     function setupScrollLoad() {
       window.addEventListener('scroll', () => {
         const scrollBottom = window.innerHeight + window.scrollY;
         const docHeight = document.body.offsetHeight;
-        
-        // 滚动到距离底部300px时加载下一批
-        if (scrollBottom >= docHeight - 500 && renderedStart < allParagraphs.length) {
-          renderRange(renderedStart, renderedStart + BATCH_SIZE);
+        if (scrollBottom >= docHeight - 500 && renderedEnd < allParagraphs.length) {
+          renderRange(renderedEnd, renderedEnd + BATCH_SIZE, true);
         }
-
-        // 高亮当前章节
         updateActiveChapter();
       }, { passive: true });
     }
 
-    // 更新当前激活章节
+    // ========== 当前章节高亮 ==========
     function updateActiveChapter() {
-      const scrollPos = window.scrollY + 150;
+      const scrollPos = window.scrollY + 140;
       for (let i = chapters.length - 1; i >= 0; i--) {
-        const chapEl = document.getElementById(`chap-${chapters[i].start}`);
-        if (chapEl && chapEl.offsetTop <= scrollPos) {
+        const el = document.getElementById(`p-${chapters[i].start}`);
+        if (el && el.offsetTop <= scrollPos) {
           if (currentChapter !== i) {
             currentChapter = i;
             document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
               li.classList.toggle('active', idx === i);
             });
+            // 把当前章节滚动到目录可见区
+            const active = document.querySelector('.chapter-list li.active');
+            if (active) {
+              const sb = document.getElementById('chapterSidebar');
+              const sbRect = sb.getBoundingClientRect();
+              const aRect = active.getBoundingClientRect();
+              if (aRect.top < sbRect.top || aRect.bottom > sbRect.bottom) {
+                active.scrollIntoView({ block: 'nearest' });
+              }
+            }
           }
           break;
         }
       }
     }
 
-    // 跳转到指定章节
+    // ========== 跳转到章节（保证先渲染，再滚动） ==========
     function jumpToChapter(index) {
       const chap = chapters[index];
+      if (!chap) return;
       currentChapter = index;
-      
-      // 渲染该章节前后足够的段落，避免目标没渲染导致定位不准
-      const renderEnd = Math.min(chap.end + BATCH_SIZE, allParagraphs.length);
-      // 如果章节还没完全渲染，先补渲染到目标位置后200段
-      if (chap.end > renderedStart) {
-        renderRange(renderedStart, renderEnd);
+
+      // 目标位置及后面一段必须已渲染
+      const needEnd = Math.min(chap.end + BATCH_SIZE, allParagraphs.length);
+      if (renderedEnd < needEnd) {
+        // 一次性补渲染到位（不能分批等滚动，否则跳转不准）
+        renderRange(renderedEnd, needEnd, true);
       }
 
-      // 等DOM渲染完成后再滚动，预留顶部导航栏高度（120px）
-      setTimeout(() => {
-        const target = document.getElementById(`chap-${chap.start}`);
-        if (target) {
-          // 滚动到目标位置上方120px，避开顶部导航和进度条
-          window.scrollTo({
-            top: target.offsetTop - 120,
-            behavior: 'smooth'
+      // 双保险：等一帧让浏览器完成布局，再滚动
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const target = document.getElementById(`p-${chap.start}`);
+          if (target) {
+            window.scrollTo({
+              top: target.offsetTop - 130,
+              behavior: 'smooth'
+            });
+          }
+          // 高亮
+          document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
+            li.classList.toggle('active', idx === index);
           });
-        }
-      }, 50);
-
-      // 高亮
-      document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
-        li.classList.toggle('active', idx === index);
+          // 移动端：跳完自动收起目录
+          closeMobileToc();
+        }, 30);
       });
     }
 
-    // 渲染章节目录
+    // ========== 渲染章节目录 ==========
     function renderChapterList() {
       const list = document.getElementById('chapterList');
-      list.innerHTML = chapters.map((chap, idx) => 
+      list.innerHTML = chapters.map((chap, idx) =>
         `<li data-idx="${idx}" title="${chap.title}">${chap.title}</li>`
       ).join('');
-
       list.querySelectorAll('li').forEach(li => {
         li.addEventListener('click', () => {
           jumpToChapter(parseInt(li.dataset.idx));
@@ -356,10 +464,112 @@
       });
     }
 
-    // 主加载函数
+    // ========== 加载书单（用于上/下一部） ==========
+    async function loadBooksIndex() {
+      try {
+        // library.html 里已经有 BOOKS_DATA，为避免重复硬编码，这里复用同一结构
+        // 我们直接 fetch library.html 解析，或者简单地从 books/ 目录无法列清单，因此
+        // 采用：直接在页面内嵌与 library.html 同步的索引（通过 common.js 暴露）
+        if (typeof BOOKS_DATA !== 'undefined') {
+          BOOKS_INDEX = BOOKS_DATA.map(b => ({ cat: b[0], name: b[1] }));
+        }
+      } catch (e) { /* ignore */ }
+      // 如果没拿到索引，按钮保持 disabled
+      updateNavButtons();
+    }
+    function updateNavButtons() {
+      const prev = document.getElementById('prevBtn');
+      const next = document.getElementById('nextBtn');
+      if (BOOKS_INDEX.length === 0) {
+        prev.disabled = true; next.disabled = true;
+        prev.title = '暂无书单索引';
+        next.title = '暂无书单索引';
+        return;
+      }
+      currentBookIdx = BOOKS_INDEX.findIndex(b => b.cat === bookCat && b.name === bookName);
+      prev.disabled = currentBookIdx <= 0;
+      next.disabled = currentBookIdx < 0 || currentBookIdx >= BOOKS_INDEX.length - 1;
+      prev.title = currentBookIdx > 0 ? `上一部：${BOOKS_INDEX[currentBookIdx-1].name}` : '已是第一部';
+      next.title = currentBookIdx >= 0 && currentBookIdx < BOOKS_INDEX.length - 1 ? `下一部：${BOOKS_INDEX[currentBookIdx+1].name}` : '已是最后一部';
+    }
+    function gotoBook(offset) {
+      if (!BOOKS_INDEX.length || currentBookIdx < 0) return;
+      const target = BOOKS_INDEX[currentBookIdx + offset];
+      if (!target) return;
+      const url = `reader.html?b=${encodeURIComponent(target.cat)}/${encodeURIComponent(target.name)}.txt`;
+      window.location.href = url;
+    }
+
+    // ========== 移动端目录 ==========
+    function openMobileToc() {
+      document.getElementById('chapterSidebar').classList.add('show');
+      document.getElementById('tocMask').classList.add('show');
+    }
+    function closeMobileToc() {
+      document.getElementById('chapterSidebar').classList.remove('show');
+      document.getElementById('tocMask').classList.remove('show');
+    }
+
+    // ========== 页内搜索 ==========
+    function clearSearchHits() {
+      document.querySelectorAll('mark.search-hit, mark.search-current').forEach(m => {
+        const parent = m.parentNode;
+        parent.replaceChild(document.createTextNode(m.textContent), m);
+        parent.normalize();
+      });
+      searchHits = [];
+      currentHitIdx = -1;
+      document.getElementById('searchCount').textContent = '';
+    }
+    function highlightSearch() {
+      clearSearchHits();
+      if (!searchTerm) return;
+      const term = searchTerm;
+      const paras = document.querySelectorAll('.reader-content p:not(.chapter-heading)');
+      let idx = 0;
+      paras.forEach(p => {
+        // 跳过已经在其他标记里的文本的简单实现：只在文本节点里替换
+        const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT, null);
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach(node => {
+          const text = node.nodeValue;
+          const lower = text.toLowerCase();
+          const tLower = term.toLowerCase();
+          let pos = 0;
+          const frag = document.createDocumentFragment();
+          let last = 0;
+          while ((pos = lower.indexOf(tLower, last)) !== -1) {
+            if (pos > last) frag.appendChild(document.createTextNode(text.substring(last, pos)));
+            const mark = document.createElement('mark');
+            mark.className = 'search-hit';
+            mark.dataset.hit = idx++;
+            mark.textContent = text.substring(pos, pos + term.length);
+            frag.appendChild(mark);
+            searchHits.push(mark);
+            last = pos + term.length;
+          }
+          if (last < text.length) frag.appendChild(document.createTextNode(text.substring(last)));
+          if (last > 0) node.parentNode.replaceChild(frag, node);
+        });
+      });
+      document.getElementById('searchCount').textContent = searchHits.length ? `共${searchHits.length}处` : '无结果';
+      currentHitIdx = -1;
+      if (searchHits.length) gotoHit(0);
+    }
+    function gotoHit(i) {
+      if (!searchHits.length) return;
+      searchHits.forEach(m => m.classList.remove('search-current'));
+      currentHitIdx = (i + searchHits.length) % searchHits.length;
+      const m = searchHits[currentHitIdx];
+      m.classList.add('search-current');
+      m.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      document.getElementById('searchCount').textContent = `${currentHitIdx+1}/${searchHits.length}`;
+    }
+
+    // ========== 主加载 ==========
     async function loadContent() {
       try {
-        // 从 books/ 目录加载典籍（与仓库实际书籍目录 books/ 一致）
         const bookUrl = 'books/' + bookPath.split('/').map(encodeURIComponent).join('/');
         const response = await fetch(bookUrl);
         if (!response.ok) throw new Error('该典籍未收录');
@@ -369,38 +579,70 @@
         let receivedText = '';
         let loaded = 0;
 
-        // 先获取前50KB内容，优先渲染开头，让用户立刻能看到内容
+        // 1) 先取前50KB用于首屏
         while (loaded < 50 * 1024) {
           const { done, value } = await reader.read();
           if (done) break;
           receivedText += decoder.decode(value, { stream: true });
           loaded += value.length;
         }
-
-        // 先解析并渲染开头部分，用户立刻能读
         allParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
         chapters = parseChapters(allParagraphs);
         renderChapterList();
-        renderRange(0, Math.min(BATCH_SIZE, allParagraphs.length));
+        renderRange(0, Math.min(BATCH_SIZE, allParagraphs.length), false);
         setupScrollLoad();
+        // 恢复阅读位置（localStorage）
+        try {
+          const saved = localStorage.getItem('readPos_' + bookPath);
+          if (saved) {
+            const pos = parseInt(saved);
+            setTimeout(() => window.scrollTo(0, pos), 100);
+          }
+        } catch(e) {}
 
-        // 后台继续加载剩余全部内容
+        // 2) 后台继续加载剩余部分 —— 追加，不重排章节
         (async function loadRest() {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             receivedText += decoder.decode(value, { stream: true });
           }
-          // 全部加载完后重新解析所有段落（补全后面的章节）
-          allParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
-          chapters = parseChapters(allParagraphs);
-          renderChapterList();
-          
-          // 如果用户还没往下滚动，补渲染剩余开头部分
-          if (renderedStart < BATCH_SIZE) {
-            renderRange(renderedStart, BATCH_SIZE);
+          // 全文加载完：补全段落数组，但只在没有识别到章节/章节末尾未覆盖时才刷新目录
+          const newParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
+          const oldLen = allParagraphs.length;
+          allParagraphs = newParagraphs;
+          // 只有原来章节列表最后一章 end 明显没到尾部，才重新解析一次
+          const lastChap = chapters[chapters.length - 1];
+          if (lastChap && lastChap.end < allParagraphs.length - 50) {
+            // 保留已存在的章节，只延伸最后一章的 end 到全书末尾
+            lastChap.end = allParagraphs.length;
+            // 如果新补进的内容里出现了更多卷标题，追加（不重排已有）
+            for (let i = oldLen; i < allParagraphs.length; i++) {
+              const p = allParagraphs[i].trim();
+              if (isChapterTitle(p)) {
+                const title = p.replace(/\s+/g,' ').substring(0,30);
+                // 去重
+                if (chapters[chapters.length-1].title !== title) {
+                  chapters[chapters.length-1].end = i;
+                  chapters.push({ title, start: i, end: allParagraphs.length });
+                }
+              }
+            }
+            // 如果第一版是"卷首/分段"占位，且现在发现了真实卷次，则整体重建一次（仅这种情况）
+            if (chapters[0].title === '卷首' && chapters.length > 1 && chapters[1].title !== '分段 1') {
+              chapters = parseChapters(allParagraphs);
+            }
+            renderChapterList();
           }
         })();
+
+        // 阅读位置保存
+        window.addEventListener('beforeunload', () => {
+          try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
+        });
+        window.addEventListener('scroll', () => {
+          try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
+        }, { passive: true });
 
       } catch (e) {
         console.error('加载失败:', e);
@@ -413,18 +655,43 @@
       }
     }
 
-    // 按钮事件
+    // ========== 按钮事件 ==========
     document.getElementById('backBtn').addEventListener('click', () => {
       window.location.href = 'library.html';
     });
-    document.getElementById('prevBtn').addEventListener('click', () => {
-      window.location.href = 'library.html';
+    document.getElementById('prevBtn').addEventListener('click', () => gotoBook(-1));
+    document.getElementById('nextBtn').addEventListener('click', () => gotoBook(1));
+    document.getElementById('tocBtn').addEventListener('click', openMobileToc);
+    document.getElementById('tocMask').addEventListener('click', closeMobileToc);
+
+    // 搜索
+    const searchInput = document.getElementById('readerSearch');
+    let searchTimer;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimer);
+      const val = e.target.value.trim();
+      searchTimer = setTimeout(() => {
+        searchTerm = val;
+        // 搜索前先把目标附近渲染出来：至少渲染前 600 段
+        if (renderedEnd < Math.min(600, allParagraphs.length)) {
+          renderRange(renderedEnd, Math.min(600, allParagraphs.length), true);
+        }
+        highlightSearch();
+      }, 250);
     });
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      window.location.href = 'library.html';
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (searchHits.length) gotoHit(e.shiftKey ? currentHitIdx - 1 : currentHitIdx + 1);
+      } else if (e.key === 'Escape') {
+        searchInput.value = '';
+        searchTerm = '';
+        clearSearchHits();
+      }
     });
 
-    // 启动加载
+    // ========== 启动 ==========
+    loadBooksIndex();
     loadContent();
   </script>
 </body>
