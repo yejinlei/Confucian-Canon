@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>儒学词典 · 儒藏本体论</title>
+  <link rel="stylesheet" href="style/common.css">
+</head>
+<body>
+  <div class="main-content">
+    <h1 class="page-title">儒学词典</h1>
+    <p class="page-subtitle">儒家核心概念释义 · 附经典原文出处</p>
+
+    <div class="dict-list" id="dictList">
+      <!-- 词典条目由JS生成 -->
+    </div>
+  </div>
+
+  <script src="data/common.js"></script>
+  <script>
+    initPage('dictionary.html');
+    renderFooter();
+
+    // 渲染词典
+    const dictList = document.getElementById('dictList');
+    Object.entries(CONCEPTS).forEach(([term, data]) => {
+      const item = document.createElement('div');
+      item.className = 'dict-item';
+      item.innerHTML = `
+        <div class="dict-term">${term}</div>
+        <div class="dict-def">${data.def}</div>
+        <div class="dict-source">${data.source}</div>
+      `;
+      dictList.appendChild(item);
+    });
+  </script>
+</body>
+</html>

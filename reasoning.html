@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>义理路径推演 · 儒藏本体论</title>
+  <link rel="stylesheet" href="style/common.css">
+</head>
+<body>
+  <div class="main-content">
+    <h1 class="page-title">义理路径智能推演</h1>
+    <p class="page-subtitle">儒家修养次第与概念关联推演 · 基于《大学》八条目等义理体系</p>
+
+    <div class="reasoning-box">
+      <div class="reasoning-selects">
+        <span style="color: var(--text-secondary);">从</span>
+        <select id="startConcept">
+          <option value="格物">格物</option>
+          <option value="致知">致知</option>
+          <option value="诚意">诚意</option>
+          <option value="正心">正心</option>
+          <option value="修身">修身</option>
+          <option value="齐家">齐家</option>
+          <option value="治国">治国</option>
+          <option value="良知">良知</option>
+          <option value="仁">仁</option>
+        </select>
+        <span style="color: var(--text-secondary);">到</span>
+        <select id="endConcept">
+          <option value="平天下">平天下</option>
+          <option value="治国">治国</option>
+          <option value="齐家">齐家</option>
+          <option value="修身">修身</option>
+          <option value="仁政">仁政</option>
+          <option value="大同">大同</option>
+          <option value="圣贤">圣贤</option>
+        </select>
+        <button class="btn btn-primary" id="reasonBtn">推演义理路径 →</button>
+      </div>
+
+      <div class="path-display" id="pathDisplay">
+        <div class="path-node">格物</div>
+        <div class="path-arrow">→</div>
+        <div class="path-node">致知</div>
+        <div class="path-arrow">→</div>
+        <div class="path-node">诚意</div>
+        <div class="path-arrow">→</div>
+        <div class="path-node">正心</div>
+        <div class="path-arrow">→</div>
+        <div class="path-node">修身</div>
+        <div class="path-arrow">→</div>
+        <div class="path-node">齐家</div>
+        <div class="path-arrow">→</div>
+        <div class="path-node">治国</div>
+        <div class="path-arrow">→</div>
+        <div class="path-node">平天下</div>
+      </div>
+
+      <div class="path-explanation" id="pathExplanation">
+        <h4>义理解说：《大学》八条目</h4>
+        <div class="path-step"><strong>格物</strong>：推究事物之理，是为学的第一步，"即物而穷其理"，通过接触事物获得对天理的认识。</div>
+        <div class="path-step"><strong>致知</strong>：获得真知，格物久了自然达到知至，"物格而后知至"，对事物的道理有透彻的理解。</div>
+        <div class="path-step"><strong>诚意</strong>：使意念诚实，毋自欺，"知至而后意诚"，有了真知自然会诚实面对自己的本心。</div>
+        <div class="path-step"><strong>正心</strong>：端正本心，不为忿懥、恐惧、好乐、忧患等情绪所左右，"意诚而后心正"。</div>
+        <div class="path-step"><strong>修身</strong>：修养自身品德，是八条目之核心，"心正而后身修"，自天子以至于庶人皆以修身为本。</div>
+        <div class="path-step"><strong>齐家</strong>：整治家族家庭，"身修而后家齐"，自身品德修养好了才能教化家人，使家族和睦。</div>
+        <div class="path-step"><strong>治国</strong>：治理国家，"家齐而后国治"，家族治理好了才能治理好国家，以孝悌之道推及治国。</div>
+        <div class="path-step"><strong>平天下</strong>：使天下太平，"国治而后天下平"，是儒家的最高政治理想，实现明明德于天下的大同世界。</div>
+        <p style="margin-top: 16px; font-size: 13px; color: var(--text-muted); font-style: italic;">
+          出处：《大学》"古之欲明明德于天下者，先治其国；欲治其国者，先齐其家；欲齐其家者，先修其身；欲修其身者，先正其心；欲正其心者，先诚其意；欲诚其意者，先致其知；致知在格物。"
+        </p>
+      </div>
+    </div>
+
+    <h2 class="section-title">经典义理路径</h2>
+    <div class="card-grid">
+      <div class="card" onclick="document.getElementById('startConcept').value='格物';document.getElementById('endConcept').value='平天下';document.getElementById('reasonBtn').click();">
+        <div class="card-title">格物 → 平天下</div>
+        <div class="card-meta">《大学》八条目</div>
+        <div class="card-desc">内圣外王的完整修养路径，从格物致知的为学功夫，到修身齐家的内圣，再到治国平天下的外王事业。</div>
+      </div>
+      <div class="card" onclick="document.getElementById('startConcept').value='良知';document.getElementById('endConcept').value='圣贤';document.getElementById('reasonBtn').click();">
+        <div class="card-title">良知 → 圣贤</div>
+        <div class="card-meta">阳明心学</div>
+        <div class="card-desc">致良知的成圣路径，人人本有良知，只要将良知推广到事事物物，人人皆可以为尧舜。</div>
+      </div>
+      <div class="card" onclick="document.getElementById('startConcept').value='仁';document.getElementById('endConcept').value='仁政';document.getElementById('reasonBtn').click();">
+        <div class="card-title">仁 → 仁政</div>
+        <div class="card-meta">孔孟儒家</div>
+        <div class="card-desc">从内在的仁心到外在的仁政，"以不忍人之心，行不忍人之政"，推己及人，由内圣开出外王。</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/common.js"></script>
+  <script>
+    initPage('reasoning.html');
+    renderFooter();
+
+    // 义理路径图（简化版BFS）
+    const conceptGraph = {
+      '格物': ['致知'],
+      '致知': ['格物', '诚意'],
+      '诚意': ['致知', '正心'],
+      '正心': ['诚意', '修身'],
+      '修身': ['正心', '齐家', '良知', '仁'],
+      '齐家': ['修身', '治国'],
+      '治国': ['齐家', '平天下', '仁政'],
+      '平天下': ['治国', '大同'],
+      '良知': ['修身', '知行合一', '圣贤'],
+      '知行合一': ['良知'],
+      '仁': ['修身', '义', '礼', '仁政'],
+      '义': ['仁'],
+      '礼': ['仁'],
+      '仁政': ['治国', '民本'],
+      '民本': ['仁政', '大同'],
+      '大同': ['平天下', '民本'],
+      '圣贤': ['良知']
+    };
+
+    // 概念解说
+    const explanations = {
+      '格物': '推究事物之理，是为学的第一步，"即物而穷其理"，通过接触事物获得对天理的认识。',
+      '致知': '获得真知，格物久了自然达到知至，"物格而后知至"，对事物的道理有透彻的理解。',
+      '诚意': '使意念诚实，毋自欺，"知至而后意诚"，有了真知自然会诚实面对自己的本心。',
+      '正心': '端正本心，不为忿懥、恐惧、好乐、忧患等情绪所左右，"意诚而后心正"。',
+      '修身': '修养自身品德，是八条目之核心，"心正而后身修"，自天子以至于庶人皆以修身为本。',
+      '齐家': '整治家族家庭，"身修而后家齐"，自身品德修养好了才能教化家人，使家族和睦。',
+      '治国': '治理国家，"家齐而后国治"，家族治理好了才能治理好国家，以孝悌之道推及治国。',
+      '平天下': '使天下太平，"国治而后天下平"，是儒家的最高政治理想，实现明明德于天下的大同世界。',
+      '良知': '人人本有的是非之心，不虑而知、不学而能，是道德判断的内在标准。',
+      '知行合一': '知与行是统一的，知是行的主意，行是知的功夫，真知必能行。',
+      '仁': '爱人之心，"己所不欲，勿施于人"，是儒家最高的道德范畴。',
+      '义': '合宜的行为准则，"义，人路也"，是判断是非善恶的标准。',
+      '礼': '社会秩序与道德规范，"不学礼，无以立"，是维护社会秩序的保障。',
+      '仁政': '以仁爱之心治理国家，省刑罚、薄税敛、使民以时，反对苛政。',
+      '民本': '以民为本，"民为贵，社稷次之，君为轻"，是儒家政治思想的核心。',
+      '大同': '天下为公的理想社会，"大道之行也，天下为公"，是儒家的最高社会理想。',
+      '圣贤': '儒家理想的人格境界，品德高尚、智慧圆满，能够博施于民而能济众。'
+    };
+
+    // BFS找最短路径
+    function findPath(start, end) {
+      if (start === end) return [start];
+      const queue = [[start]];
+      const visited = new Set([start]);
+      
+      while (queue.length > 0) {
+        const path = queue.shift();
+        const node = path[path.length - 1];
+        const neighbors = conceptGraph[node] || [];
+        
+        for (const neighbor of neighbors) {
+          if (neighbor === end) {
+            return [...path, neighbor];
+          }
+          if (!visited.has(neighbor)) {
+            visited.add(neighbor);
+            queue.push([...path, neighbor]);
+          }
+        }
+      }
+      return [start, end];
+    }
+
+    // 推演路径
+    function reason() {
+      const start = document.getElementById('startConcept').value;
+      const end = document.getElementById('endConcept').value;
+      const path = findPath(start, end);
+
+      // 渲染路径节点
+      const pathDisplay = document.getElementById('pathDisplay');
+      pathDisplay.innerHTML = path.map((node, i) => `
+        <div class="path-node">${node}</div>
+        ${i < path.length - 1 ? '<div class="path-arrow">→</div>' : ''}
+      `).join('');
+
+      // 渲染解说
+      const explanation = document.getElementById('pathExplanation');
+      explanation.innerHTML = `
+        <h4>义理解说</h4>
+        ${path.map(node => `
+          <div class="path-step"><strong>${node}</strong>：${explanations[node] || ''}</div>
+        `).join('')}
+      `;
+    }
+
+    document.getElementById('reasonBtn').addEventListener('click', reason);
+  </script>
+</body>
+</html>

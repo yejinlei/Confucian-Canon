@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>流派义理对比 · 儒藏本体论</title>
+  <link rel="stylesheet" href="style/common.css">
+</head>
+<body>
+  <div class="main-content">
+    <h1 class="page-title">儒家流派义理对比</h1>
+    <p class="page-subtitle">四大主要流派核心命题、修养方法与代表人物对比</p>
+
+    <div class="school-tabs" id="schoolTabs">
+      <button class="school-tab active" data-school="lixue" id="lixue">程朱理学</button>
+      <button class="school-tab" data-school="xinkexue" id="xinkexue">陆王心学</button>
+      <button class="school-tab" data-school="jingxue" id="jingxue">汉唐经学</button>
+      <button class="school-tab" data-school="puxue" id="puxue">清代朴学</button>
+    </div>
+
+    <div class="school-content" id="schoolContent">
+      <!-- 内容由JS切换 -->
+    </div>
+  </div>
+
+  <script src="data/common.js"></script>
+  <script>
+    initPage('schools.html');
+    renderFooter();
+
+    // 流派数据
+    const schools = {
+      lixue: {
+        name: '程朱理学（性即理）',
+        period: '北宋至清代 · 官方哲学',
+        core: '以"理"为宇宙本体，主张"性即理"，通过格物穷理、居敬持志的修养功夫，达到存天理、灭人欲的道德境界。',
+        propositions: [
+          { title: '性即理', desc: '人性与天理是同一的，"性者，天理之在人心者也"，天命之性是纯善的，气质之性有善有恶。' },
+          { title: '即物穷理', desc: '通过接触事物、推究事物之理来认识天理，"今日格一物，明日格一物"，积累久了自然豁然贯通。' },
+          { title: '存天理，灭人欲', desc: '天理是至善的道德准则，人欲是超出基本需求的私欲，修养的目标是去除私欲、恢复天理。' },
+          { title: '理一分殊', desc: '天理只有一个，但在不同事物上表现为不同的理，如月映万川，同一月亮在不同江河中显现。' }
+        ],
+        masters: ['周敦颐', '程颢', '程颐', '朱熹', '张栻', '真德秀'],
+        classics: ['《四书章句集注》', '《朱子语类》', '《近思录》', '《伊川易传》']
+      },
+      xinkexue: {
+        name: '陆王心学（心即理）',
+        period: '南宋至明代 · 民间儒学',
+        core: '以"心"为宇宙本体，主张"心即理"，认为天理就在人的心中，不需要向外探求，通过发明本心、致良知即可成圣。',
+        propositions: [
+          { title: '心即理', desc: '"宇宙便是吾心，吾心即是宇宙"，心外无理，心外无物，心外无事，天理就在人的本心之中。' },
+          { title: '知行合一', desc: '知与行是统一的，"知是行的主意，行是知的功夫；知是行之始，行是知之成"，反对知而不行。' },
+          { title: '致良知', desc: '良知是人人本有的是非之心，是不虑而知、不学而能的，修养就是把良知推广到事事物物上。' },
+          { title: '知行合一', desc: '知是行的主意，行是知的功夫；知是行之始，行是知之成。' }
+        ],
+        masters: ['陆九渊', '杨简', '陈献章', '王阳明', '王畿', '王艮'],
+        classics: ['《象山先生全集》', '《传习录》', '《大学问》', '《王文成公全书》']
+      },
+      jingxue: {
+        name: '汉唐经学（训诂注疏）',
+        period: '汉代至唐代 · 官方经学',
+        core: '以训诂注疏为主要方法，通过解释经典字面含义来阐明儒家义理，重视家法师法，维护经典的原始含义。',
+        propositions: [
+          { title: '训诂明而后义理明', desc: '只有先弄清楚经典的文字、音韵、名物、制度，才能正确理解其中的义理，反对空言说经。' },
+          { title: '天人感应', desc: '董仲舒提出，天与人同类相通，相互感应，君主行善政则天降祥瑞，行恶政则天降灾异。' },
+          { title: '三纲五常', desc: '君为臣纲、父为子纲、夫为妻纲为三纲，仁义礼智信为五常，是永恒不变的伦理准则。' },
+          { title: '注不驳经，疏不驳注', desc: '注疏必须遵循经典原文和前人的注解，不能违背旧注，重视经学传承的权威性。' }
+        ],
+        masters: ['董仲舒', '郑玄', '何休', '王弼', '孔颖达', '贾公彦'],
+        classics: ['《春秋繁露》', '《五经正义》', '《周礼注疏》', '《仪礼注疏》', '《礼记正义》']
+      },
+      puxue: {
+        name: '清代朴学（考据实证）',
+        period: '清代 · 乾嘉学派',
+        core: '反对宋学空疏，主张实事求是，通过文字、音韵、训诂、校勘、考据的方法整理古代经典，无征不信。',
+        propositions: [
+          { title: '实事求是', desc: '治学必须从实际材料出发，重视证据，无证不信，反对主观臆断，"实事求是，不偏主一家"。' },
+          { title: '由声音文字以求训诂，由训诂以求义理', desc: '通过音韵学、文字学的方法弄清经典的文字含义，再在此基础上探求义理，反对脱离训诂空谈义理。' },
+          { title: '理存于欲', desc: '戴震提出，天理不能脱离人的欲望而存在，"凡事为皆有于欲，无欲则无为矣"，批判"以理杀人"。' },
+          { title: '经世致用', desc: '学术研究要为社会现实服务，反对空谈义理，顾炎武提出"天下兴亡，匹夫有责"。' }
+        ],
+        masters: ['顾炎武', '黄宗羲', '王夫之', '阎若璩', '戴震', '段玉裁', '王念孙', '王引之'],
+        classics: ['《日知录》', '《孟子字义疏证》', '《说文解字注》', '《广雅疏证》', '《经义述闻》']
+      }
+    };
+
+    function renderSchool(schoolId) {
+      const school = schools[schoolId];
+      const content = document.getElementById('schoolContent');
+      content.innerHTML = `
+        <h3>${school.name}</h3>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">${school.period}</p>
+        <p>${school.core}</p>
+        
+        <div class="school-propositions">
+          <h4 style="color: var(--accent-gold); margin: 20px 0 12px;">核心命题</h4>
+          ${school.propositions.map(p => `
+            <div class="proposition-item">
+              <div class="proposition-title">${p.title}</div>
+              <div style="color: var(--text-secondary); font-size: 14px;">${p.desc}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <h4 style="color: var(--accent-gold); margin: 20px 0 12px;">代表人物</h4>
+        <div class="school-masters">
+          ${school.masters.map(m => `<span class="master-tag">${m}</span>`).join('')}
+        </div>
+
+        <h4 style="color: var(--accent-gold); margin: 20px 0 12px;">代表经典</h4>
+        <div class="school-masters">
+          ${school.classics.map(c => `<span class="master-tag" style="border-color: var(--accent-ochre); color: var(--accent-ochre);">${c}</span>`).join('')}
+        </div>
+      `;
+    }
+
+    // 初始化
+    renderSchool('lixue');
+
+    // 切换流派
+    document.querySelectorAll('.school-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.school-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderSchool(tab.dataset.school);
+      });
+    });
+  </script>
+</body>
+</html>

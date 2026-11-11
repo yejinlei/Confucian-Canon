@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>義理關係圖譜 · 儒藏本體論</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1510;color:#d4c5a8;font-family:'Noto Serif SC','SimSun',serif;min-height:100vh}
+.top-bar{position:sticky;top:0;z-index:100;background:rgba(26,21,16,.96);border-bottom:1px solid rgba(184,59,47,.3);padding:12px 30px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(10px)}
+.top-bar h1{font-size:20px;color:#d4a853;letter-spacing:4px;font-weight:400}
+.top-bar h1 span{color:#b83b2f}
+.back-btn{color:#b83b2f;text-decoration:none;font-size:14px;border:1px solid #b83b2f;padding:6px 16px;border-radius:2px;transition:.3s}
+.back-btn:hover{background:#b83b2f;color:#fff}
+.container{max-width:1400px;margin:0 auto;padding:20px 30px}
+.legend{display:flex;gap:24px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;opacity:.7;transition:.2s;padding:4px 8px;border-radius:4px}
+.legend-item:hover,.legend-item.active{opacity:1;background:rgba(255,255,255,.05)}
+.legend-dot{width:14px;height:14px;border-radius:50%;border:2px solid}
+.legend-dot.c0{background:#d4a853;border-color:#e8c97a}
+.legend-dot.c1{background:#b83b2f;border-color:#d65a4f}
+.legend-dot.c2{background:#5a8f7b;border-color:#7ab59e}
+.legend-dot.c3{background:#6b5b95;border-color:#8b7bb5}
+#graph{width:100%;height:calc(100vh - 180px);background:rgba(0,0,0,.2);border-radius:4px;border:1px solid rgba(212,168,83,.15)}
+.tip{text-align:center;color:#8a7a60;font-size:13px;margin-top:12px}
+.loading{text-align:center;padding:80px;color:#8a7a60;font-size:16px;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <h1><span>◎</span> 儒門義理關係圖譜</h1>
+  <a href="index.html" class="back-btn">← 返回首頁</a>
+</div>
+<div class="container">
+  <div class="legend" id="legend"></div>
+  <div id="graph"><div class="loading">正在構建義理關係網絡…</div></div>
+  <p class="tip">拖拽節點可移動 · 滾輪縮放 · 點擊節點高亮鄰接 · 雙擊重置</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+// ========== 本體概念（完全内联，零外部依赖） ==========
+var C = {
+  dao:{def:'天地萬物之本源，化生一切的終極實在'},
+  taiji:{def:'陰陽未分之元始，理氣渾淪之全體'},
+  yinyang:{def:'一動一靜，互為其根，化生萬物'},
+  tianli:{def:'天之所命、物之所則的普遍法則'},
+  wuchang:{def:'仁義禮智信，天命之性的五常之德'},
+  ren:{def:'本心之全德，愛之理、心之德'},
+  yi:{def:'心之制、事之宜，裁斷是非之準則'},
+  li3:{def:'天理之節文、人事之儀則，序別貴賤親疏'},
+  zhi:{def:'是非之心，分別善惡之良知'},
+  xin4:{def:'誠實無妄之德，五常之本'},
+  xin2:{def:'一身之主，神明之舍，具眾理而應萬事'},
+  xing:{def:'天理在人者，心之所具之理'},
+  qi:{def:'形而下之器，生物之具，理之所乘'},
+  gewu:{def:'即物而窮其理，格盡萬物之理而至於知'},
+  zhizhi:{def:'致吾之知，因其已知之理而益窮之'},
+  liangzhi:{def:'不待學而能、不待慮而知之本心'},
+  cheng:{def:'真實無妄，天之道；誠之者人之道'},
+  jing:{def:'主一無適，涵養本心之工夫'},
+  shendu:{def:'閒居獨處之時戒慎恐懼，不欺暗室'},
+  zhongyong:{def:'不偏不倚、無過不及，天下之正道定理'},
+  sangang:{def:'君為臣綱、父為子綱、夫為妻綱'},
+  batiaomu:{def:'格物致知誠意正心修身齊家治國平天下'},
+  xingshan:{def:'孟子主張：人性本善，仁義禮智我固有之'},
+  xinge:{def:'荀子主張：人之性惡，其善者偽也，待禮義化之'},
+  xingjili:{def:'程朱命題：性即理也，天下之理皆出乎性'},
+  xinjili:{def:'陸王命題：心即理也，心外無理、心外無物'},
+  liujingjieshi:{def:'章學誠命題：六經皆史，皆先王之政典也'}
+};
+
+// ========== 節點數據 ==========
+var categories = [
+  {name:'元模型/義理概念', itemStyle:{color:'#d4a853'}},
+  {name:'核心經典',         itemStyle:{color:'#b83b2f'}},
+  {name:'聖賢人物',         itemStyle:{color:'#5a8f7b'}},
+  {name:'學派宗派',         itemStyle:{color:'#6b5b95'}}
+];
+
+var nodes = [
+  // L0 元模型（概念，category 0）
+  {id:'c_dao',name:'道',category:0,symbolSize:60,value:100,desc:C.dao.def},
+  {id:'c_taiji',name:'太極',category:0,symbolSize:55,value:90,desc:C.taiji.def},
+  {id:'c_yinyang',name:'陰陽',category:0,symbolSize:50,value:80,desc:C.yinyang.def},
+  {id:'c_tianli',name:'天理',category:0,symbolSize:55,value:90,desc:C.tianli.def},
+
+  // L1 五常（概念）
+  {id:'c_wuchang',name:'五常',category:0,symbolSize:50,value:80,desc:C.wuchang.def},
+  {id:'c_ren',name:'仁',category:0,symbolSize:48,value:85,desc:C.ren.def},
+  {id:'c_yi',name:'義',category:0,symbolSize:42,value:72,desc:C.yi.def},
+  {id:'c_li3',name:'禮',category:0,symbolSize:44,value:75,desc:C.li3.def},
+  {id:'c_zhi',name:'智',category:0,symbolSize:38,value:65,desc:C.zhi.def},
+  {id:'c_xin4',name:'信',category:0,symbolSize:36,value:60,desc:C.xin4.def},
+
+  // L2 義理範疇（概念）
+  {id:'c_xin2',name:'心',category:0,symbolSize:46,value:78,desc:C.xin2.def},
+  {id:'c_xing',name:'性',category:0,symbolSize:46,value:78,desc:C.xing.def},
+  {id:'c_qi',name:'氣',category:0,symbolSize:44,value:75,desc:C.qi.def},
+  {id:'c_gewu',name:'格物',category:0,symbolSize:42,value:72,desc:C.gewu.def},
+  {id:'c_zhizhi',name:'致知',category:0,symbolSize:36,value:60,desc:C.zhizhi.def},
+  {id:'c_liangzhi',name:'良知',category:0,symbolSize:44,value:75,desc:C.liangzhi.def},
+  {id:'c_cheng',name:'誠',category:0,symbolSize:38,value:65,desc:C.cheng.def},
+  {id:'c_jing',name:'敬',category:0,symbolSize:36,value:60,desc:C.jing.def},
+  {id:'c_shendu',name:'慎獨',category:0,symbolSize:32,value:50,desc:C.shendu.def},
+  {id:'c_zhongyong',name:'中庸',category:0,symbolSize:40,value:68,desc:C.zhongyong.def},
+  {id:'c_sangang',name:'三綱',category:0,symbolSize:34,value:55},
+  {id:'c_batiaomu',name:'八條目',category:0,symbolSize:40,value:68,desc:C.batiaomu.def},
+  {id:'c_xingshan',name:'性善論',category:0,symbolSize:36,value:60,desc:C.xingshan.def},
+  {id:'c_xinge',name:'性惡論',category:0,symbolSize:32,value:50,desc:C.xinge.def},
+  {id:'c_xingjili',name:'性即理',category:0,symbolSize:40,value:68,desc:C.xingjili.def},
+  {id:'c_xinjili',name:'心即理',category:0,symbolSize:40,value:68,desc:C.xinjili.def},
+  {id:'c_liujingjieshi',name:'六經皆史',category:0,symbolSize:34,value:55,desc:C.liujingjieshi.def},
+
+  // L4 核心經典（典籍，category 1）
+  {id:'b_lunyu',name:'論語',category:1,symbolSize:42,value:85},
+  {id:'b_mengzi',name:'孟子',category:1,symbolSize:40,value:80},
+  {id:'b_xunzi',name:'荀子',category:1,symbolSize:36,value:68},
+  {id:'b_daxue',name:'大學',category:1,symbolSize:38,value:75},
+  {id:'b_zhongyong',name:'中庸',category:1,symbolSize:38,value:75},
+  {id:'b_yijing',name:'易經',category:1,symbolSize:44,value:88},
+  {id:'b_shangshu',name:'尚書',category:1,symbolSize:38,value:72},
+  {id:'b_shijing',name:'詩經',category:1,symbolSize:36,value:68},
+  {id:'b_liji',name:'禮記',category:1,symbolSize:36,value:68},
+  {id:'b_chunqiu',name:'春秋',category:1,symbolSize:36,value:68},
+  {id:'b_xiaojing',name:'孝經',category:1,symbolSize:32,value:55},
+  {id:'b_erya',name:'爾雅',category:1,symbolSize:28,value:45},
+  {id:'b_shuowen',name:'說文解字',category:1,symbolSize:30,value:48},
+  {id:'b_zuozhuan',name:'左傳',category:1,symbolSize:34,value:60},
+  {id:'b_chunqiufanlu',name:'春秋繁露',category:1,symbolSize:30,value:48},
+  {id:'b_jinsilu',name:'近思錄',category:1,symbolSize:30,value:48},
+  {id:'b_zhuziyulei',name:'朱子語類',category:1,symbolSize:36,value:65},
+  {id:'b_chuanxilu',name:'傳習錄',category:1,symbolSize:36,value:65},
+  {id:'b_taijitusbuo',name:'太極圖說',category:1,symbolSize:28,value:45},
+  {id:'b_ximing',name:'西銘',category:1,symbolSize:26,value:40},
+  {id:'b_zhengmeng',name:'正蒙',category:1,symbolSize:28,value:45},
+  {id:'b_sanzijing',name:'三字經',category:1,symbolSize:26,value:40},
+  {id:'b_yanshijiaxun',name:'顏氏家訓',category:1,symbolSize:26,value:40},
+  {id:'b_xungu',name:'經籍籑詁',category:1,symbolSize:24,value:38},
+
+  // L5 聖賢人物（人物，category 2）
+  {id:'p_kongzi',name:'孔子',category:2,symbolSize:50,value:95},
+  {id:'p_zengzi',name:'曾子',category:2,symbolSize:34,value:60},
+  {id:'p_zisi',name:'子思',category:2,symbolSize:34,value:60},
+  {id:'p_mengzi',name:'孟子',category:2,symbolSize:42,value:80},
+  {id:'p_xunzi',name:'荀子',category:2,symbolSize:36,value:65},
+  {id:'p_dongzhongshu',name:'董仲舒',category:2,symbolSize:32,value:55},
+  {id:'p_zhou Dunyi',name:'周敦頤',category:2,symbolSize:34,value:58},
+  {id:'p_cheng Hao',name:'程顥',category:2,symbolSize:34,value:58},
+  {id:'p_cheng Yi',name:'程頤',category:2,symbolSize:34,value:58},
+  {id:'p_zhangzai',name:'張載',category:2,symbolSize:34,value:58},
+  {id:'p_zhu Xi',name:'朱熹',category:2,symbolSize:42,value:80},
+  {id:'p_lujiuyuan',name:'陸九淵',category:2,symbolSize:36,value:65},
+  {id:'p_wangshouren',name:'王守仁',category:2,symbolSize:40,value:75},
+  {id:'p_xushen',name:'許慎',category:2,symbolSize:28,value:45},
+  {id:'p_zhengxuan',name:'鄭玄',category:2,symbolSize:30,value:48},
+  {id:'p_gu yanwu',name:'顧炎武',category:2,symbolSize:30,value:48},
+  {id:'p_dai zhen',name:'戴震',category:2,symbolSize:30,value:48},
+  {id:'p_zhangxuecheng',name:'章學誠',category:2,symbolSize:28,value:45},
+  {id:'p_yanz hitui',name:'顏之推',category:2,symbolSize:26,value:40},
+
+  // L3 學派宗派（學派，category 3）
+  {id:'s_chengzhu',name:'程朱理學',category:3,symbolSize:42,value:80},
+  {id:'s_luwang',name:'陸王心學',category:3,symbolSize:40,value:75},
+  {id:'s_jingxue',name:'漢唐經學',category:3,symbolSize:36,value:68},
+  {id:'s_puxue',name:'清代朴學',category:3,symbolSize:34,value:62},
+  {id:'s_jinguxue',name:'今古文經學',category:3,symbolSize:30,value:52}
+];
+
+// ========== 邊（關係） ==========
+var edges = [
+  // L0 内部
+  {source:'c_dao',target:'c_taiji',value:'化生'},
+  {source:'c_taiji',target:'c_yinyang',value:'動而生陽·靜而生陰'},
+  {source:'c_yinyang',target:'c_tianli',value:'流行為天理'},
+
+  // L0→L1 五常
+  {source:'c_tianli',target:'c_wuchang',value:'具於人心為五常'},
+  {source:'c_wuchang',target:'c_ren',value:'統'},
+  {source:'c_wuchang',target:'c_yi',value:'統'},
+  {source:'c_wuchang',target:'c_li3',value:'統'},
+  {source:'c_wuchang',target:'c_zhi',value:'統'},
+  {source:'c_wuchang',target:'c_xin4',value:'統'},
+  {source:'c_ren',target:'c_yi',value:'發為'},
+  {source:'c_ren',target:'c_li3',value:'節為'},
+  {source:'c_yi',target:'c_zhi',value:'辨'},
+  {source:'c_li3',target:'c_xin4',value:'成於'},
+
+  // L1-L2 五常到義理
+  {source:'c_tianli',target:'c_xing',value:'具於'},
+  {source:'c_tianli',target:'c_xin2',value:'具於'},
+  {source:'c_ren',target:'c_xin2',value:'本心為'},
+  {source:'c_ren',target:'c_liangzhi',value:'顯為'},
+  {source:'c_qi',target:'c_xing',value:'氣質之'},
+  {source:'c_tianli',target:'c_xingjili',value:'程朱命題'},
+  {source:'c_xin2',target:'c_xinjili',value:'陸王命題'},
+  {source:'c_gewu',target:'c_jing',value:'工夫：主敬'},
+  {source:'c_cheng',target:'c_shendu',value:'工夫'},
+  {source:'c_zhongyong',target:'c_cheng',value:'基'},
+  {source:'c_ren',target:'c_batiaomu',value:'落為工夫'},
+  {source:'c_batiaomu',target:'c_gewu',value:'起點'},
+  {source:'c_gewu',target:'c_zhizhi',value:'而後'},
+  {source:'c_xing',target:'c_xingshan',value:'孟子主張'},
+  {source:'c_xing',target:'c_xinge',value:'荀子主張'},
+  {source:'c_zhi',target:'c_liangzhi',value:'即是'},
+
+  // L2-L3 義理到學派
+  {source:'c_xingjili',target:'s_chengzhu',value:'立宗'},
+  {source:'c_xinjili',target:'s_luwang',value:'立宗'},
+  {source:'c_gewu',target:'s_chengzhu',value:'宗之工夫'},
+  {source:'c_liangzhi',target:'s_luwang',value:'宗旨'},
+  {source:'c_jing',target:'s_chengzhu',value:'宗之工夫'},
+  {source:'c_liujingjieshi',target:'s_puxue',value:'清學承'},
+  {source:'s_jinguxue',target:'s_jingxue',value:'漢学分派'},
+
+  // 經典-L4
+  {source:'c_ren',target:'b_lunyu',value:'見於'},
+  {source:'c_xingshan',target:'b_mengzi',value:'主論'},
+  {source:'c_xinge',target:'b_xunzi',value:'主論'},
+  {source:'c_batiaomu',target:'b_daxue',value:'出'},
+  {source:'c_zhongyong',target:'b_zhongyong',value:'出'},
+  {source:'c_cheng',target:'b_zhongyong',value:'出'},
+  {source:'c_taiji',target:'b_yijing',value:'出'},
+  {source:'c_yinyang',target:'b_yijing',value:'出'},
+  {source:'c_sangang',target:'b_chunqiufanlu',value:'出'},
+  {source:'c_xingjili',target:'b_zhuziyulei',value:'詳論於'},
+  {source:'c_liangzhi',target:'b_chuanxilu',value:'詳論於'},
+  {source:'c_gewu',target:'b_jinsilu',value:'論於'},
+  {source:'c_taiji',target:'b_taijitusbuo',value:'出'},
+  {source:'c_qi',target:'b_ximing',value:'論於'},
+  {source:'c_qi',target:'b_zhengmeng',value:'主於'},
+  {source:'c_tianli',target:'b_shangshu',value:'傳於十六字心傳'},
+  {source:'c_li3',target:'b_liji',value:'論於'},
+  {source:'c_ren',target:'b_xiaojing',value:'本於'},
+  {source:'c_shendu',target:'b_daxue',value:'出'},
+  {source:'b_shuowen',target:'b_erya',value:'訓詁相輔'},
+  {source:'b_sanzijing',target:'b_xiaojing',value:'蒙學本於'},
+  {source:'b_yanshijiaxun',target:'c_li3',value:'齊家本於'},
+  {source:'b_zuozhuan',target:'s_jingxue',value:'屬'},
+  {source:'b_xungu',target:'s_puxue',value:'核心方法'},
+  {source:'b_chunqiu',target:'b_zuozhuan',value:'有'},
+
+  // 人物-道統
+  {source:'p_kongzi',target:'p_zengzi',value:'傳'},
+  {source:'p_zengzi',target:'p_zisi',value:'傳'},
+  {source:'p_zisi',target:'p_mengzi',value:'傳'},
+  {source:'p_kongzi',target:'b_lunyu',value:'述'},
+  {source:'p_mengzi',target:'b_mengzi',value:'述'},
+  {source:'p_zengzi',target:'b_daxue',value:'作'},
+  {source:'p_zengzi',target:'b_xiaojing',value:'作'},
+  {source:'p_zisi',target:'b_zhongyong',value:'作'},
+  {source:'p_xunzi',target:'b_xunzi',value:'作'},
+  {source:'p_dongzhongshu',target:'b_chunqiufanlu',value:'作'},
+  {source:'p_zhou Dunyi',target:'b_taijitusbuo',value:'作'},
+  {source:'p_zhangzai',target:'b_ximing',value:'作'},
+  {source:'p_zhangzai',target:'b_zhengmeng',value:'作'},
+  {source:'p_zhu Xi',target:'b_zhuziyulei',value:'語錄'},
+  {source:'p_zhu Xi',target:'s_chengzhu',value:'集大成'},
+  {source:'p_cheng Hao',target:'s_chengzhu',value:'開'},
+  {source:'p_cheng Yi',target:'s_chengzhu',value:'開'},
+  {source:'p_lujiuyuan',target:'s_luwang',value:'開'},
+  {source:'p_wangshouren',target:'b_chuanxilu',value:'語錄'},
+  {source:'p_wangshouren',target:'s_luwang',value:'集大成'},
+  {source:'p_xushen',target:'b_shuowen',value:'作'},
+  {source:'p_zhengxuan',target:'s_jingxue',value:'漢學集大成'},
+  {source:'p_gu yanwu',target:'s_puxue',value:'開'},
+  {source:'p_dai zhen',target:'s_puxue',value:'皖派'},
+  {source:'p_zhangxuecheng',target:'c_liujingjieshi',value:'主張'},
+  {source:'p_yanz hitui',target:'b_yanshijiaxun',value:'作'},
+  {source:'p_mengzi',target:'c_xingshan',value:'主'},
+  {source:'p_xunzi',target:'c_xinge',value:'主'},
+
+  // 經-五經關聯
+  {source:'b_yijing',target:'b_shangshu',value:'並列五經'},
+  {source:'b_shangshu',target:'b_shijing',value:'並列五經'},
+  {source:'b_shijing',target:'b_liji',value:'並列五經'},
+  {source:'b_liji',target:'b_chunqiu',value:'並列五經'},
+
+  // 工夫次第
+  {source:'c_zhizhi',target:'c_cheng',value:'而後'},
+  {source:'c_cheng',target:'c_jing',value:'存養以'},
+  {source:'c_jing',target:'c_shendu',value:'落為'},
+
+  // 學派傳承
+  {source:'s_jingxue',target:'s_chengzhu',value:'反傳為'},
+  {source:'s_chengzhu',target:'s_luwang',value:'對壘'},
+  {source:'s_puxue',target:'s_chengzhu',value:'反對空疏'}
+];
+
+// ========== 渲染 ==========
+function renderGraph(){
+  var chartDom = document.getElementById('graph');
+  chartDom.innerHTML = '';
+  var myChart = echarts.init(chartDom);
+
+  // 圖例
+  var legendEl = document.getElementById('legend');
+  var active = [true,true,true,true];
+  categories.forEach(function(cat, idx){
+    var item = document.createElement('div');
+    item.className = 'legend-item active';
+    item.innerHTML = '<span class="legend-dot c'+idx+'"></span>'+cat.name;
+    item.onclick = function(){
+      active[idx] = !active[idx];
+      item.classList.toggle('active', active[idx]);
+      updateOption();
+    };
+    legendEl.appendChild(item);
+  });
+
+  function updateOption(){
+    var visibleCats = categories.map(function(_,i){return i;}).filter(function(i){return active[i];});
+    var visibleIds = new Set();
+    var filteredNodes = nodes.filter(function(n){
+      if(visibleCats.indexOf(n.category)>=0){visibleIds.add(n.id);return true;}return false;
+    });
+    var filteredEdges = edges.filter(function(e){return visibleIds.has(e.source) && visibleIds.has(e.target);});
+
+    var option = {
+      backgroundColor:'transparent',
+      tooltip:{
+        formatter:function(p){
+          if(p.dataType==='node'){
+            var d=p.data;
+            return '<b style="color:#d4a853;font-size:15px">'+d.name+'</b><br/>'+categories[d.category].name+(d.desc?'<br/><span style="color:#a89878">'+d.desc+'</span>':'');
+          }else{
+            return p.data.value;
+          }
+        },
+        backgroundColor:'rgba(26,21,16,.95)',
+        borderColor:'#b83b2f',
+        textStyle:{color:'#d4c5a8'}
+      },
+      series:[{
+        type:'graph',
+        layout:'force',
+        roam:true,
+        draggable:true,
+        focusNodeAdjacency:true,
+        categories:categories,
+        data:filteredNodes,
+        links:filteredEdges.map(function(e){return {source:e.source,target:e.target,label:{show:false,formatter:e.value},lineStyle:{color:'source',curveness:.1,opacity:.6},emphasis:{label:{show:true,color:'#d4a853',fontSize:11},lineStyle:{width:2,opacity:1}}};}),
+        label:{show:true,position:'right',color:'#d4c5a8',fontSize:11},
+        force:{repulsion:280,gravity:.08,edgeLength:[80,160],layoutAnimation:true},
+        lineStyle:{width:1.2,opacity:.55,curveness:.1},
+        emphasis:{focus:'adjacency',lineStyle:{width:2.5},label:{fontSize:13,fontWeight:'bold'}},
+        itemStyle:{
+          borderColor:'#d4a853',
+          borderWidth:1.5,
+          shadowBlur:12,
+          shadowColor:'rgba(212,168,83,.3)'
+        }
+      }]
+    };
+    myChart.setOption(option, true);
+  }
+
+  updateOption();
+  window.addEventListener('resize', function(){myChart.resize();});
+}
+
+// ========== 等待 ECharts 加载完成 ==========
+function waitEcharts(){
+  if(typeof echarts !== 'undefined'){
+    renderGraph();
+  }else{
+    setTimeout(waitEcharts, 100);
+  }
+}
+waitEcharts();
+</script>
+</body>
+</html>
