@@ -209,15 +209,32 @@
 
       // 如果全书没有识别到章节，全书作为一章
       if (chaps.length <= 1 && paragraphs.length > BATCH_SIZE) {
-        // 自动按200段分块
-        const blocks = Math.ceil(paragraphs.length / BATCH_SIZE);
-        chaps.length = 0;
-        for (let i = 0; i < blocks; i++) {
-          chaps.push({
-            title: `第${i+1}节`,
-            start: i * BATCH_SIZE,
-            end: Math.min((i+1) * BATCH_SIZE, paragraphs.length)
-          });
+        // 自动按段落匹配"第X节"标识，没有的话再按200段分块
+        let foundSections = false;
+        for (let i = 0; i < paragraphs.length; i++) {
+          const p = paragraphs[i].trim();
+          if (/^第[一二三四五六七八九十百\d]+节$/.test(p) || /^[一二三四五六七八九十百]+、/.test(p)) {
+            foundSections = true;
+            chaps.push({
+              title: p.substring(0,20),
+              start: i,
+              end: paragraphs.length
+            });
+            // 补全前一章end
+            if (chaps.length > 1) chaps[chaps.length-2].end = i;
+          }
+        }
+        // 还是没找到的话按200段分块
+        if (!foundSections || chaps.length <=1) {
+          chaps.length = 0;
+          const blocks = Math.ceil(paragraphs.length / BATCH_SIZE);
+          for (let i = 0; i < blocks; i++) {
+            chaps.push({
+              title: `第${i+1}节`,
+              start: i * BATCH_SIZE,
+              end: Math.min((i+1) * BATCH_SIZE, paragraphs.length)
+            });
+          }
         }
       }
 
@@ -293,18 +310,24 @@
       const chap = chapters[index];
       currentChapter = index;
       
-      // 如果章节还没渲染，先渲染到该章节位置
+      // 渲染该章节前后足够的段落，避免目标没渲染导致定位不准
+      const renderEnd = Math.min(chap.end + BATCH_SIZE, allParagraphs.length);
+      // 如果章节还没完全渲染，先补渲染到目标位置后200段
       if (chap.end > renderedStart) {
-        renderRange(renderedStart, chap.end + BATCH_SIZE);
+        renderRange(renderedStart, renderEnd);
       }
 
-      const target = document.getElementById(`chap-${chap.start}`);
-      if (target) {
-        window.scrollTo({
-          top: target.offsetTop - 100,
-          behavior: 'smooth'
-        });
-      }
+      // 等DOM渲染完成后再滚动，预留顶部导航栏高度（120px）
+      setTimeout(() => {
+        const target = document.getElementById(`chap-${chap.start}`);
+        if (target) {
+          // 滚动到目标位置上方120px，避开顶部导航和进度条
+          window.scrollTo({
+            top: target.offsetTop - 120,
+            behavior: 'smooth'
+          });
+        }
+      }, 50);
 
       // 高亮
       document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
@@ -329,9 +352,15 @@
     // 主加载函数
     async function loadContent() {
       try {
-        // 流式加载，边下载边解析
-        const response = await fetch(`books/${bookPath}`);
-        if (!response.ok) throw new Error('加载失败');
+        // 自动修正路径，优先text目录，解决404问题
+        let response;
+        try {
+          response = await fetch(`text/${decodeURIComponent(bookPath)}`);
+          if (!response.ok) throw new Error('try fallback');
+        } catch(e) {
+          response = await fetch(`text/${bookPath}`);
+          if (!response.ok) throw new Error('加载失败');
+        }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
