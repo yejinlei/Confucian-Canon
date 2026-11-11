@@ -238,7 +238,14 @@
         }
       }
 
-      return chaps;
+      // 去除开头「目录」块造成的重复：同一标题只保留最后一次出现（即正文处），并重算区间
+      const _last = {};
+      chaps.forEach((c, i) => { _last[c.title] = i; });
+      const _merged = chaps.filter((c, i) => _last[c.title] === i);
+      for (let i = 0; i < _merged.length; i++) {
+        _merged[i].end = (i + 1 < _merged.length) ? _merged[i + 1].start : paragraphs.length;
+      }
+      return _merged;
     }
 
     // 渲染指定范围段落
@@ -352,15 +359,10 @@
     // 主加载函数
     async function loadContent() {
       try {
-        // 自动修正路径，优先text目录，解决404问题
-        let response;
-        try {
-          response = await fetch(`text/${decodeURIComponent(bookPath)}`);
-          if (!response.ok) throw new Error('try fallback');
-        } catch(e) {
-          response = await fetch(`text/${bookPath}`);
-          if (!response.ok) throw new Error('加载失败');
-        }
+        // 从 books/ 目录加载典籍（与仓库实际书籍目录 books/ 一致）
+        const bookUrl = 'books/' + bookPath.split('/').map(encodeURIComponent).join('/');
+        const response = await fetch(bookUrl);
+        if (!response.ok) throw new Error('该典籍未收录');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
@@ -404,8 +406,8 @@
         console.error('加载失败:', e);
         document.getElementById('readerContent').innerHTML = `
           <div class="reader-loading">
-            典籍加载中，请稍候...
-            <small>如果长时间未加载，请刷新页面重试</small>
+            抱歉，未能加载该典籍（${e.message}）
+            <small>该典籍可能未收录，或网络暂时不可用，请返回全文库另选一部</small>
           </div>
         `;
       }
