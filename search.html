@@ -49,8 +49,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); min-
     <a href="index.html">首页</a>
     <a href="sishu.html">四书</a>
     <a href="wujing.html">五经</a>
-    <a href="daomai.html">道脉</a>
-    <a href="liupai.html">流派</a>
+    <a href="timeline.html">道脉</a>
+    <a href="schools.html">流派</a>
     <a href="graph.html">图谱</a>
     <a href="library.html">全文库</a>
     <a href="ontology.html">本体</a>
@@ -65,56 +65,104 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); min-
   <a href="zhangju.html" class="sidebar-item">📑 章句导航</a>
   <a href="dictionary.html" class="sidebar-item">📔 儒学词典</a>
   <a href="scholars.html" class="sidebar-item">👥 儒者谱系</a>
-  <a href="inference.html" class="sidebar-item">→ 概念推演</a>
+  <a href="reasoning.html" class="sidebar-item">→ 概念推演</a>
 </div>
 <div class="main">
   <h1 class="page-title">全文检索</h1>
-  <p class="page-subtitle">跨908部儒家典籍检索关键词，一键定位所有出现位置</p>
+  <p class="page-subtitle">908 部儒家典籍：先按书名／分类匹配，再深入核心典籍原文检索</p>
   <div class="search-box">
     <input type="text" class="search-input" id="searchInput" placeholder="输入关键词（如：仁、格物致知、己所不欲勿施于人）...">
-    <p class="search-tip">提示：输入2个以上汉字开始检索，匹配典籍原文</p>
+    <p class="search-tip">输入书名或分类即时匹配 908 部典籍；输入 2 字以上关键词，同时对 24 部核心典籍做原文检索</p>
   </div>
   <div id="results"></div>
 </div>
+<script src="data/books.js"></script>
 <script>
-const booksJsonUrl = 'books/books.json';
-let books = [];
-async function loadBooks() {
-  try {
-    const res = await fetch(booksJsonUrl);
-    books = await res.json();
-  } catch(e) { console.error('加载书单失败', e); }
-}
-loadBooks();
+// 书单来自 data/books.js：window.BOOKS_DATA = [[分类, 书名, 字数], ...]（共 908 部）
+const ALL_BOOKS = (window.BOOKS_DATA || [])
+  .map(b => ({ cat: b[0], name: b[1], num: b[2] }))
+  .sort((a, b) => b.num - a.num);
 
-document.getElementById('searchInput').addEventListener('input', async function() {
-  const q = this.value.trim();
-  const resultsDiv = document.getElementById('results');
-  if (q.length < 2) { resultsDiv.innerHTML = ''; return; }
-  resultsDiv.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.7;">正在检索...</p>';
-  const matches = [];
-  const sampleBooks = books.filter(b => b.size < 500000).slice(0, 50);
-  for (const book of sampleBooks) {
+function charStr(n) { return n >= 10000 ? (n / 10000).toFixed(1) + '万字' : n + '字'; }
+
+// 深度原文检索：精选核心典籍（篇幅适中、可即时抓取），非全库索引
+const CORE = [
+  ['四书','大学章句集注'],['四书','中庸章句集注'],['四书','论语集注'],['四书','孟子集注'],
+  ['四书','论语'],['四书','孟子'],['四书','大学'],['四书','中庸'],
+  ['孝经','孝经'],['启蒙蒙学','三字经'],['启蒙蒙学','弟子规'],['启蒙蒙学','千字文'],
+  ['语录','传习录'],['语录','近思录'],['诗经','诗经'],['尚书','尚书'],
+  ['春秋','春秋左传'],['春秋','春秋公羊传'],['春秋','春秋谷梁传'],
+  ['礼经','礼记'],['礼经','仪礼'],['礼经','周礼'],['小学','尔雅'],['小学','说文解字']
+];
+
+const input = document.getElementById('searchInput');
+const resultsDiv = document.getElementById('results');
+let searchToken = 0;
+
+function bookUrl(cat, name) {
+  return 'reader.html?b=' + encodeURIComponent(cat + '/' + name + '.txt');
+}
+
+// 一、典籍检索：908 部全量，按书名 / 分类即时匹配
+function renderCatalog(q) {
+  const ql = q.toLowerCase();
+  const hits = ALL_BOOKS.filter(b =>
+    b.name.toLowerCase().includes(ql) || b.cat.toLowerCase().includes(ql));
+  if (!hits.length) return '';
+  return `<div class="result-stats">📚 书名／分类匹配 ${hits.length} 部</div>` +
+    hits.slice(0, 40).map(b => `
+      <div class="result-item">
+        <div class="result-book"><a href="${bookUrl(b.cat, b.name)}" style="color:var(--gold); text-decoration:none;">《${b.name}》</a>
+        <span style="opacity:.6;font-size:14px;"> · ${b.cat} · ${charStr(b.num)}</span></div>
+      </div>`).join('') +
+    (hits.length > 40 ? `<p style="text-align:center;opacity:.6;font-size:14px;">（仅显示前 40 部，可在全文库按分类浏览更多）</p>` : '');
+}
+
+function snippetOf(text, q) {
+  const idx = text.indexOf(q);
+  if (idx === -1) return null;
+  const s = Math.max(0, idx - 40), e = Math.min(text.length, idx + q.length + 60);
+  return ('…' + text.slice(s, e).replace(/\n/g, '')).replace(q, '<mark>' + q + '</mark>') + '…';
+}
+
+// 二、原文检索：对核心典籍逐部抓取正文检索，结果渐进展示
+async function deepSearch(q) {
+  const token = ++searchToken;
+  const wrapId = 'deep-' + token;
+  resultsDiv.insertAdjacentHTML('beforeend',
+    `<div id="${wrapId}"><div class="result-stats">🔎 正在检索核心典籍原文… <span id="${wrapId}-cnt">0/${CORE.length}</span></div></div>`);
+  let hits = 0;
+  for (let i = 0; i < CORE.length; i++) {
+    if (token !== searchToken) return;
+    const [cat, name] = CORE[i];
     try {
-      const res = await fetch('books/' + book.path);
-      const text = await res.text();
-      const idx = text.indexOf(q);
-      if (idx !== -1) {
-        const start = Math.max(0, idx - 50);
-        const end = Math.min(text.length, idx + q.length + 80);
-        let snippet = text.slice(start, end).replace(/\n/g, '');
-        snippet = snippet.replace(new RegExp(q, 'g'), '<mark>' + q + '</mark>');
-        matches.push({ book: book.name, path: book.path, snippet: '...' + snippet + '...' });
+      const res = await fetch('books/' + encodeURIComponent(cat) + '/' + encodeURIComponent(name + '.txt'));
+      if (res.ok) {
+        const text = await res.text();
+        const snip = snippetOf(text, q);
+        if (snip) {
+          hits++;
+          document.getElementById(wrapId).insertAdjacentHTML('beforeend',
+            `<div class="result-item"><div class="result-book"><a href="${bookUrl(cat, name)}&q=${encodeURIComponent(q)}" style="color:var(--gold);text-decoration:none;">《${name}》</a></div><div class="result-snippet">${snip}</div></div>`);
+        }
       }
-    } catch(e) {}
-    if (matches.length >= 20) break;
+    } catch (e) { /* 单部失败忽略 */ }
+    const cntEl = document.getElementById(wrapId + '-cnt');
+    if (cntEl) cntEl.textContent = (i + 1) + '/' + CORE.length;
   }
-  if (matches.length === 0) {
-    resultsDiv.innerHTML = '<p style="text-align:center; padding:60px; opacity:0.6;">未找到匹配结果，请尝试其他关键词</p>';
-    return;
+  const box = document.getElementById(wrapId);
+  if (box && token === searchToken && hits === 0) {
+    box.insertAdjacentHTML('beforeend',
+      `<p style="text-align:center;padding:30px;opacity:.6;">核心典籍中未找到「${q}」。可进入具体典籍，用阅读器内的检索框逐部查找。</p>`);
   }
-  resultsDiv.innerHTML = '<div class="result-stats">找到 ' + matches.length + ' 处匹配（抽样前50部短篇典籍）</div>' + 
-    matches.map(m => '<div class="result-item"><div class="result-book"><a href="reader.html?b=' + encodeURIComponent(m.path) + '" style="color:var(--gold); text-decoration:none;">' + m.book + '</a></div><div class="result-snippet">' + m.snippet + '</div></div>').join('');
+}
+
+input.addEventListener('input', function () {
+  const q = this.value.trim();
+  searchToken++;
+  if (q.length < 1) { resultsDiv.innerHTML = ''; return; }
+  resultsDiv.innerHTML = renderCatalog(q);
+  if (q.length >= 2) deepSearch(q);
 });
 </script>
 </body>
