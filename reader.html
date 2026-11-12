@@ -191,6 +191,7 @@
     }
     .toc-mask.show { display: block; }
   </style>
+<link rel="icon" href="favicon.ico">
 </head>
 <body>
   <div class="main-content">
@@ -572,15 +573,15 @@
     async function loadContent() {
       try {
         const bookUrl = 'books/' + bookPath.split('/').map(encodeURIComponent).join('/');
-        const FIRST_CHUNK = 128 * 1024;   // 首屏只取前 128KB
+        const FIRST_CHUNK = 32 * 1024;   // 首屏只取前 32KB（约 1 万字，足够开头阅读）
 
         const decoder = new TextDecoder('utf-8');
         let receivedText = '';
         let loaded = 0;
         let streamDone = false;
 
-        // 用 HTTP Range 只请求前 128KB：无论全书多大（有的 400 多万字），
-        // 首屏都只需下载一小段即可开始阅读，大书也能秒开
+        // 用 HTTP Range 只请求前 32KB：无论全书多大（有的 400 多万字），
+        // 首屏都只需下载一小段即可开始阅读，大书也能快速打开
         let response = await fetch(bookUrl, { headers: { 'Range': `bytes=0-${FIRST_CHUNK - 1}` } });
         if (!response.ok) throw new Error('该典籍未收录');
         const isRange = response.status === 206;   // 服务器是否支持分段下载
