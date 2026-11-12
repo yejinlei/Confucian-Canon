@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>阅读 · 儒藏本体论</title>
   <link rel="stylesheet" href="style/common.css">
+  <link rel="preload" href="data/books.js" as="script">
+  <link rel="preload" href="data/common.js" as="script">
+  <script>
+  /* 首屏预取：解析到 <head> 就立刻并行请求正文首块，
+     与样式表、公共脚本的下载同时进行，避免"串行等待"（大书打开慢的主因） */
+  (function () {
+    var m = new URLSearchParams(location.search).get('b');
+    if (!m) return;
+    var url = 'books/' + m.split('/').map(encodeURIComponent).join('/');
+    window.__bookPreloadUrl = url;
+    window.__bookPreload = fetch(url, { headers: { 'Range': 'bytes=0-32767' } })
+      .then(function (r) { return (r.ok || r.status === 206) ? r : null; })
+      .catch(function () { return null; });
+  })();
+  </script>
   <style>
     .reader-container {
       display: flex;
