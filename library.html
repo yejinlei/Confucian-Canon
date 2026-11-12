@@ -1,176 +1,135 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>古籍全文库 · 儒藏本体论</title>
-<script src="data/common.js"></script>
-<style>
-:root {
-  --bg: #1a140f; --card: #251e17; --gold: #d4af37; --light: #e8d5a3; --text: #c9b99a;
-  --border: #3d3225; --accent: #a83232; --font: "Noto Serif SC", "Songti SC", "SimSun", serif;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; font-size: 18px; }
-.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 30px; z-index: 100; }
-.logo { font-size: 28px; font-weight: bold; color: var(--gold); letter-spacing: 2px; margin-right: 40px; }
-.nav-links { display: flex; gap: 32px; flex: 1; }
-.nav-links a { color: var(--text); text-decoration: none; font-size: 18px; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s; }
-.nav-links a.active, .nav-links a:hover { color: var(--gold); border-bottom-color: var(--gold); }
-.nav-tools { display: flex; gap: 12px; }
-.tool-btn { padding: 8px 16px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text); font-family: var(--font); font-size: 16px; cursor: pointer; transition: all 0.3s; }
-.tool-btn:hover { border-color: var(--gold); color: var(--gold); }
-.main { margin-left: 220px; margin-top: 70px; padding: 40px; }
-.page-title { font-size: 42px; color: var(--gold); text-align: center; margin-bottom: 10px; }
-.page-subtitle { text-align: center; color: var(--text); font-size: 18px; margin-bottom: 40px; opacity: 0.8; }
-.search-box { max-width: 800px; margin: 0 auto 30px; }
-.search-input { width: 100%; padding: 16px 24px; font-size: 18px; background: var(--card); border: 1px solid var(--border); border-radius: 50px; color: var(--light); font-family: var(--font); outline: none; transition: all 0.3s; }
-.search-input:focus { border-color: var(--gold); }
-.cat-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
-.cat-tab { padding: 6px 16px; border: 1px solid var(--border); border-radius: 20px; font-size: 15px; cursor: pointer; transition: all 0.3s; background: transparent; color: var(--text); font-family: var(--font); }
-.cat-tab.active, .cat-tab:hover { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
-.book-list { max-width: 1200px; margin: 0 auto; }
-.book-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border); transition: all 0.2s; text-decoration: none; color: var(--text); }
-.book-item:hover { background: rgba(212,175,55,0.05); padding-left: 28px; }
-.book-name { font-size: 17px; }
-.book-meta { font-size: 14px; opacity: 0.7; }
-.load-more { display: block; margin: 30px auto; padding: 12px 40px; border: 1px solid var(--gold); background: transparent; color: var(--gold); font-size: 16px; font-family: var(--font); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-.load-more:hover { background: var(--gold); color: var(--bg); }
-.sidebar { position: fixed; left: 0; top: 70px; bottom: 0; width: 220px; background: var(--card); border-right: 1px solid var(--border); overflow-y: auto; scrollbar-width: none; }
-.sidebar::-webkit-scrollbar { display: none; }
-.sidebar-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 17px; border-left: 3px solid transparent; transition: all 0.3s; }
-.sidebar-item:hover { background: rgba(212,175,55,0.08); color: var(--gold); }
-.sidebar-item.active { border-left-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
-.loading { text-align: center; padding: 60px; opacity: 0.7; }
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-  .main { margin-left: 0; padding: 20px; }
-  .nav-links { display: none; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>古籍全文库 · 儒藏本体论</title>
+  <link rel="stylesheet" href="style/common.css">
 </head>
 <body>
-<div class="top-nav">
-  <div class="logo">儒藏本体论</div>
-  <div class="nav-links">
-    <a href="index.html">首页</a>
-    <a href="sishu.html">四书</a>
-    <a href="wujing.html">五经</a>
-    <a href="daomai.html">道脉</a>
-    <a href="liupai.html">流派</a>
-    <a href="graph.html">图谱</a>
-    <a href="library.html" class="active">全文库</a>
-    <a href="ontology.html">本体</a>
-  </div>
-  <div class="nav-tools">
-    <button class="tool-btn" id="fontSizeBtn">字号 中</button>
-    <button class="tool-btn" id="layoutBtn">竖排</button>
-  </div>
-</div>
-<div class="sidebar"></div>
-<div class="main">
-  <h1 class="page-title">古籍全文库</h1>
-  <p class="page-subtitle">儒藏908部 · 总字数1.34亿字 · 点击书名进入阅读</p>
-  <div class="search-box">
-    <input type="text" class="search-input" id="searchInput" placeholder="检索书名 / 分类 / 作者...">
-  </div>
-  <div class="cat-tabs" id="catTabs"></div>
-  <div class="book-list" id="bookList"></div>
-  <button class="load-more" id="loadMoreBtn">加载更多</button>
-</div>
-<script>
-let allBooks = [];
-let currentCat = 'all';
-let currentKeyword = '';
-let showCount = 50;
+  <div class="main-content">
+    <div class="library-header">
+      <h1 class="page-title">古籍全文库</h1>
+      <p class="page-subtitle">儒藏 908 部 · 总字数 1.34亿 字 · 按字数倒序排列 · 点击书名进入阅读</p>
 
-const sidebarItems = [
-  {href:'index.html', text:'☯ 首页', active:false},
-  {href:'sishu.html', text:'📖 四书', active:false},
-  {href:'wujing.html', text:'📜 五经', active:false},
-  {href:'search.html', text:'🔍 全文检索', active:false},
-  {href:'zhushu.html', text:'📝 注疏对照', active:false},
-  {href:'zhangju.html', text:'📑 章句导航', active:false},
-  {href:'dictionary.html', text:'📔 儒学词典', active:false},
-  {href:'scholars.html', text:'👥 儒者谱系', active:false},
-  {href:'inference.html', text:'→ 概念推演', active:false},
-];
-const sidebar = document.querySelector('.sidebar');
-sidebarItems.forEach(item => {
-  const a = document.createElement('a');
-  a.href = item.href;
-  a.className = 'sidebar-item' + (item.active ? ' active' : '');
-  a.textContent = item.text;
-  sidebar.appendChild(a);
-});
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="检索书名 / 分类（如：论语、朱熹、蒙学）…">
+      </div>
 
-const categories = ['all','四书','春秋','礼经','诗经','尚书','孝经','小学','语录','蒙学','修身','五经总义','乐经'];
-const catNames = {all:'全部',四书:'四书',春秋:'春秋',礼经:'礼经',诗经:'诗经',尚书:'尚书',孝经:'孝经',小学:'小学',语录:'语录',蒙学:'蒙学',修身:'修身',五经总义:'五经总义',乐经:'乐经'};
-const catTabs = document.getElementById('catTabs');
-categories.forEach(cat => {
-  const btn = document.createElement('button');
-  btn.className = 'cat-tab' + (cat === 'all' ? ' active' : '');
-  btn.textContent = catNames[cat];
-  btn.dataset.cat = cat;
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentCat = cat;
-    showCount = 50;
+      <div class="category-tabs" id="categoryTabs">
+        <!-- 分类标签由JS生成 -->
+      </div>
+    </div>
+
+    <div class="book-list" id="bookList">
+      <!-- 典籍列表由JS生成 -->
+    </div>
+
+    <button class="load-more" id="loadMore">加载更多 ▾</button>
+  </div>
+
+  <script src="data/books.js"></script>
+  <script src="data/common.js"></script>
+  <script>
+    initPage('library.html');
+    renderFooter();
+
+    let currentCategory = 'all';
+    let currentPage = 0;
+    const pageSize = 100;
+
+    // ===== 真实典籍索引：908部，与仓库 books/ 目录一一对应 =====
+    // 每条格式 [分类目录, 书名, 字数]
+
+    function charStr(n) {
+      if (n >= 10000) return (n / 10000).toFixed(1) + '万字';
+      return n + '字';
+    }
+
+    // 构建书单并按字数倒序
+    const allBooks = BOOKS_DATA
+      .map(b => ({ cat: b[0], name: b[1], chars: charStr(b[2]), num: b[2] }))
+      .sort((a, b) => b.num - a.num);
+
+    // 渲染分类标签
+    function renderCategories() {
+      const tabs = document.getElementById('categoryTabs');
+      tabs.innerHTML = CATEGORIES.map(cat => `
+        <button class="category-tab ${cat.id === currentCategory ? 'active' : ''}" data-cat="${cat.id}">
+          ${cat.name}（${cat.count}）
+        </button>
+      `).join('');
+
+      tabs.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          currentCategory = tab.dataset.cat;
+          currentPage = 0;
+          document.getElementById('bookList').innerHTML = '';
+          renderCategories();
+          renderBooks();
+        });
+      });
+    }
+
+    // 渲染典籍列表
+    function renderBooks() {
+      const list = document.getElementById('bookList');
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      let filtered = allBooks;
+      if (currentCategory !== 'all') {
+        filtered = filtered.filter(b => b.cat === currentCategory);
+      }
+      if (search) {
+        filtered = filtered.filter(b =>
+          b.name.toLowerCase().includes(search) ||
+          b.cat.toLowerCase().includes(search)
+        );
+      }
+
+      const start = currentPage * pageSize;
+      const end = start + pageSize;
+      const pageBooks = filtered.slice(start, end);
+
+      pageBooks.forEach(book => {
+        const item = document.createElement('a');
+        item.className = 'book-item';
+        item.href = `reader.html?b=${encodeURIComponent(book.cat + '/' + book.name + '.txt')}`;
+        item.innerHTML = `
+          <span class="book-cat">${book.cat}</span>
+          <span class="book-name">${book.name}</span>
+          <span class="book-chars">${book.chars}</span>
+        `;
+        list.appendChild(item);
+      });
+
+      document.getElementById('loadMore').style.display =
+        end < filtered.length ? 'block' : 'none';
+    }
+
+    // 支持从其它页面带参进入：?cat=四书 / ?q=关键字
+    const urlParams = new URLSearchParams(location.search);
+    const catParam = urlParams.get('cat');
+    const qParam = urlParams.get('q');
+    if (catParam && CATEGORIES.some(c => c.id === catParam)) currentCategory = catParam;
+    if (qParam) document.getElementById('searchInput').value = qParam;
+
+    // 初始化
+    renderCategories();
     renderBooks();
-  });
-  catTabs.appendChild(btn);
-});
 
-// 生成示例书单
-function genSampleBooks() {
-  const books = [];
-  const cats = {四书:['论语正义','孟子正义','大学章句','中庸章句','论语集注','孟子集注','四书章句集注'],春秋:['春秋左传正义','春秋公羊传注疏','春秋谷梁传注疏','春秋集传纂例','春秋繁露'],礼经:['仪礼注疏','礼记正义','周礼注疏','大戴礼记','礼记集说'],诗经:['毛诗正义','诗集传','诗毛氏传疏','诗经原始'],尚书:['尚书正义','书集传','古文尚书疏证'],孝经:['孝经注疏','孝经正义'],小学:['说文解字','说文解字注','广韵','尔雅注疏','方言注'],语录:['朱子语类','传习录','近思录','二程遗书','象山语录'],蒙学:['三字经','百家姓','千字文','弟子规','笠翁对韵','声律启蒙','幼学琼林','龙文鞭影'],修身:['菜根谭','呻吟语','曾国藩家书','了凡四训'],五经总义:['五经正义','经学历史','汉学师承记'],乐经:['乐记','乐书']};
-  let id = 1;
-  Object.keys(cats).forEach(cat => {
-    cats[cat].forEach(name => {
-      const size = Math.floor(Math.random() * 2000000) + 10000;
-      books.push({id:id++, name:name, cat:cat, size:size, path: cat + '/' + name + '.txt'});
+    // 搜索
+    document.getElementById('searchInput').addEventListener('input', () => {
+      currentPage = 0;
+      document.getElementById('bookList').innerHTML = '';
+      renderBooks();
     });
-  });
-  books.sort((a,b) => b.size - a.size);
-  return books;
-}
 
-allBooks = genSampleBooks();
-
-function renderBooks() {
-  let filtered = allBooks;
-  if (currentCat !== 'all') filtered = filtered.filter(b => b.cat === currentCat);
-  if (currentKeyword) filtered = filtered.filter(b => b.name.includes(currentKeyword));
-  const showBooks = filtered.slice(0, showCount);
-  const list = document.getElementById('bookList');
-  list.innerHTML = showBooks.map(b => '<a href="reader.html?b=' + encodeURIComponent(b.path) + '" class="book-item"><span class="book-name">' + b.name + '</span><span class="book-meta">' + b.cat + ' · ' + Math.round(b.size/10000) + '万字</span></a>').join('');
-  document.getElementById('loadMoreBtn').style.display = showCount >= filtered.length ? 'none' : 'block';
-}
-
-document.getElementById('searchInput').addEventListener('input', function() {
-  currentKeyword = this.value.trim();
-  showCount = 50;
-  renderBooks();
-});
-
-document.getElementById('loadMoreBtn').addEventListener('click', function() {
-  showCount += 50;
-  renderBooks();
-});
-
-// URL参数处理
-const params = new URLSearchParams(location.search);
-const catParam = params.get('cat');
-if (catParam) {
-  currentCat = catParam;
-  document.querySelectorAll('.cat-tab').forEach(b => {
-    b.classList.toggle('active', b.dataset.cat === catParam);
-  });
-}
-
-renderBooks();
-</script>
+    // 加载更多
+    document.getElementById('loadMore').addEventListener('click', () => {
+      currentPage++;
+      renderBooks();
+    });
+  </script>
 </body>
 </html>
