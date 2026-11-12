@@ -235,6 +235,7 @@
   <button class="mobile-toc-btn" id="tocBtn" title="目录">☰</button>
   <div class="toc-mask" id="tocMask"></div>
 
+  <script src="data/books.js"></script>
   <script src="data/common.js"></script>
   <script>
     initPage('library.html');
@@ -571,18 +572,23 @@
     async function loadContent() {
       try {
         const bookUrl = 'books/' + bookPath.split('/').map(encodeURIComponent).join('/');
-        const response = await fetch(bookUrl);
-        if (!response.ok) throw new Error('该典籍未收录');
+        const FIRST_CHUNK = 128 * 1024;   // 首屏只取前 128KB
 
-        const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let receivedText = '';
         let loaded = 0;
+        let streamDone = false;
 
-        // 1) 先取前50KB用于首屏
-        while (loaded < 50 * 1024) {
+        // 用 HTTP Range 只请求前 128KB：无论全书多大（有的 400 多万字），
+        // 首屏都只需下载一小段即可开始阅读，大书也能秒开
+        let response = await fetch(bookUrl, { headers: { 'Range': `bytes=0-${FIRST_CHUNK - 1}` } });
+        if (!response.ok) throw new Error('该典籍未收录');
+        const isRange = response.status === 206;   // 服务器是否支持分段下载
+
+        let reader = response.body.getReader();
+        while (loaded < FIRST_CHUNK) {
           const { done, value } = await reader.read();
-          if (done) break;
+          if (done) { streamDone = true; break; }
           receivedText += decoder.decode(value, { stream: true });
           loaded += value.length;
         }
@@ -591,6 +597,12 @@
         renderChapterList();
         renderRange(0, Math.min(BATCH_SIZE, allParagraphs.length), false);
         setupScrollLoad();
+
+        // 若支持分段且首屏这一小段已读完，则另取剩余部分继续后台加载
+        if (isRange && !streamDone) {
+          const restRes = await fetch(bookUrl, { headers: { 'Range': `bytes=${loaded}-` } });
+          reader = restRes.body.getReader();
+        }
         // 恢复阅读位置（localStorage）
         try {
           const saved = localStorage.getItem('readPos_' + bookPath);
@@ -693,6 +705,19 @@
     // ========== 启动 ==========
     loadBooksIndex();
     loadContent();
+
+    // 支持从检索页带关键词进入：reader.html?b=xxx&q=关键词 —— 载入后自动高亮
+    const qParam = new URLSearchParams(window.location.search).get('q');
+    if (qParam) {
+      setTimeout(() => {
+        searchInput.value = qParam;
+        searchTerm = qParam;
+        if (renderedEnd < Math.min(600, allParagraphs.length)) {
+          renderRange(renderedEnd, Math.min(600, allParagraphs.length), true);
+        }
+        highlightSearch();
+      }, 900);
+    }
   </script>
 </body>
 </html>
