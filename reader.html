@@ -311,8 +311,9 @@
         if (isChapterTitle(p)) {
           foundTitleCount++;
           if (i > 0) {
+            // 用"上一章的标题"闭合上一章（原实现误配成新标题，会导致目录标题与内容错位、点击跳到错误位置）
             chaps.push({
-              title: p.replace(/\s+/g, ' ').substring(0, 30),
+              title: currentChapTitle,
               start: currentStart,
               end: i
             });
