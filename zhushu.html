@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>注疏对照 · 儒藏本体论</title>
+<style>
+:root {
+  --bg: #1a140f; --card: #251e17; --gold: #d4af37; --light: #e8d5a3; --text: #c9b99a;
+  --border: #3d3225; --accent: #a83232; --font: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 30px; z-index: 100; }
+.logo { font-size: 28px; font-weight: bold; color: var(--gold); letter-spacing: 2px; margin-right: 40px; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a { color: var(--text); text-decoration: none; font-size: 18px; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s; }
+.nav-links a.active, .nav-links a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+.main { margin-left: 220px; margin-top: 70px; padding: 40px; }
+.page-title { font-size: 42px; color: var(--gold); text-align: center; margin-bottom: 10px; }
+.page-subtitle { text-align: center; color: var(--text); font-size: 18px; margin-bottom: 40px; opacity: 0.8; }
+.coming-soon { max-width: 800px; margin: 100px auto; text-align: center; padding: 60px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+.coming-soon-icon { font-size: 80px; color: var(--gold); margin-bottom: 20px; opacity: 0.6; }
+.coming-soon h2 { font-size: 28px; color: var(--gold); margin-bottom: 16px; }
+.coming-soon p { font-size: 18px; line-height: 1.8; opacity: 0.8; margin-bottom: 20px; }
+.sidebar { position: fixed; left: 0; top: 70px; bottom: 0; width: 220px; background: var(--card); border-right: 1px solid var(--border); overflow-y: auto; scrollbar-width: none; }
+.sidebar::-webkit-scrollbar { display: none; }
+.sidebar-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 17px; border-left: 3px solid transparent; transition: all 0.3s; }
+.sidebar-item:hover { background: rgba(212,175,55,0.08); color: var(--gold); }
+.sidebar-item.active { border-left-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px; }
+  .nav-links { gap: 16px; }
+  .nav-links a { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <div class="logo">儒藏本体论</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="sishu.html">四书</a>
+    <a href="wujing.html">五经</a>
+    <a href="daomai.html">道脉</a>
+    <a href="liupai.html">流派</a>
+    <a href="graph.html">图谱</a>
+    <a href="library.html">全文库</a>
+    <a href="ontology.html">本体</a>
+  </div>
+</div>
+<div class="sidebar">
+  <a href="index.html" class="sidebar-item">☯ 首页</a>
+  <a href="sishu.html" class="sidebar-item">📖 四书</a>
+  <a href="wujing.html" class="sidebar-item">📜 五经</a>
+  <a href="search.html" class="sidebar-item">🔍 全文检索</a>
+  <a href="zhushu.html" class="sidebar-item active">📝 注疏对照</a>
+  <a href="zhangju.html" class="sidebar-item">📑 章句导航</a>
+  <a href="dictionary.html" class="sidebar-item">📔 儒学词典</a>
+  <a href="scholars.html" class="sidebar-item">👥 儒者谱系</a>
+  <a href="inference.html" class="sidebar-item">→ 概念推演</a>
+</div>
+<div class="main">
+  <div class="coming-soon">
+    <div class="coming-soon-icon">📝</div>
+    <h2>注疏对照功能正在开发中</h2>
+    <p>将实现「经-汉注-唐疏-宋集注-清新疏」多版本并排对照，<br>先从《论语》开始试点，支持一键对比历代学者对同一句经文的解释差异。</p>
+    <p style="opacity:0.6; font-size:15px; margin-top:30px;">可以先从「全文库」阅读原典</p>
+    <a href="library.html" style="display:inline-block; margin-top:20px; padding:10px 28px; border:1px solid var(--gold); color:var(--gold); text-decoration:none; border-radius:4px;">进入全文库</a>
+  </div>
+</div>
+</body>
+</html>
