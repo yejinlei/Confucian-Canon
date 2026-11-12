@@ -19,15 +19,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); min-
 .main { margin-left: 220px; margin-top: 70px; padding: 40px; }
 .page-title { font-size: 42px; color: var(--gold); text-align: center; margin-bottom: 10px; }
 .page-subtitle { text-align: center; color: var(--text); font-size: 18px; margin-bottom: 40px; opacity: 0.8; }
-.coming-soon { max-width: 800px; margin: 100px auto; text-align: center; padding: 60px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
-.coming-soon-icon { font-size: 80px; color: var(--gold); margin-bottom: 20px; opacity: 0.6; }
-.coming-soon h2 { font-size: 28px; color: var(--gold); margin-bottom: 16px; }
-.coming-soon p { font-size: 18px; line-height: 1.8; opacity: 0.8; margin-bottom: 20px; }
 .sidebar { position: fixed; left: 0; top: 70px; bottom: 0; width: 220px; background: var(--card); border-right: 1px solid var(--border); overflow-y: auto; scrollbar-width: none; }
 .sidebar::-webkit-scrollbar { display: none; }
 .sidebar-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 17px; border-left: 3px solid transparent; transition: all 0.3s; }
 .sidebar-item:hover { background: rgba(212,175,55,0.08); color: var(--gold); }
 .sidebar-item.active { border-left-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
+.zj-book { max-width: 1100px; margin: 0 auto 34px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 26px 30px; }
+.zj-book h2 { font-size: 26px; color: var(--gold); margin-bottom: 6px; letter-spacing: 2px; }
+.zj-book .zj-meta { font-size: 14px; opacity: 0.6; margin-bottom: 18px; }
+.zj-secs { display: flex; flex-wrap: wrap; gap: 10px; }
+.zj-sec { display: block; padding: 8px 14px; border: 1px solid var(--border); border-radius: 6px; color: var(--text); text-decoration: none; font-size: 15px; transition: all .2s; }
+.zj-sec:hover { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.08); }
+.zj-sec small { opacity: .6; margin-left: 6px; }
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .main { margin-left: 0; padding: 20px; }
@@ -43,8 +46,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); min-
     <a href="index.html">首页</a>
     <a href="sishu.html">四书</a>
     <a href="wujing.html">五经</a>
-    <a href="daomai.html">道脉</a>
-    <a href="liupai.html">流派</a>
+    <a href="timeline.html">道脉</a>
+    <a href="schools.html">流派</a>
     <a href="graph.html">图谱</a>
     <a href="library.html">全文库</a>
     <a href="ontology.html">本体</a>
@@ -59,16 +62,81 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); min-
   <a href="zhangju.html" class="sidebar-item active">📑 章句导航</a>
   <a href="dictionary.html" class="sidebar-item">📔 儒学词典</a>
   <a href="scholars.html" class="sidebar-item">👥 儒者谱系</a>
-  <a href="inference.html" class="sidebar-item">→ 概念推演</a>
+  <a href="reasoning.html" class="sidebar-item">→ 概念推演</a>
 </div>
 <div class="main">
-  <div class="coming-soon">
-    <div class="coming-soon-icon">📑</div>
-    <h2>章句导航功能正在开发中</h2>
-    <p>将拆解四书五经为逐篇逐章逐句索引，点击任意章句直接跳转到原文对应位置，<br>实现"逐句读经"，配合注疏对照功能使用。</p>
-    <p style="opacity:0.6; font-size:15px; margin-top:30px;">可以先从「全文库」阅读原典</p>
-    <a href="library.html" style="display:inline-block; margin-top:20px; padding:10px 28px; border:1px solid var(--gold); color:var(--gold); text-decoration:none; border-radius:4px;">进入全文库</a>
-  </div>
+  <h1 class="page-title">章句导航</h1>
+  <p class="page-subtitle">四书篇目一览 · 点击篇名直接进入原文（论语、孟子并自动定位到该篇）</p>
+  <div id="zj"></div>
 </div>
+<script>
+// 四书篇目结构（文献学通说）。book 为 books/ 下的实际文件名（不含 .txt）
+const SISHU = [
+  {
+    book: '大学章句集注', cat: '四书', label: '《大学》', meta: '朱熹章句 · 经一章、传十章 · 三纲领、八条目',
+    secs: [
+      ['经一章', '三纲领·八条目'],
+      ['传之首章', '明明德'],
+      ['传之二章', '新民'],
+      ['传之三章', '止于至善'],
+      ['传之四章', '本末'],
+      ['传之五章', '格物致知'],
+      ['传之六章', '诚意'],
+      ['传之七章', '正心修身'],
+      ['传之八章', '修身齐家'],
+      ['传之九章', '齐家治国'],
+      ['传之十章', '治国平天下']
+    ]
+  },
+  {
+    book: '中庸章句集注', cat: '四书', label: '《中庸》', meta: '朱熹章句 · 三十三章 · 天命之谓性、率性之谓道',
+    secs: [
+      ['第一章', '天命之谓性'], ['第二章', '君子中庸'], ['第三章', '中庸其至'], ['第四章', '道之不行'],
+      ['第五章', '道其不行'], ['第六章', '舜其大知'], ['第七章', '人皆曰予知'], ['第八章', '回之为人'],
+      ['第九章', '天下国家可均'], ['第十章', '子路问强'], ['第十一章', '素隐行怪'], ['第十二章', '君子之道费而隐'],
+      ['第十三章', '道不远人'], ['第十四章', '君子素其位'], ['第十五章', '君子之道辟如行远'], ['第十六章', '鬼神之为德'],
+      ['第十七章', '大德必受命'], ['第十八章', '无忧者其惟文王'], ['第十九章', '武王周公其达孝'], ['第二十章', '哀公问政·诚者天之道'],
+      ['第二十一章', '自诚明谓之性'], ['第二十二章', '唯天下至诚'], ['第二十三章', '其次致曲'], ['第二十四章', '至诚之道可以前知'],
+      ['第二十五章', '诚者自成'], ['第二十六章', '至诚无息'], ['第二十七章', '大哉圣人之道'], ['第二十八章', '愚而好自用'],
+      ['第二十九章', '王天下有三重'], ['第三十章', '仲尼祖述尧舜'], ['第三十一章', '唯天下至圣'], ['第三十二章', '唯天下至诚为能经纶'],
+      ['第三十三章', '衣锦尚絅·无声无臭']
+    ]
+  },
+  {
+    book: '论语', cat: '四书', label: '《论语》', meta: '二十篇 · 约五百章 · 孔子及弟子言行',
+    secs: [
+      ['学而', '为学之本·孝弟忠信'], ['为政', '为政以德·温故知新'], ['八佾', '礼乐制度'],
+      ['里仁', '仁为安宅·君子喻义'], ['公冶长', '论人物贤否'], ['雍也', '中庸之德'],
+      ['述而', '述而不作·志道据德'], ['泰伯', '任重道远'], ['子罕', '孔子言行·逝者如斯'],
+      ['乡党', '孔子日用容仪'], ['先进', '弟子品评·过犹不及'], ['颜渊', '克己复礼为仁'],
+      ['子路', '为政之道·正名'], ['宪问', '论士与成人·修己安人'], ['卫灵公', '君子固穷·杀身成仁'],
+      ['季氏', '季氏将伐颛臾·君子三戒'], ['阳货', '性相近习相远'], ['微子', '论出处进退'],
+      ['子张', '士见危致命·学以致其道'], ['尧曰', '允执其中·五美四恶']
+    ]
+  },
+  {
+    book: '孟子', cat: '四书', label: '《孟子》', meta: '七篇 · 约二百六十一章 · 性善、仁政、王道',
+    secs: [
+      ['梁惠王', '仁政·王道·五十步笑百步'], ['公孙丑', '浩然之气·不忍人之心'],
+      ['滕文公', '性善·井田·劳心劳力'], ['离娄', '仁政·规矩·诚者天之道'],
+      ['万章', '论舜禹·君臣之道'], ['告子', '性善论·鱼我所欲也·生于忧患'],
+      ['尽心', '尽心知性·民为贵']
+    ]
+  }
+];
+
+const box = document.getElementById('zj');
+box.innerHTML = SISHU.map(bk => {
+  const secs = bk.secs.map(([name, note]) => {
+    // 论语、孟子篇名在正文标题中必出现，用 &q= 自动定位；大学、中庸章节名不一定出现，直接进入
+    const locatable = (bk.book === '论语' || bk.book === '孟子');
+    const href = 'reader.html?b=' + encodeURIComponent(bk.cat + '/' + bk.book + '.txt') +
+                 (locatable ? '&q=' + encodeURIComponent(name) : '');
+    return '<a class="zj-sec" href="' + href + '">' + name + '<small>' + note + '</small></a>';
+  }).join('');
+  return '<div class="zj-book"><h2>' + bk.label + '</h2><div class="zj-meta">' + bk.meta +
+         '</div><div class="zj-secs">' + secs + '</div></div>';
+}).join('');
+</script>
 </body>
 </html>
