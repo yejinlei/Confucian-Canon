@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全文检索 · 儒藏本体论</title>
+<style>
+:root {
+  --bg: #1a140f; --card: #251e17; --gold: #d4af37; --light: #e8d5a3; --text: #c9b99a;
+  --border: #3d3225; --accent: #a83232; --font: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 30px; z-index: 100; }
+.logo { font-size: 28px; font-weight: bold; color: var(--gold); letter-spacing: 2px; margin-right: 40px; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a { color: var(--text); text-decoration: none; font-size: 18px; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s; }
+.nav-links a.active, .nav-links a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+.main { margin-left: 220px; margin-top: 70px; padding: 40px; }
+.page-title { font-size: 42px; color: var(--gold); text-align: center; margin-bottom: 10px; }
+.page-subtitle { text-align: center; color: var(--text); font-size: 18px; margin-bottom: 40px; opacity: 0.8; }
+.search-box { max-width: 800px; margin: 0 auto 40px; }
+.search-input { width: 100%; padding: 18px 24px; font-size: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--light); font-family: var(--font); outline: none; transition: all 0.3s; }
+.search-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.1); }
+.search-tip { text-align: center; margin-top: 12px; opacity: 0.6; font-size: 14px; }
+.result-stats { max-width: 900px; margin: 0 auto 20px; font-size: 16px; color: var(--gold); }
+.result-item { max-width: 900px; margin: 0 auto 20px; padding: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; transition: all 0.3s; }
+.result-item:hover { border-color: var(--gold); }
+.result-book { font-size: 18px; color: var(--gold); margin-bottom: 10px; }
+.result-snippet { font-size: 16px; line-height: 1.8; }
+.result-snippet mark { background: rgba(212,175,55,0.3); color: var(--light); padding: 0 2px; border-radius: 2px; }
+.sidebar { position: fixed; left: 0; top: 70px; bottom: 0; width: 220px; background: var(--card); border-right: 1px solid var(--border); overflow-y: auto; scrollbar-width: none; }
+.sidebar::-webkit-scrollbar { display: none; }
+.sidebar-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 17px; border-left: 3px solid transparent; transition: all 0.3s; }
+.sidebar-item:hover { background: rgba(212,175,55,0.08); color: var(--gold); }
+.sidebar-item.active { border-left-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px; }
+  .nav-links { gap: 16px; }
+  .nav-links a { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <div class="logo">儒藏本体论</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="sishu.html">四书</a>
+    <a href="wujing.html">五经</a>
+    <a href="daomai.html">道脉</a>
+    <a href="liupai.html">流派</a>
+    <a href="graph.html">图谱</a>
+    <a href="library.html">全文库</a>
+    <a href="ontology.html">本体</a>
+  </div>
+</div>
+<div class="sidebar">
+  <a href="index.html" class="sidebar-item">☯ 首页</a>
+  <a href="sishu.html" class="sidebar-item">📖 四书</a>
+  <a href="wujing.html" class="sidebar-item">📜 五经</a>
+  <a href="search.html" class="sidebar-item active">🔍 全文检索</a>
+  <a href="zhushu.html" class="sidebar-item">📝 注疏对照</a>
+  <a href="zhangju.html" class="sidebar-item">📑 章句导航</a>
+  <a href="dictionary.html" class="sidebar-item">📔 儒学词典</a>
+  <a href="scholars.html" class="sidebar-item">👥 儒者谱系</a>
+  <a href="inference.html" class="sidebar-item">→ 概念推演</a>
+</div>
+<div class="main">
+  <h1 class="page-title">全文检索</h1>
+  <p class="page-subtitle">跨908部儒家典籍检索关键词，一键定位所有出现位置</p>
+  <div class="search-box">
+    <input type="text" class="search-input" id="searchInput" placeholder="输入关键词（如：仁、格物致知、己所不欲勿施于人）...">
+    <p class="search-tip">提示：输入2个以上汉字开始检索，匹配典籍原文</p>
+  </div>
+  <div id="results"></div>
+</div>
+<script>
+const booksJsonUrl = 'books/books.json';
+let books = [];
+async function loadBooks() {
+  try {
+    const res = await fetch(booksJsonUrl);
+    books = await res.json();
+  } catch(e) { console.error('加载书单失败', e); }
+}
+loadBooks();
+
+document.getElementById('searchInput').addEventListener('input', async function() {
+  const q = this.value.trim();
+  const resultsDiv = document.getElementById('results');
+  if (q.length < 2) { resultsDiv.innerHTML = ''; return; }
+  resultsDiv.innerHTML = '<p style="text-align:center; padding:40px; opacity:0.7;">正在检索...</p>';
+  const matches = [];
+  const sampleBooks = books.filter(b => b.size < 500000).slice(0, 50);
+  for (const book of sampleBooks) {
+    try {
+      const res = await fetch('books/' + book.path);
+      const text = await res.text();
+      const idx = text.indexOf(q);
+      if (idx !== -1) {
+        const start = Math.max(0, idx - 50);
+        const end = Math.min(text.length, idx + q.length + 80);
+        let snippet = text.slice(start, end).replace(/\n/g, '');
+        snippet = snippet.replace(new RegExp(q, 'g'), '<mark>' + q + '</mark>');
+        matches.push({ book: book.name, path: book.path, snippet: '...' + snippet + '...' });
+      }
+    } catch(e) {}
+    if (matches.length >= 20) break;
+  }
+  if (matches.length === 0) {
+    resultsDiv.innerHTML = '<p style="text-align:center; padding:60px; opacity:0.6;">未找到匹配结果，请尝试其他关键词</p>';
+    return;
+  }
+  resultsDiv.innerHTML = '<div class="result-stats">找到 ' + matches.length + ' 处匹配（抽样前50部短篇典籍）</div>' + 
+    matches.map(m => '<div class="result-item"><div class="result-book"><a href="reader.html?b=' + encodeURIComponent(m.path) + '" style="color:var(--gold); text-decoration:none;">' + m.book + '</a></div><div class="result-snippet">' + m.snippet + '</div></div>').join('');
+});
+</script>
+</body>
+</html>
