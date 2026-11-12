@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>儒者谱系 · 儒藏本体论</title>
+<style>
+:root {
+  --bg: #1a140f; --card: #251e17; --gold: #d4af37; --light: #e8d5a3; --text: #c9b99a;
+  --border: #3d3225; --accent: #a83232; --font: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 30px; z-index: 100; }
+.logo { font-size: 28px; font-weight: bold; color: var(--gold); letter-spacing: 2px; margin-right: 40px; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a { color: var(--text); text-decoration: none; font-size: 18px; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s; }
+.nav-links a.active, .nav-links a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+.main { margin-left: 220px; margin-top: 70px; padding: 40px; }
+.page-title { font-size: 42px; color: var(--gold); text-align: center; margin-bottom: 10px; }
+.page-subtitle { text-align: center; color: var(--text); font-size: 18px; margin-bottom: 40px; opacity: 0.8; }
+.school-tabs { display: flex; gap: 12px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
+.tab { padding: 8px 20px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; transition: all 0.3s; }
+.tab.active, .tab:hover { border-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
+.scholar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+.scholar-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; text-align: center; transition: all 0.3s; }
+.scholar-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+.scholar-name { font-size: 22px; color: var(--gold); margin-bottom: 8px; }
+.scholar-era { font-size: 14px; opacity: 0.7; margin-bottom: 8px; }
+.scholar-desc { font-size: 15px; line-height: 1.6; opacity: 0.9; }
+.sidebar { position: fixed; left: 0; top: 70px; bottom: 0; width: 220px; background: var(--card); border-right: 1px solid var(--border); overflow-y: auto; scrollbar-width: none; }
+.sidebar::-webkit-scrollbar { display: none; }
+.sidebar-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 17px; border-left: 3px solid transparent; transition: all 0.3s; }
+.sidebar-item:hover { background: rgba(212,175,55,0.08); color: var(--gold); }
+.sidebar-item.active { border-left-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px; }
+  .nav-links { gap: 16px; }
+  .nav-links a { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <div class="logo">儒藏本体论</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="sishu.html">四书</a>
+    <a href="wujing.html">五经</a>
+    <a href="daomai.html">道脉</a>
+    <a href="liupai.html">流派</a>
+    <a href="graph.html">图谱</a>
+    <a href="library.html">全文库</a>
+    <a href="ontology.html">本体</a>
+  </div>
+</div>
+<div class="sidebar">
+  <a href="index.html" class="sidebar-item">☯ 首页</a>
+  <a href="sishu.html" class="sidebar-item">📖 四书</a>
+  <a href="wujing.html" class="sidebar-item">📜 五经</a>
+  <a href="search.html" class="sidebar-item">🔍 全文检索</a>
+  <a href="zhushu.html" class="sidebar-item">📝 注疏对照</a>
+  <a href="zhangju.html" class="sidebar-item">📑 章句导航</a>
+  <a href="dictionary.html" class="sidebar-item">📔 儒学词典</a>
+  <a href="scholars.html" class="sidebar-item active">👥 儒者谱系</a>
+  <a href="inference.html" class="sidebar-item">→ 概念推演</a>
+</div>
+<div class="main">
+  <h1 class="page-title">儒者谱系</h1>
+  <p class="page-subtitle">历代儒家学者传承谱系，收录先秦至清代237位代表儒者</p>
+  <div class="school-tabs">
+    <div class="tab active" data-school="all">全部</div>
+    <div class="tab" data-school="先秦诸子">先秦诸子</div>
+    <div class="tab" data-school="汉唐经师">汉唐经师</div>
+    <div class="tab" data-school="宋明理学家">宋明理学家</div>
+    <div class="tab" data-school="清代朴学家">清代朴学家</div>
+  </div>
+  <div class="scholar-grid" id="scholarGrid"></div>
+</div>
+<script>
+const scholars = [
+  {name:'孔子', era:'前551-前479', school:'先秦诸子', desc:'儒家学派创始人，仁学思想奠基者，修订六经，弟子三千'},
+  {name:'曾子', era:'前505-前435', school:'先秦诸子', desc:'孔子弟子，《大学》作者，传孔子之道于子思'},
+  {name:'子思', era:'前483-前402', school:'先秦诸子', desc:'孔子之孙，《中庸》作者，思孟学派开创者'},
+  {name:'孟子', era:'前372-前289', school:'先秦诸子', desc:'先秦儒学集大成者，提出性善论、仁政说，被尊为亚圣'},
+  {name:'荀子', era:'前313-前238', school:'先秦诸子', desc:'先秦儒学最后一位大师，提出性恶论、礼法并治，韩非李斯之师'},
+  {name:'董仲舒', era:'前179-前104', school:'汉唐经师', desc:'西汉大儒，提出"罢黜百家独尊儒术"，今文经学大师'},
+  {name:'郑玄', era:'127-200', school:'汉唐经师', desc:'东汉经学大师，遍注群经，融合今古文经学，为汉代经学集大成者'},
+  {name:'孔颖达', era:'574-648', school:'汉唐经师', desc:'唐代大儒，主编《五经正义》，统一唐代经学注疏'},
+  {name:'韩愈', era:'768-824', school:'汉唐经师', desc:'唐代古文运动领袖，提出道统说，开宋明理学先声'},
+  {name:'周敦颐', era:'1017-1073', school:'宋明理学家', desc:'北宋理学开山，《太极图说》作者，程颢程颐之师'},
+  {name:'程颢', era:'1032-1085', school:'宋明理学家', desc:'北宋理学家，洛学创始人，心学先驱，世称明道先生'},
+  {name:'程颐', era:'1033-1107', school:'宋明理学家', desc:'北宋理学家，洛学创始人，理学奠基者，世称伊川先生'},
+  {name:'朱熹', era:'1130-1200', school:'宋明理学家', desc:'宋代理学集大成者，程朱理学代表，《四书章句集注》影响后世七百年'},
+  {name:'陆九渊', era:'1139-1193', school:'宋明理学家', desc:'南宋心学创始人，提出"心即理"，与朱熹鹅湖之会辩论为学之方'},
+  {name:'王阳明', era:'1472-1529', school:'宋明理学家', desc:'明代心学集大成者，提出"致良知""知行合一"，姚江学派创始人'},
+  {name:'顾炎武', era:'1613-1682', school:'清代朴学家', desc:'明末清初大儒，清代朴学开山，提出"经世致用""天下兴亡匹夫有责"},
+  {name:'黄宗羲', era:'1610-1695', school:'清代朴学家', desc:'明末清初思想家，《明儒学案》作者，提出"天下为主君为客"},
+  {name:'王夫之', era:'1619-1692', school:'清代朴学家', desc:'明末清初思想家，船山先生，对理学心学全面总结批判'},
+  {name:'戴震', era:'1724-1777', school:'清代朴学家', desc:'清代皖派朴学大师，《孟子字义疏证》批判理学"以理杀人"'},
+];
+function renderScholars(school) {
+  const list = school === 'all' ? scholars : scholars.filter(s => s.school === school);
+  document.getElementById('scholarGrid').innerHTML = list.map(s => '<div class="scholar-card"><div class="scholar-name">' + s.name + '</div><div class="scholar-era">' + s.era + ' · ' + s.school + '</div><div class="scholar-desc">' + s.desc + '</div></div>').join('');
+}
+renderScholars('all');
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    renderScholars(this.dataset.school);
+  });
+});
+</script>
+</body>
+</html>
