@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五经总义 · 儒藏本体论</title>
+<style>
+:root {
+  --bg: #1a140f; --card: #251e17; --gold: #d4af37; --light: #e8d5a3; --text: #c9b99a;
+  --border: #3d3225; --accent: #a83232; --font: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 30px; z-index: 100; }
+.logo { font-size: 28px; font-weight: bold; color: var(--gold); letter-spacing: 2px; margin-right: 40px; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a { color: var(--text); text-decoration: none; font-size: 18px; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s; }
+.nav-links a.active, .nav-links a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+.main { margin-left: 220px; margin-top: 70px; padding: 40px; }
+.page-title { font-size: 42px; color: var(--gold); text-align: center; margin-bottom: 10px; }
+.page-subtitle { text-align: center; color: var(--text); font-size: 18px; margin-bottom: 40px; opacity: 0.8; }
+.classic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1400px; margin: 0 auto; }
+.classic-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 28px; transition: all 0.3s; cursor: pointer; }
+.classic-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(212,175,55,0.1); }
+.classic-name { font-size: 28px; color: var(--gold); margin-bottom: 12px; }
+.classic-desc { font-size: 16px; line-height: 1.8; margin-bottom: 16px; opacity: 0.9; }
+.classic-meta { font-size: 14px; color: var(--light); opacity: 0.7; }
+.btn { display: inline-block; margin-top: 16px; padding: 8px 20px; border: 1px solid var(--gold); color: var(--gold); text-decoration: none; border-radius: 4px; transition: all 0.3s; }
+.btn:hover { background: var(--gold); color: var(--bg); }
+.sidebar { position: fixed; left: 0; top: 70px; bottom: 0; width: 220px; background: var(--card); border-right: 1px solid var(--border); overflow-y: auto; scrollbar-width: none; }
+.sidebar::-webkit-scrollbar { display: none; }
+.sidebar-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 17px; border-left: 3px solid transparent; transition: all 0.3s; }
+.sidebar-item:hover { background: rgba(212,175,55,0.08); color: var(--gold); }
+.sidebar-item.active { border-left-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px; }
+  .nav-links { gap: 16px; }
+  .nav-links a { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <div class="logo">儒藏本体论</div>
+  <div class="nav-links">
+    <a href="index.html">首页</a>
+    <a href="sishu.html">四书</a>
+    <a href="wujing.html" class="active">五经</a>
+    <a href="daomai.html">道脉</a>
+    <a href="liupai.html">流派</a>
+    <a href="graph.html">图谱</a>
+    <a href="library.html">全文库</a>
+    <a href="ontology.html">本体</a>
+  </div>
+</div>
+<div class="sidebar">
+  <a href="index.html" class="sidebar-item">☯ 首页</a>
+  <a href="sishu.html" class="sidebar-item">📖 四书</a>
+  <a href="wujing.html" class="sidebar-item active">📜 五经</a>
+  <a href="search.html" class="sidebar-item">🔍 全文检索</a>
+  <a href="zhushu.html" class="sidebar-item">📝 注疏对照</a>
+  <a href="zhangju.html" class="sidebar-item">📑 章句导航</a>
+  <a href="dictionary.html" class="sidebar-item">📔 儒学词典</a>
+  <a href="scholars.html" class="sidebar-item">👥 儒者谱系</a>
+  <a href="inference.html" class="sidebar-item">→ 概念推演</a>
+</div>
+<div class="main">
+  <h1 class="page-title">五经总义</h1>
+  <p class="page-subtitle">《诗》《书》《礼》《易》《春秋》，儒家核心经典，共收录相关典籍381部</p>
+  <div class="classic-grid">
+    <div class="classic-card">
+      <div class="classic-name">《诗经》</div>
+      <div class="classic-desc">中国最早的诗歌总集，收录西周初年至春秋中叶诗歌305篇，分为风、雅、颂三部分，是儒家诗教核心经典。</div>
+      <div class="classic-meta">收录相关典籍：73部 · 总字数约1120万字</div>
+      <a href="library.html?cat=诗经" class="btn">查看诗经类典籍</a>
+    </div>
+    <div class="classic-card">
+      <div class="classic-name">《尚书》</div>
+      <div class="classic-desc">上古历史文献汇编，记载尧舜禹夏商周的重要历史事迹与诰命誓辞，是中国最早的政事史料汇编。</div>
+      <div class="classic-meta">收录相关典籍：62部 · 总字数约980万字</div>
+      <a href="library.html?cat=尚书" class="btn">查看尚书类典籍</a>
+    </div>
+    <div class="classic-card">
+      <div class="classic-name">三《礼》</div>
+      <div class="classic-desc">《周礼》《仪礼》《礼记》的合称，记载周代官制、礼仪规范与礼义思想，是儒家礼制文明的核心载体。</div>
+      <div class="classic-meta">收录相关典籍：89部 · 总字数约1450万字</div>
+      <a href="library.html?cat=礼经" class="btn">查看礼经类典籍</a>
+    </div>
+    <div class="classic-card">
+      <div class="classic-name">《周易》</div>
+      <div class="classic-desc">群经之首，大道之源，包含六十四卦与卦爻辞，以及《易传》十翼，是儒家哲学思想的核心源头。</div>
+      <div class="classic-meta">收录相关典籍：五经总义类33部 · 易经注疏丰富</div>
+      <a href="library.html?cat=五经总义" class="btn">查看易类典籍</a>
+    </div>
+    <div class="classic-card">
+      <div class="classic-name">《春秋》三传</div>
+      <div class="classic-desc">《春秋》经及《左传》《公羊传》《谷梁传》三传，是春秋时期历史记载与儒家政治思想的核心经典。</div>
+      <div class="classic-meta">收录相关典籍：124部 · 总字数约3800万字（含左传正义等大部头）</div>
+      <a href="library.html?cat=春秋" class="btn">查看春秋类典籍</a>
+    </div>
+    <div class="classic-card">
+      <div class="classic-name">《孝经》</div>
+      <div class="classic-desc">儒家孝道思想核心经典，记载孔子与曾子关于孝道的对话，是古代儒家伦理的基础典籍。</div>
+      <div class="classic-meta">收录相关典籍：14部 · 总字数约120万字</div>
+      <a href="library.html?cat=孝经" class="btn">查看孝经类典籍</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
