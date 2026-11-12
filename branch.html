@@ -64,7 +64,7 @@
   <footer class="foot">儒藏本体论 · 十二门类本体架构 · 理一分殊 · 参考：佛学本体论（宗派/译学/科判）、易经本体论（卦变/筮法/纳甲/卦气/医易/丹道）</footer>
 </main>
 
-<script src="data/books.js"></script>
+
 <script>
 // ============ 十二门类本体定义 ============
 const BRANCHES = [
@@ -375,7 +375,7 @@ BRANCHES.forEach((b,i)=>{
     </ul>
 
     <div style="margin-top:20px;padding-top:14px;border-top:1px dashed var(--line)">
-      <a href="library.html#${b.name}" style="margin-right:18px">📚 查看${b.name}类全部典籍 →</a>
+      <a href="library.html?cat=${b.name==='蒙学'?'启蒙蒙学':b.name}" style="margin-right:18px">📚 查看${b.name}类全部典籍 →</a>
       <a href="ontology.html">⬡ 回到统一本体七层 →</a>
     </div>
   `;
