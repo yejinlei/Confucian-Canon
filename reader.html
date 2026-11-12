@@ -74,6 +74,15 @@
       background: var(--accent-light);
       color: var(--accent-color);
     }
+    .chapter-list li.toc-loading {
+      cursor: default;
+      font-style: italic;
+      opacity: 0.7;
+    }
+    .chapter-list li.toc-loading:hover {
+      background: transparent;
+      color: var(--text-secondary);
+    }
     .reader-body {
       flex: 1;
       min-width: 0;
@@ -271,6 +280,7 @@
 
     let allParagraphs = [];
     let chapters = [];
+    let tocReady = false;   // 全文流式加载完成前，卷次目录可能还不完整
     let currentChapter = 0;
     let renderedEnd = 0;
     const BATCH_SIZE = 200;
@@ -296,15 +306,35 @@
       if (/^[一二三四五六七八九十百]+[、.．]\s*\S/.test(t) && t.length < 30) return true;
       // 某某篇第X
       if (/篇第[一二三四五六七八九十百\d]+$/.test(t)) return true;
+      // 篇名+序数，如"学而第一""为政第二"（《论语》《孟子》常见，整行短标题）
+      if (/^[\u4e00-\u9fa5]{1,8}第[一二三四五六七八九十百\d]+$/.test(t)) return true;
+      // "梁惠王章句上""公孙丑章句下"
+      if (/^[\u4e00-\u9fa5]{1,8}章句[上下]$/.test(t)) return true;
       return false;
     }
 
     // ========== 章节解析（只解析一次，绝不重排） ==========
-    function parseChapters(paragraphs) {
+    function parseChapters(paragraphs, partial) {
       const chaps = [];
       let currentChapTitle = '卷首';
       let currentStart = 0;
       let foundTitleCount = 0;
+
+      // 识别书前的"全书总目"块：连续 >=6 个卷/篇标题且彼此紧邻（间隔 <=2 段）。
+      // 首屏阶段若命中它，说明正文还没读到，此刻的标题位置并非正文位置，目录暂不可用
+      const _titleIdx = [];
+      for (let i = 0; i < paragraphs.length; i++) {
+        if (isChapterTitle(paragraphs[i].trim())) _titleIdx.push(i);
+      }
+      let _tocRun = 0, _runStart = 0;
+      for (let k = 1; k <= _titleIdx.length; k++) {
+        const gap = (k < _titleIdx.length) ? _titleIdx[k] - _titleIdx[k - 1] : 999;
+        if (gap > 2) {
+          if (k - _runStart >= 6) _tocRun = Math.max(_tocRun, k - _runStart);
+          _runStart = k;
+        }
+      }
+      if (partial && _tocRun >= 6) return [{ title: '__TOC__', start: 0, end: paragraphs.length }];
 
       for (let i = 0; i < paragraphs.length; i++) {
         const p = paragraphs[i].trim();
@@ -347,10 +377,31 @@
           }
         }
       } else {
-        // 有真实卷次标题：去除开头"目录"块造成的重复（同一标题只保留最后一次=正文处）
+        // 有真实卷次标题：去重，并剔除"只出现在书前总目里"的条目
+        // （总目位置并非正文位置，若保留会让目录顺序错乱、点击跳不准）
+        const _tocIdx = new Set();
+        { let run = [], seen = new Set();
+          for (let k = 0; k < _titleIdx.length; k++) {
+            const i = _titleIdx[k];
+            const tt = paragraphs[i].trim().replace(/\s+/g, ' ');
+            const prevGap = (k > 0) ? i - _titleIdx[k - 1] : 999;
+            // 与前一标题不相邻、或标题此前已出现过（正文重新开始），即总目块到此为止
+            if (run.length && (prevGap > 2 || seen.has(tt))) {
+              if (run.length >= 6) run.forEach(x => _tocIdx.add(x));
+              run = []; seen = new Set();
+            }
+            run.push(i); seen.add(tt);
+          }
+          if (run.length >= 6) run.forEach(x => _tocIdx.add(x));
+        }
         const _last = {};
-        chaps.forEach((c, i) => { _last[c.title] = i; });
-        const filtered = chaps.filter((c, i) => _last[c.title] === i);
+        chaps.forEach((c, i) => { if (!_tocIdx.has(c.start)) _last[c.title] = i; });
+        let filtered = chaps.filter((c, i) => _last[c.title] === i);
+        if (!filtered.length) {   // 兜底：标题全落在总目里（少见），退回纯去重
+          const _l2 = {};
+          chaps.forEach((c, i) => { _l2[c.title] = i; });
+          filtered = chaps.filter((c, i) => _l2[c.title] === i);
+        }
         for (let i = 0; i < filtered.length; i++) {
           filtered[i].end = (i + 1 < filtered.length) ? filtered[i + 1].start : paragraphs.length;
         }
@@ -472,6 +523,11 @@
     // ========== 渲染章节目录 ==========
     function renderChapterList() {
       const list = document.getElementById('chapterList');
+      // 首屏只读到书前总目时，目录位置不可用，先给出提示，待全文读完自动补全
+      if (chapters.length === 1 && chapters[0].title === '__TOC__') {
+        list.innerHTML = '<li class="toc-loading">卷次目录载入中…</li>';
+        return;
+      }
       list.innerHTML = chapters.map((chap, idx) =>
         `<li data-idx="${idx}" title="${chap.title}">${chap.title}</li>`
       ).join('');
@@ -608,13 +664,15 @@
         if (!response.ok) throw new Error('该典籍未收录');
 
         let reader = response.body.getReader();
+        // 读到足够铺满屏幕的字数就立即渲染首屏（大书也能秒开）；
+        // 卷次目录会随后台流式加载完成自动补全
         while (receivedText.length < FIRST_CHARS) {
           const { done, value } = await reader.read();
           if (done) { streamDone = true; break; }
           receivedText += decoder.decode(value, { stream: true });
         }
         allParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
-        chapters = parseChapters(allParagraphs);
+        chapters = parseChapters(allParagraphs, true);
         renderChapterList();
         renderRange(0, Math.min(BATCH_SIZE, allParagraphs.length), false);
         setupScrollLoad();
@@ -636,33 +694,12 @@
             if (done) break;
             receivedText += decoder.decode(value, { stream: true });
           }
-          // 全文加载完：补全段落数组，但只在没有识别到章节/章节末尾未覆盖时才刷新目录
-          const newParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
-          const oldLen = allParagraphs.length;
-          allParagraphs = newParagraphs;
-          // 只有原来章节列表最后一章 end 明显没到尾部，才重新解析一次
-          const lastChap = chapters[chapters.length - 1];
-          if (lastChap && lastChap.end < allParagraphs.length - 50) {
-            // 保留已存在的章节，只延伸最后一章的 end 到全书末尾
-            lastChap.end = allParagraphs.length;
-            // 如果新补进的内容里出现了更多卷标题，追加（不重排已有）
-            for (let i = oldLen; i < allParagraphs.length; i++) {
-              const p = allParagraphs[i].trim();
-              if (isChapterTitle(p)) {
-                const title = p.replace(/\s+/g,' ').substring(0,30);
-                // 去重
-                if (chapters[chapters.length-1].title !== title) {
-                  chapters[chapters.length-1].end = i;
-                  chapters.push({ title, start: i, end: allParagraphs.length });
-                }
-              }
-            }
-            // 如果第一版是"卷首/分段"占位，且现在发现了真实卷次，则整体重建一次（仅这种情况）
-            if (chapters[0].title === '卷首' && chapters.length > 1 && chapters[1].title !== '分段 1') {
-              chapters = parseChapters(allParagraphs);
-            }
-            renderChapterList();
-          }
+          // 全文读完：补全段落数组，并基于完整内容重新解析一次卷次目录
+          // （此时书前的总目块会被识别并跳过，目录直接对应正文各处，跳转才精准）
+          allParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
+          chapters = parseChapters(allParagraphs);
+          tocReady = true;
+          renderChapterList();
         })();
 
         // 阅读位置保存
