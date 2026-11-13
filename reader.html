@@ -486,7 +486,7 @@
 
       // 卷在 allParagraphs 中的起始位置
       const startP = volumeStartIdx[volIdx];
-      const url = `books-split/${bookCat}/${bookName}/${vol.file}`;
+      const url = vol.file;
       try {
         const r = await fetch(url);
         if (!r.ok) return;
@@ -793,8 +793,9 @@
           let pCount = 0;
           for (let i = 0; i < splitIdx.volumes.length; i++) {
             volumeStartIdx.push(pCount);
-            // 用 lines 估算段落数（实际加载后会被真实段落覆盖，但足够给目录定位）
-            pCount += splitIdx.volumes[i].lines;
+            // 优先用真实行数，没有的话按 size 估算（1个汉字≈3字节，每段约30字≈100字节）
+            const est = splitIdx.volumes[i].lines || Math.ceil(splitIdx.volumes[i].size / 100);
+            pCount += est;
           }
           // allParagraphs 初始化为稀疏数组（用 null 占位），长度 = 总段落估算
           allParagraphs = new Array(pCount).fill(null);
