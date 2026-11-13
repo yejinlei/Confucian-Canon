@@ -8,16 +8,25 @@
   <link rel="preload" href="data/books.js" as="script">
   <link rel="preload" href="data/common.js" as="script">
   <script>
-  /* 首屏预取：解析到 <head> 就立刻并行请求正文首块，
-     与样式表、公共脚本的下载同时进行，避免"串行等待"（大书打开慢的主因） */
+  /* 首屏预取：解析到 <head> 就立刻并行请求正文，
+     与样式表、公共脚本的下载同时进行，避免"串行等待" */
   (function () {
     var m = new URLSearchParams(location.search).get('b');
     if (!m) return;
-    var url = 'books/' + m.split('/').map(encodeURIComponent).join('/');
-    window.__bookPreloadUrl = url;
-    /* 关键：要"整文件请求"（不带 Range）才能吃到服务器的 gzip 压缩与 CDN 缓存，
-       实测比 Range 分片快 10 倍以上；配合流式读取，读到开头即可渲染首屏 */
-    window.__bookPreload = fetch(url).then(function (r) { return r.ok ? r : null; }).catch(function () { return null; });
+    var parts = m.split('/').map(encodeURIComponent);
+    var bookUrl = 'books/' + parts.join('/');
+    var bookName = parts[parts.length - 1].replace(/\.txt$/, '');
+    var cat = parts.slice(0, -1).join('/');
+    var splitIdxUrl = 'books-split/' + cat + '/' + bookName + '/index.json';
+    window.__bookPath = m;
+    window.__bookPreloadUrl = bookUrl;
+    /* 先探测是否有按卷切分索引（几十字节的 JSON），命中则走按卷加载，首屏只拉第一卷 */
+    window.__splitPreload = fetch(splitIdxUrl).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).catch(function () { return null; });
+    /* 同时把整文件请求也挂起备用（小书或切分不存在时用）；
+       关键：整文件请求能让服务器 gzip + CDN 缓存整份响应 */
+    window.__bookPreload = fetch(bookUrl).then(function (r) { return r.ok ? r : null; }).catch(function () { return null; });
   })();
   </script>
   <style>
@@ -131,6 +140,14 @@
       margin-top: 10px;
       font-size: 12px;
       opacity: 0.7;
+    }
+    /* split 模式下未加载卷的占位符（"…"） */
+    .reader-content p.volume-placeholder {
+      text-indent: 0;
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 2em 0;
+      font-size: 14px;
     }
     /* 移动端目录按钮 */
     .mobile-toc-btn {
@@ -281,6 +298,9 @@
     let allParagraphs = [];
     let chapters = [];
     let tocReady = false;   // 全文流式加载完成前，卷次目录可能还不完整
+    // 显式挂 window
+    window.allParagraphs = allParagraphs;
+    window.chapters = chapters;
     let currentChapter = 0;
     let renderedEnd = 0;
     const BATCH_SIZE = 200;
@@ -289,6 +309,17 @@
     let searchHits = [];
     let currentHitIdx = -1;
     let searchTerm = '';
+
+    /* ========== 按卷加载模式（split mode）状态 ========== */
+    let splitMode = false;
+    let splitIndex = null;       // {volumes:[{id,title,file,size,lines}...]}
+    let loadedVolumes = {};      // {volId: [paragraphs...]} 缓存已加载的卷，避免重复请求
+    let volumeStartIdx = [];     // 每卷在 allParagraphs 里的起始段落索引
+    // 显式挂到 window，方便外部诊断与跨脚本访问
+    window.splitMode = splitMode;
+    window.splitIndex = splitIndex;
+    window.loadedVolumes = loadedVolumes;
+    window.volumeStartIdx = volumeStartIdx;
 
     // ========== 章节标题识别（增强版） ==========
     function isChapterTitle(line) {
@@ -412,53 +443,140 @@
 
     // ========== 渲染段落范围 ==========
     function renderRange(start, end, append = true) {
-      const endIdx = Math.min(end, allParagraphs.length);
       const container = document.getElementById('readerContent');
-
-      if (!append) {
-        container.innerHTML = '';
-        renderedEnd = 0;
-      }
-      if (start >= endIdx) return;
+      if (!append) { container.innerHTML = ''; renderedEnd = 0; }
+      if (start >= end || start >= allParagraphs.length) return;
+      const endIdx = Math.min(end, allParagraphs.length);
 
       const frag = document.createDocumentFragment();
       for (let i = start; i < endIdx; i++) {
-        const p = allParagraphs[i].trim();
-        if (!p) continue;
-        const el = document.createElement('p');
-        if (isChapterTitle(p)) {
-          el.className = 'chapter-heading';
+        const p = allParagraphs[i];
+        if (!p) {
+          // 占位：该段所在卷还没加载，显示"加载中…"
+          const ph = document.createElement('p');
+          ph.className = 'volume-placeholder';
+          ph.id = `p-${i}`;
+          ph.dataset.idx = i;
+          ph.textContent = '…';
+          ph.style.opacity = '0.3';
+          frag.appendChild(ph);
+          continue;
         }
-        el.id = `p-${i}`;
-        el.dataset.idx = i;
-        // 段落内容（带概念标注）
+        const el = document.createElement('p');
+        if (isChapterTitle(p)) el.className = 'chapter-heading';
+        el.id = `p-${i}`; el.dataset.idx = i;
         el.innerHTML = annotateConcepts(p);
         frag.appendChild(el);
       }
       container.appendChild(frag);
-      renderedEnd = endIdx;
+      renderedEnd = Math.max(renderedEnd, endIdx);
 
-      // 更新进度
-      const progress = Math.min(100, (renderedEnd / allParagraphs.length) * 100);
+      const progress = Math.min(100, (renderedEnd / Math.max(1, allParagraphs.length)) * 100);
       document.getElementById('progressBar').style.width = `${progress}%`;
+      if (searchTerm) highlightSearch();
+    }
 
-      // 如果有搜索，重新高亮已渲染段落
-      if (searchTerm) {
-        highlightSearch();
-      }
+    // ========== split 模式：按需加载某一卷 ==========
+    async function loadVolume(volIdx) {
+      if (!splitMode || !splitIndex) return;
+      const vol = splitIndex.volumes[volIdx];
+      if (!vol) return;
+      // 已加载过直接返回 resolved Promise
+      if (loadedVolumes[vol.id]) return Promise.resolve();
+
+      // 卷在 allParagraphs 中的起始位置
+      const startP = volumeStartIdx[volIdx];
+      const url = `books-split/${bookCat}/${bookName}/${vol.file}`;
+      try {
+        const r = await fetch(url);
+        if (!r.ok) return;
+        const txt = await r.text();
+        const paras = txt.split(/\n+/).map(s => s.trim()).filter(Boolean);
+        loadedVolumes[vol.id] = paras;
+        window.loadedVolumes = loadedVolumes;
+        // 写入 allParagraphs
+        for (let k = 0; k < paras.length; k++) {
+          allParagraphs[startP + k] = paras[k];
+        }
+        // 把占位段落替换成真实段落（仅替换当前 DOM 中已存在的占位）
+        const container = document.getElementById('readerContent');
+        for (let k = 0; k < paras.length; k++) {
+          const el = document.getElementById(`p-${startP + k}`);
+          if (!el) continue;
+          if (el.classList.contains('volume-placeholder')) {
+            // 是占位，替换
+            const p = paras[k];
+            const newEl = document.createElement('p');
+            if (isChapterTitle(p)) newEl.className = 'chapter-heading';
+            newEl.id = `p-${startP + k}`; newEl.dataset.idx = startP + k;
+            newEl.innerHTML = annotateConcepts(p);
+            el.parentNode.replaceChild(newEl, el);
+          }
+        }
+        // 加载完后更新进度条（段落真实渲染占比）
+        const realParas = allParagraphs.filter(Boolean).length;
+        const progress = Math.min(100, (realParas / Math.max(1, allParagraphs.length)) * 100);
+        document.getElementById('progressBar').style.width = `${progress}%`;
+      } catch (e) { /* ignore */ }
     }
 
     // ========== 滚动加载 ==========
     function setupScrollLoad() {
       window.addEventListener('scroll', () => {
+        const now = Date.now();
+        if (now - _scrollThrottle < 80) return; // 80ms 节流
+        _scrollThrottle = now;
         const scrollBottom = window.innerHeight + window.scrollY;
         const docHeight = document.body.offsetHeight;
-        if (scrollBottom >= docHeight - 500 && renderedEnd < allParagraphs.length) {
+        if (splitMode && splitIndex) {
+          // split 模式：根据当前滚动位置判断所在卷，确保其及下一卷已加载
+          // 同时如果滚到文档末尾附近，追加渲染下一批段落占位
+          ensureVolumesAroundViewport();
+        } else if (scrollBottom >= docHeight - 800 && renderedEnd < allParagraphs.length) {
           renderRange(renderedEnd, renderedEnd + BATCH_SIZE, true);
         }
         updateActiveChapter();
       }, { passive: true });
+      // 首屏渲染后主动检测一次，让目录激活状态与进度条正确
+      setTimeout(updateActiveChapter, 100);
     }
+
+    let _scrollThrottle = 0;
+    let _lastVolsLoaded = new Set();
+    // ========== split 模式：保证视口附近的卷都已加载 ==========
+    function ensureVolumesAroundViewport() {
+      if (!splitMode || !splitIndex) return;
+      const scrollPos = window.scrollY + 140;
+      // 找到当前所在卷
+      let curVol = 0;
+      for (let i = 0; i < volumeStartIdx.length; i++) {
+        const el = document.getElementById(`p-${volumeStartIdx[i]}`);
+        if (el && el.offsetTop <= scrollPos) curVol = i;
+      }
+      // 只加载当前卷，以及紧接的下 1 卷（避免一口气拉完）
+      const toLoad = new Set();
+      toLoad.add(curVol);
+      if (curVol + 1 < splitIndex.volumes.length) toLoad.add(curVol + 1);
+      toLoad.forEach(v => {
+        if (!_lastVolsLoaded.has(v)) {
+          _lastVolsLoaded.add(v);
+          loadVolume(v);
+        }
+      });
+
+      // 如果当前已渲染的末尾距离视口底部不足两屏，补渲染后续段落的占位
+      if (renderedEnd < allParagraphs.length) {
+        const bottomEl = document.getElementById(`p-${Math.max(0, renderedEnd - 1)}`);
+        if (bottomEl) {
+          const bottom = bottomEl.offsetTop + window.innerHeight * 2;
+          if (scrollBottom() >= bottomEl.offsetTop) {
+            const to = Math.min(renderedEnd + BATCH_SIZE * 2, allParagraphs.length);
+            renderRange(renderedEnd, to, true);
+          }
+        }
+      }
+    }
+    function scrollBottom() { return window.innerHeight + window.scrollY; }
 
     // ========== 当前章节高亮 ==========
     function updateActiveChapter() {
@@ -487,37 +605,50 @@
       }
     }
 
-    // ========== 跳转到章节（保证先渲染，再滚动） ==========
+    // ========== 跳转到章节（保证先加载卷+渲染，再滚动） ==========
     function jumpToChapter(index) {
       const chap = chapters[index];
       if (!chap) return;
       currentChapter = index;
 
-      // 目标位置及后面一段必须已渲染
-      const needEnd = Math.min(chap.end + BATCH_SIZE, allParagraphs.length);
-      if (renderedEnd < needEnd) {
-        // 一次性补渲染到位（不能分批等滚动，否则跳转不准）
-        renderRange(renderedEnd, needEnd, true);
-      }
-
-      // 双保险：等一帧让浏览器完成布局，再滚动
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          const target = document.getElementById(`p-${chap.start}`);
-          if (target) {
-            window.scrollTo({
-              top: target.offsetTop - 130,
-              behavior: 'smooth'
+      if (splitMode && splitIndex) {
+        // split 模式：找到该章节所在卷，确保已加载
+        const chapStart = chap.start;
+        let volIdx = 0;
+        for (let i = 0; i < volumeStartIdx.length; i++) {
+          if (volumeStartIdx[i] <= chapStart) volIdx = i;
+        }
+        const volEnd = (volIdx + 1 < splitIndex.volumes.length)
+          ? volumeStartIdx[volIdx + 1]
+          : allParagraphs.length;
+        // 只渲染占位到目标卷末尾（避免一次渲几万个 DOM）
+        const needEnd = Math.min(volEnd, chapStart + BATCH_SIZE * 2);
+        if (renderedEnd < needEnd) renderRange(renderedEnd, needEnd, true);
+        // 加载目标卷（已加载则立即 resolve）
+        loadVolume(volIdx).then(() => {
+          // 等 DOM 替换完成后再滚动
+          requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => {
+            const target = document.getElementById(`p-${chapStart}`);
+            if (target) window.scrollTo({ top: target.offsetTop - 130, behavior: 'auto' });
+            document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
+              li.classList.toggle('active', idx === index);
             });
-          }
-          // 高亮
+            closeMobileToc();
+          }, 50));
+        });
+      } else {
+        // 原整文件模式
+        const needEnd = Math.min(chap.end + BATCH_SIZE, allParagraphs.length);
+        if (renderedEnd < needEnd) renderRange(renderedEnd, needEnd, true);
+        requestAnimationFrame(() => setTimeout(() => {
+          const target = document.getElementById(`p-${chap.start}`);
+          if (target) window.scrollTo({ top: target.offsetTop - 130, behavior: 'auto' });
           document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
             li.classList.toggle('active', idx === index);
           });
-          // 移动端：跳完自动收起目录
           closeMobileToc();
-        }, 30);
-      });
+        }, 80));
+      }
     }
 
     // ========== 渲染章节目录 ==========
@@ -644,17 +775,64 @@
     // ========== 主加载 ==========
     async function loadContent() {
       try {
+        // 先等预取的切分索引结果
+        const splitIdx = window.__splitPreload ? await window.__splitPreload : null;
+        window.__splitPreload = null;
+
+        if (splitIdx && splitIdx.volumes && splitIdx.volumes.length >= 2) {
+          // ========== 按卷加载模式（split mode）==========
+          splitMode = true;
+          splitIndex = splitIdx;
+          loadedVolumes = {};
+          // 同步到 window
+          window.splitMode = true;
+          window.splitIndex = splitIdx;
+          window.loadedVolumes = loadedVolumes;
+          // 预计算每卷在 allParagraphs 里的起始段落位置
+          volumeStartIdx = [];
+          let pCount = 0;
+          for (let i = 0; i < splitIdx.volumes.length; i++) {
+            volumeStartIdx.push(pCount);
+            // 用 lines 估算段落数（实际加载后会被真实段落覆盖，但足够给目录定位）
+            pCount += splitIdx.volumes[i].lines;
+          }
+          // allParagraphs 初始化为稀疏数组（用 null 占位），长度 = 总段落估算
+          allParagraphs = new Array(pCount).fill(null);
+
+          // 用切分索引直接生成章节目录（100% 精准，无需等待全文）
+          chapters = splitIdx.volumes.map((v, i) => ({
+            title: v.title,
+            start: volumeStartIdx[i],
+            end: (i + 1 < splitIdx.volumes.length) ? volumeStartIdx[i + 1] : pCount,
+            volIdx: i,
+          }));
+          window.chapters = chapters;
+          tocReady = true;
+          renderChapterList();
+
+          // 首屏：立即加载第 1 卷
+          await loadVolume(0);
+          // 渲染第 1 卷的段落（并预留前 2 屏的占位，方便滚动感知）
+          renderRange(0, splitIdx.volumes[0].lines + Math.min(splitIdx.volumes[1] ? splitIdx.volumes[1].lines : 0, BATCH_SIZE), false);
+          setupScrollLoad();
+
+          // 恢复阅读位置
+          restoreReadPos();
+          saveReadPosOnScroll();
+
+          // 静默预加载第 2 卷（仅一次，不链式）
+          if (splitIdx.volumes.length > 1) setTimeout(() => loadVolume(1), 600);
+          return;
+        }
+
+        // ========== 整文件流式加载模式（小书/未切分书） ==========
         const bookUrl = 'books/' + bookPath.split('/').map(encodeURIComponent).join('/');
-        // 首屏只需开头约 9000 字：足够铺满屏幕并留出滚动余量
         const FIRST_CHARS = 9000;
 
         const decoder = new TextDecoder('utf-8');
         let receivedText = '';
         let streamDone = false;
 
-        // 用整文件请求（不加 Range）才能让服务器 gzip 压缩、让 CDN 缓存整份响应，
-        // 实测比 Range 分片快 10 倍以上；再配合流式读取，凑够首屏字数就立即渲染，
-        // 无论全书多大（有的 400 多万字）都能秒开
         let response = null;
         if (window.__bookPreloadUrl === bookUrl && window.__bookPreload) {
           response = await window.__bookPreload;
@@ -664,8 +842,6 @@
         if (!response.ok) throw new Error('该典籍未收录');
 
         let reader = response.body.getReader();
-        // 读到足够铺满屏幕的字数就立即渲染首屏（大书也能秒开）；
-        // 卷次目录会随后台流式加载完成自动补全
         while (receivedText.length < FIRST_CHARS) {
           const { done, value } = await reader.read();
           if (done) { streamDone = true; break; }
@@ -673,42 +849,28 @@
         }
         allParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
         chapters = parseChapters(allParagraphs, true);
+        window.chapters = chapters;
+        window.allParagraphs = allParagraphs;
         renderChapterList();
         renderRange(0, Math.min(BATCH_SIZE, allParagraphs.length), false);
         setupScrollLoad();
 
-        // 剩余部分沿用同一个流继续读取即可，无需二次请求（且仍享受 gzip 压缩）
-        // 恢复阅读位置（localStorage）
-        try {
-          const saved = localStorage.getItem('readPos_' + bookPath);
-          if (saved) {
-            const pos = parseInt(saved);
-            setTimeout(() => window.scrollTo(0, pos), 100);
-          }
-        } catch(e) {}
+        restoreReadPos();
 
-        // 2) 后台继续加载剩余部分 —— 追加，不重排章节
+        // 后台继续加载剩余部分
         (async function loadRest() {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             receivedText += decoder.decode(value, { stream: true });
           }
-          // 全文读完：补全段落数组，并基于完整内容重新解析一次卷次目录
-          // （此时书前的总目块会被识别并跳过，目录直接对应正文各处，跳转才精准）
           allParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
           chapters = parseChapters(allParagraphs);
           tocReady = true;
           renderChapterList();
         })();
 
-        // 阅读位置保存
-        window.addEventListener('beforeunload', () => {
-          try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
-        });
-        window.addEventListener('scroll', () => {
-          try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
-        }, { passive: true });
+        saveReadPosOnScroll();
 
       } catch (e) {
         console.error('加载失败:', e);
@@ -719,6 +881,24 @@
           </div>
         `;
       }
+    }
+
+    function restoreReadPos() {
+      try {
+        const saved = localStorage.getItem('readPos_' + bookPath);
+        if (saved) {
+          const pos = parseInt(saved);
+          setTimeout(() => window.scrollTo(0, pos), 150);
+        }
+      } catch(e) {}
+    }
+    function saveReadPosOnScroll() {
+      window.addEventListener('beforeunload', () => {
+        try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
+      });
+      window.addEventListener('scroll', () => {
+        try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
+      }, { passive: true });
     }
 
     // ========== 按钮事件 ==========
@@ -738,9 +918,17 @@
       const val = e.target.value.trim();
       searchTimer = setTimeout(() => {
         searchTerm = val;
-        // 搜索前先把目标附近渲染出来：至少渲染前 600 段
-        if (renderedEnd < Math.min(600, allParagraphs.length)) {
-          renderRange(renderedEnd, Math.min(600, allParagraphs.length), true);
+        // 搜索前先确保至少渲染到 600 段或当前卷+下一卷
+        if (splitMode && splitIndex) {
+          ensureVolumesAroundViewport();
+          // 追加渲染到至少视口下 1000 段的位置
+          if (renderedEnd < Math.min(volumeStartIdx[Math.min(currentChapter+2, splitIndex.volumes.length-1)] || allParagraphs.length, allParagraphs.length)) {
+            renderRange(renderedEnd, Math.min(renderedEnd + BATCH_SIZE*3, allParagraphs.length), true);
+          }
+        } else {
+          if (renderedEnd < Math.min(600, allParagraphs.length)) {
+            renderRange(renderedEnd, Math.min(600, allParagraphs.length), true);
+          }
         }
         highlightSearch();
       }, 250);
