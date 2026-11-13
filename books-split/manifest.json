@@ -1,0 +1,390 @@
+{
+  "乐经/乐书.txt": {
+    "volume_count": 200,
+    "total_size": 1190198
+  },
+  "乐经/乐律全书.txt": {
+    "volume_count": 41,
+    "total_size": 1312974
+  },
+  "五经总义/七经孟子考文补遗.txt": {
+    "volume_count": 197,
+    "total_size": 1570158
+  },
+  "五经总义/十三经注疏正字.txt": {
+    "volume_count": 80,
+    "total_size": 2209119
+  },
+  "五经总义/朱子五经语类.txt": {
+    "volume_count": 80,
+    "total_size": 1173339
+  },
+  "五经总义/经典释文.txt": {
+    "volume_count": 44,
+    "total_size": 1943199
+  },
+  "修身治家/颜氏家训集解.txt": {
+    "volume_count": 15,
+    "total_size": 1417394
+  },
+  "四书/四书大全.txt": {
+    "volume_count": 35,
+    "total_size": 2559907
+  },
+  "四书/四书纂疏.txt": {
+    "volume_count": 29,
+    "total_size": 1724732
+  },
+  "四书/四书蒙引.txt": {
+    "volume_count": 17,
+    "total_size": 1323701
+  },
+  "四书/四书讲义困勉录.txt": {
+    "volume_count": 38,
+    "total_size": 1515832
+  },
+  "四书/四书通.txt": {
+    "volume_count": 26,
+    "total_size": 1462633
+  },
+  "四书/四书集编.txt": {
+    "volume_count": 24,
+    "total_size": 913385
+  },
+  "四书/大学衍义补.txt": {
+    "volume_count": 154,
+    "total_size": 3492890
+  },
+  "四书/日讲四书解义.txt": {
+    "volume_count": 26,
+    "total_size": 1142443
+  },
+  "小学/五音集韵.txt": {
+    "volume_count": 15,
+    "total_size": 1401833
+  },
+  "小学/古今韵会举要.txt": {
+    "volume_count": 30,
+    "total_size": 1914600
+  },
+  "小学/康熙字典.txt": {
+    "volume_count": 2765,
+    "total_size": 13273049
+  },
+  "小学/御定康熙字典.txt": {
+    "volume_count": 72,
+    "total_size": 7283582
+  },
+  "小学/类篇.txt": {
+    "volume_count": 56,
+    "total_size": 1769883
+  },
+  "小学/说文解字注.txt": {
+    "volume_count": 2,
+    "total_size": 4440079
+  },
+  "小学/钦定叶韵汇辑.txt": {
+    "volume_count": 58,
+    "total_size": 1484857
+  },
+  "小学/钦定音韵述微.txt": {
+    "volume_count": 30,
+    "total_size": 1118981
+  },
+  "小学/集韵.txt": {
+    "volume_count": 9,
+    "total_size": 1219723
+  },
+  "小学/马氏文通.txt": {
+    "volume_count": 11,
+    "total_size": 1252024
+  },
+  "尚书/书传辑录纂注.txt": {
+    "volume_count": 6,
+    "total_size": 1027095
+  },
+  "尚书/书经大全.txt": {
+    "volume_count": 10,
+    "total_size": 1107286
+  },
+  "尚书/尚书全解.txt": {
+    "volume_count": 40,
+    "total_size": 1506714
+  },
+  "尚书/尚书正义.txt": {
+    "volume_count": 59,
+    "total_size": 1542915
+  },
+  "尚书/尚书注疏.txt": {
+    "volume_count": 38,
+    "total_size": 1289745
+  },
+  "尚书/禹贡锥指.txt": {
+    "volume_count": 19,
+    "total_size": 1193230
+  },
+  "尚书/钦定书经传说汇纂.txt": {
+    "volume_count": 22,
+    "total_size": 1480065
+  },
+  "春秋/三传折诸.txt": {
+    "volume_count": 43,
+    "total_size": 1128281
+  },
+  "春秋/左传杜林合注.txt": {
+    "volume_count": 50,
+    "total_size": 1608290
+  },
+  "春秋/日讲春秋解义.txt": {
+    "volume_count": 77,
+    "total_size": 1712721
+  },
+  "春秋/春秋会通.txt": {
+    "volume_count": 24,
+    "total_size": 1336848
+  },
+  "春秋/春秋公羊传注疏.txt": {
+    "volume_count": 29,
+    "total_size": 1575280
+  },
+  "春秋/春秋分记.txt": {
+    "volume_count": 90,
+    "total_size": 1678801
+  },
+  "春秋/春秋大全.txt": {
+    "volume_count": 37,
+    "total_size": 2764861
+  },
+  "春秋/春秋左传正义.txt": {
+    "volume_count": 61,
+    "total_size": 4102461
+  },
+  "春秋/春秋左传注疏.txt": {
+    "volume_count": 60,
+    "total_size": 3321814
+  },
+  "春秋/春秋正传.txt": {
+    "volume_count": 38,
+    "total_size": 1112171
+  },
+  "春秋/春秋纂言.txt": {
+    "volume_count": 19,
+    "total_size": 1046886
+  },
+  "春秋/春秋胡传附录纂疏.txt": {
+    "volume_count": 30,
+    "total_size": 2227762
+  },
+  "春秋/春秋辑传.txt": {
+    "volume_count": 13,
+    "total_size": 1148224
+  },
+  "春秋/春秋辩义.txt": {
+    "volume_count": 38,
+    "total_size": 1412374
+  },
+  "春秋/春秋阙疑.txt": {
+    "volume_count": 44,
+    "total_size": 1157527
+  },
+  "春秋/春秋集义.txt": {
+    "volume_count": 50,
+    "total_size": 996553
+  },
+  "春秋/春秋集传释义大成.txt": {
+    "volume_count": 13,
+    "total_size": 1155100
+  },
+  "春秋/钦定春秋传说汇纂.txt": {
+    "volume_count": 39,
+    "total_size": 3069064
+  },
+  "礼经/五礼通考.txt": {
+    "volume_count": 317,
+    "total_size": 14275480
+  },
+  "礼经/仪礼注疏.txt": {
+    "volume_count": 51,
+    "total_size": 2472579
+  },
+  "礼经/仪礼经传通解.txt": {
+    "volume_count": 63,
+    "total_size": 5140906
+  },
+  "礼经/仪礼集编.txt": {
+    "volume_count": 40,
+    "total_size": 2194917
+  },
+  "礼经/周礼传.txt": {
+    "volume_count": 2,
+    "total_size": 159527
+  },
+  "礼经/周礼注疏.txt": {
+    "volume_count": 42,
+    "total_size": 3145610
+  },
+  "礼经/周礼注疏删翼.txt": {
+    "volume_count": 30,
+    "total_size": 1609519
+  },
+  "礼经/周礼订义.txt": {
+    "volume_count": 81,
+    "total_size": 2501699
+  },
+  "礼经/周礼详解.txt": {
+    "volume_count": 38,
+    "total_size": 1224882
+  },
+  "礼经/日讲礼记解义.txt": {
+    "volume_count": 65,
+    "total_size": 1313796
+  },
+  "礼经/礼书.txt": {
+    "volume_count": 149,
+    "total_size": 1186677
+  },
+  "礼经/礼书纲目.txt": {
+    "volume_count": 124,
+    "total_size": 3340095
+  },
+  "礼经/礼记大全.txt": {
+    "volume_count": 31,
+    "total_size": 1694995
+  },
+  "礼经/礼记正义.txt": {
+    "volume_count": 75,
+    "total_size": 4473215
+  },
+  "礼经/礼记注疏.txt": {
+    "volume_count": 124,
+    "total_size": 3489444
+  },
+  "礼经/礼记纂言.txt": {
+    "volume_count": 36,
+    "total_size": 1820359
+  },
+  "礼经/礼记述注.txt": {
+    "volume_count": 28,
+    "total_size": 1119048
+  },
+  "礼经/礼记集说.txt": {
+    "volume_count": 160,
+    "total_size": 5650074
+  },
+  "礼经/读礼通考.txt": {
+    "volume_count": 141,
+    "total_size": 4866093
+  },
+  "礼经/钦定仪礼义疏.txt": {
+    "volume_count": 49,
+    "total_size": 2504004
+  },
+  "礼经/钦定周官义疏.txt": {
+    "volume_count": 50,
+    "total_size": 2202496
+  },
+  "礼经/钦定礼记义疏.txt": {
+    "volume_count": 83,
+    "total_size": 3858264
+  },
+  "诗经/毛诗李黄集解.txt": {
+    "volume_count": 54,
+    "total_size": 1468201
+  },
+  "诗经/毛诗正义.txt": {
+    "volume_count": 70,
+    "total_size": 3845204
+  },
+  "诗经/毛诗注疏.txt": {
+    "volume_count": 54,
+    "total_size": 2784623
+  },
+  "诗经/田间诗学.txt": {
+    "volume_count": 13,
+    "total_size": 1071112
+  },
+  "诗经/诗传大全.txt": {
+    "volume_count": 20,
+    "total_size": 1220300
+  },
+  "诗经/诗传通释.txt": {
+    "volume_count": 20,
+    "total_size": 1208648
+  },
+  "诗经/诗经世本古义.txt": {
+    "volume_count": 26,
+    "total_size": 3148185
+  },
+  "诗经/诗经疏义会通.txt": {
+    "volume_count": 19,
+    "total_size": 1123762
+  },
+  "诗经/诗缉.txt": {
+    "volume_count": 39,
+    "total_size": 1173737
+  },
+  "诗经/读诗质疑.txt": {
+    "volume_count": 44,
+    "total_size": 1085585
+  },
+  "诗经/钦定诗经传说汇纂.txt": {
+    "volume_count": 23,
+    "total_size": 2227651
+  },
+  "语录/大学衍义补.txt": {
+    "volume_count": 161,
+    "total_size": 3063737
+  },
+  "语录/御定孝经衍义.txt": {
+    "volume_count": 101,
+    "total_size": 2088928
+  },
+  "语录/御纂朱子全书.txt": {
+    "volume_count": 68,
+    "total_size": 2844502
+  },
+  "语录/御览经史讲义.txt": {
+    "volume_count": 31,
+    "total_size": 1642174
+  },
+  "语录/性理大全书.txt": {
+    "volume_count": 75,
+    "total_size": 2669498
+  },
+  "语录/日知录.txt": {
+    "volume_count": 32,
+    "total_size": 1510529
+  },
+  "语录/日知录集释.txt": {
+    "volume_count": 36,
+    "total_size": 2384620
+  },
+  "语录/朱子语类.txt": {
+    "volume_count": 140,
+    "total_size": 5936960
+  },
+  "语录/格物通.txt": {
+    "volume_count": 102,
+    "total_size": 1539543
+  },
+  "语录/法言义疏.txt": {
+    "volume_count": 2,
+    "total_size": 1344636
+  },
+  "语录/王明阳集.txt": {
+    "volume_count": 31,
+    "total_size": 1899632
+  },
+  "语录/西山读书记.txt": {
+    "volume_count": 43,
+    "total_size": 2177825
+  },
+  "语录/阳明先生文集.txt": {
+    "volume_count": 33,
+    "total_size": 1714446
+  },
+  "语录/黄氏日抄.txt": {
+    "volume_count": 96,
+    "total_size": 3333535
+  }
+}
