@@ -3,100 +3,350 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>本体七层 · 儒藏本体论</title>
+  <title>本體總覽 | 儒藏本体論</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="style/common.css">
-  <link rel="preload" href="data/common.js" as="script">
-<link rel="icon" href="favicon.ico">
+  <style>
+    .main-content {
+      margin-left: 180px;
+      margin-top: 60px;
+      padding: 40px 60px;
+      min-height: calc(100vh - 60px);
+    }
+    .page-title {
+      font-size: 36px;
+      color: var(--accent-gold);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .page-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-bottom: 48px;
+    }
+    .ontology-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    .ontology-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .ontology-card:hover {
+      border-color: var(--accent-gold);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(212,175,55,0.1);
+    }
+    .card-icon {
+      font-size: 40px;
+      color: var(--accent-gold);
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 22px;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+    .card-desc {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .card-count {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(212,175,55,0.15);
+      color: var(--accent-gold);
+      border-radius: 16px;
+      font-size: 13px;
+    }
+    .card-link {
+      display: block;
+      margin-top: 16px;
+      text-align: right;
+      color: var(--accent-gold);
+      font-size: 14px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      color: var(--accent-gold);
+      margin: 48px 0 24px 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .concept-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .concept-tag {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(212,175,55,0.1);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 15px;
+    }
+    .concept-tag:hover {
+      background: var(--accent-gold);
+      color: #1a1308;
+    }
+    .person-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .person-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.2s;
+    }
+    .person-card:hover {
+      border-color: #a78bfa;
+    }
+    .person-name {
+      font-size: 18px;
+      color: #a78bfa;
+      margin-bottom: 6px;
+    }
+    .person-era {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .person-title {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .person-ideas {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .idea-tag {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(212,175,55,0.1);
+      color: var(--accent-gold);
+    }
+
+    .school-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .school-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.2s;
+    }
+    .school-card:hover {
+      border-color: #4ade80;
+    }
+    .school-name {
+      font-size: 18px;
+      color: #4ade80;
+      margin-bottom: 6px;
+    }
+    .school-founder {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .school-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .book-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: block;
+    }
+    .book-card:hover {
+      border-color: #60a5fa;
+      transform: translateY(-2px);
+    }
+    .book-name {
+      font-size: 18px;
+      color: #60a5fa;
+      margin-bottom: 6px;
+    }
+    .book-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .book-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+      .page-title { font-size: 28px; }
+    }
+  </style>
 </head>
 <body>
   <div class="main-content">
-    <h1 class="page-title">儒藏本体七层架构</h1>
-    <p class="page-subtitle">从形上本体到文化外延的完整知识体系 · 对齐语义网七层模型</p>
+    <h1 class="page-title">儒藏本體論</h1>
+    <p class="page-subtitle">道 · 理 · 心 · 性 · 仁 · 義 · 禮 · 智，構建完整儒學知識本體</p>
 
-    <div class="card-grid" style="grid-template-columns: 1fr; gap: 24px;">
-      <div class="card" style="padding: 32px;">
-        <div class="layer-level" style="font-size: 14px; margin-bottom: 8px;">L0 元模型层 · 本体之基</div>
-        <h3 style="color: var(--accent-gold); font-size: 24px; margin-bottom: 16px;">道 · 太极 · 阴阳 · 天理</h3>
-        <p style="color: var(--text-secondary); line-height: 2; margin-bottom: 12px;">
-          儒家形而上学的最高范畴层，是整个本体体系的逻辑起点。道是宇宙的终极本原与普遍规律，"形而上者谓之道"；太极是阴阳未分的本原状态，"易有太极，是生两仪"；阴阳是宇宙间相互对立又相互依存的基本力量，"一阴一阳之谓道"；天理是宋明理学对道的新诠释，是宇宙的普遍法则与道德准则的统一。
-        </p>
-        <p style="color: var(--text-muted); font-size: 14px;">
-          核心概念：道、太极、阴阳、五行、天理、形上形下、理一分殊
-        </p>
+    <div class="ontology-grid">
+      <div class="ontology-card" onclick="location.href='#concepts'">
+        <div class="card-icon">☯</div>
+        <div class="card-title">核心概念本體</div>
+        <div class="card-desc">儒家核心哲学范畴、德行条目、功夫论、政治思想等概念的定义、源流、关联关系。</div>
+        <span class="card-count">36個核心概念</span>
       </div>
-
-      <div class="card" style="padding: 32px;">
-        <div class="layer-level" style="font-size: 14px; margin-bottom: 8px;">L1 教理本体层 · 核心范畴</div>
-        <h3 style="color: var(--accent-gold); font-size: 24px; margin-bottom: 16px;">仁义礼智信 · 五常</h3>
-        <p style="color: var(--text-secondary); line-height: 2; margin-bottom: 12px;">
-          儒家思想的核心价值体系，是人人本具的五种常德。仁是爱人之心，义是合宜之则，礼是秩序之规，智是明辨之能，信是诚信之德。孟子将仁义礼智归于"四端"，是人心所固有的善性；董仲舒将其与五行相配，形成五常体系，成为中国传统社会的核心伦理。
-        </p>
-        <p style="color: var(--text-muted); font-size: 14px;">
-          核心概念：仁、义、礼、智、信、四端、性善、诚、中庸
-        </p>
+      <div class="ontology-card" onclick="location.href='#persons'">
+        <div class="card-icon">儒</div>
+        <div class="card-title">儒者人物本體</div>
+        <div class="card-desc">历代大儒生平、思想、著作、学派传承，从孔孟荀到程朱陆王，完整的儒者谱系。</div>
+        <span class="card-count">11位代表儒者</span>
       </div>
-
-      <div class="card" style="padding: 32px;">
-        <div class="layer-level" style="font-size: 14px; margin-bottom: 8px;">L2 义理范畴层 · 概念网络</div>
-        <h3 style="color: var(--accent-gold); font-size: 24px; margin-bottom: 16px;">心性 · 理气 · 格物致知 · 知行合一</h3>
-        <p style="color: var(--text-secondary); line-height: 2; margin-bottom: 12px;">
-          儒家哲学的核心概念体系，是历代儒者讨论的主要义理问题。包括心性论（性善性恶、天地之性气质之性、心统性情）、理气论（理先气后、理气不离不杂）、格物致知说（即物穷理与格心）、知行关系（知先行后、知行合一、致良知）、修养功夫论（慎独、居敬、穷理、主静）等。
-        </p>
-        <p style="color: var(--text-muted); font-size: 14px;">
-          核心概念：心、性、理、气、格物、致知、诚意、正心、良知、慎独、知行合一、存天理灭人欲
-        </p>
+      <div class="ontology-card" onclick="location.href='#schools'">
+        <div class="card-icon">派</div>
+        <div class="card-title">學派流派本體</div>
+        <div class="card-desc">儒家各学派的源流、核心思想、代表人物、传承脉络，从先秦儒学到宋明理学心学。</div>
+        <span class="card-count">7個主要學派</span>
       </div>
-
-      <div class="card" style="padding: 32px;">
-        <div class="layer-level" style="font-size: 14px; margin-bottom: 8px;">L3 宗派学派层 · 义理体系</div>
-        <h3 style="color: var(--accent-gold); font-size: 24px; margin-bottom: 16px;">理学 · 心学 · 经学 · 朴学</h3>
-        <p style="color: var(--text-secondary); line-height: 2; margin-bottom: 12px;">
-          儒学发展史上形成的主要学术流派。先秦有儒家八派，汉代有今文经学与古文经学，宋明时期分为程朱理学（性即理）与陆王心学（心即理）两大派，清代有乾嘉朴学（考据学）。各派对经典的诠释不同，形成了各具特色的义理体系，共同构成了儒学的丰富内涵。
-        </p>
-        <p style="color: var(--text-muted); font-size: 14px;">
-          主要流派：程朱理学、陆王心学、汉唐经学、清代朴学、今文经学、古文经学
-        </p>
+      <div class="ontology-card" onclick="location.href='#books'">
+        <div class="card-icon">籍</div>
+        <div class="card-title">典籍章句本體</div>
+        <div class="card-desc">908部儒学典籍的分类、作者、年代、核心思想，从四书五经到清儒著作全覆盖。</div>
+        <span class="card-count">908部典籍 · 章句導航</span>
+        <a href="zhangju.html" class="card-link">進入章句導航 →</a>
       </div>
-
-      <div class="card" style="padding: 32px;">
-        <div class="layer-level" style="font-size: 14px; margin-bottom: 8px;">L4 文本载体层 · 经典体系</div>
-        <h3 style="color: var(--accent-gold); font-size: 24px; margin-bottom: 16px;">四书五经 · 908部儒藏典籍</h3>
-        <p style="color: var(--text-secondary); line-height: 2; margin-bottom: 12px;">
-          儒家思想的文献载体，从先秦经典到历代注疏，形成了庞大的经典体系。核心是四书（《大学》《中庸》《论语》《孟子》）与五经（《周易》《尚书》《诗经》《礼记》《春秋》），后世儒者对这些经典的注疏、解说、发挥构成了儒藏的主体，本次共收录908部、1.39亿字。
-        </p>
-        <p style="color: var(--text-muted); font-size: 14px;">
-          核心经典：四书、五经、十三经注疏、朱子语类、传习录、明儒学案、宋元学案等
-        </p>
+      <div class="ontology-card" onclick="location.href='graph.html'">
+        <div class="card-icon">圖</div>
+        <div class="card-title">本體知識圖譜</div>
+        <div class="card-desc">可交互的力导向知识图谱，直观展示概念、人物、学派、典籍之间的关联关系，拖拽缩放、点击查看详情。</div>
+        <span class="card-count">可交互力導向圖</span>
+        <a href="graph.html" class="card-link">打開圖譜 →</a>
       </div>
-
-      <div class="card" style="padding: 32px;">
-        <div class="layer-level" style="font-size: 14px; margin-bottom: 8px;">L5 人物传承层 · 道统谱系</div>
-        <h3 style="color: var(--accent-gold); font-size: 24px; margin-bottom: 16px;">孔孟荀董 · 周程张朱陆王 · 历代圣贤</h3>
-        <p style="color: var(--text-secondary); line-height: 2; margin-bottom: 12px;">
-          儒家道统的传承者，从先秦孔子、孟子、荀子，到汉代董仲舒，唐代韩愈，北宋周敦颐、程颢、程颐、张载，南宋朱熹、陆九渊，明代王阳明，清代顾炎武、戴震等，历代圣贤前后相继，传承并发展儒家思想，形成了清晰的道统谱系。
-        </p>
-        <p style="color: var(--text-muted); font-size: 14px;">
-          代表人物：孔子、孟子、荀子、董仲舒、韩愈、周敦颐、二程、张载、朱熹、陆九渊、王阳明、顾炎武、戴震
-        </p>
-      </div>
-
-      <div class="card" style="padding: 32px;">
-        <div class="layer-level" style="font-size: 14px; margin-bottom: 8px;">L6 文化外延层 · 社会影响</div>
-        <h3 style="color: var(--accent-gold); font-size: 24px; margin-bottom: 16px;">礼乐 · 科举 · 宗族 · 蒙学 · 东亚文化圈</h3>
-        <p style="color: var(--text-secondary); line-height: 2; margin-bottom: 12px;">
-          儒家思想在社会文化各领域的延伸与影响，包括礼乐制度（吉凶军宾嘉五礼）、科举制度（以儒家经典为考试内容）、宗族制度（宗法、族规、家训）、蒙学教育（三字经、百家姓、千字文等启蒙读物），以及对朝鲜、日本、越南等东亚国家的深远影响，形成了儒家文化圈。
-        </p>
-        <p style="color: var(--text-muted); font-size: 14px;">
-          文化外延：礼乐制度、科举教育、宗族伦理、蒙学读物、东亚儒家文化圈
-        </p>
+      <div class="ontology-card" onclick="location.href='timeline.html'">
+        <div class="card-icon">脈</div>
+        <div class="card-title">儒門道脈傳承</div>
+        <div class="card-desc">从尧舜禹汤到孔孟程朱陆王的儒家道统传承脉络，两千年儒学发展时间线。</div>
+        <span class="card-count">時間線 · 道統</span>
+        <a href="timeline.html" class="card-link">查看道脈 →</a>
       </div>
     </div>
+
+    <h2 class="section-title" id="concepts">☯ 核心概念本體</h2>
+    <div class="concept-tags" id="conceptTags"></div>
+
+    <h2 class="section-title" id="persons">儒 儒者人物本體</h2>
+    <div class="person-grid" id="personGrid"></div>
+
+    <h2 class="section-title" id="schools">派 學派流派本體</h2>
+    <div class="school-grid" id="schoolGrid"></div>
+
+    <h2 class="section-title" id="books">籍 核心典籍本體</h2>
+    <div class="book-grid" id="bookGrid"></div>
   </div>
 
   <script src="data/common.js"></script>
+  <script src="data/ontology.js"></script>
   <script>
     initPage('ontology.html');
-    renderFooter();
+
+    // 渲染概念标签
+    const conceptTags = document.getElementById('conceptTags');
+    Object.keys(ONTOLOGY.concepts).forEach(name => {
+      const tag = document.createElement('div');
+      tag.className = 'concept-tag';
+      tag.textContent = name;
+      tag.title = ONTOLOGY.concepts[name].def;
+      tag.onclick = () => {
+        location.href = 'graph.html';
+      };
+      conceptTags.appendChild(tag);
+    });
+
+    // 渲染人物
+    const personGrid = document.getElementById('personGrid');
+    Object.values(ONTOLOGY.persons).forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'person-card';
+      let ideasHtml = '';
+      if (p.ideas) {
+        ideasHtml = '<div class="person-ideas">' + p.ideas.slice(0,4).map(i => `<span class="idea-tag">${i}</span>`).join('') + '</div>';
+      }
+      card.innerHTML = `
+        <div class="person-name">${p.title.split('，')[0]}</div>
+        <div class="person-era">${p.era}</div>
+        <div class="person-title">${p.title}</div>
+        ${ideasHtml}
+      `;
+      personGrid.appendChild(card);
+    });
+
+    // 渲染学派
+    const schoolGrid = document.getElementById('schoolGrid');
+    Object.values(ONTOLOGY.schools).forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'school-card';
+      card.innerHTML = `
+        <div class="school-name">${Object.keys(ONTOLOGY.schools).find(k => ONTOLOGY.schools[k] === s)}</div>
+        <div class="school-founder">创始人：${s.founder} · ${s.era}</div>
+        <div class="school-desc">${s.desc}</div>
+      `;
+      schoolGrid.appendChild(card);
+    });
+
+    // 渲染典籍
+    const bookGrid = document.getElementById('bookGrid');
+    Object.entries(ONTOLOGY.books).forEach(([name, b]) => {
+      const card = document.createElement('a');
+      card.className = 'book-card';
+      card.href = `reader.html?b=${encodeURIComponent(b.category + '/' + name + '.txt')}`;
+      card.innerHTML = `
+        <div class="book-name">${name}</div>
+        <div class="book-meta">${b.author} · ${b.era} · ${b.chapters_count}章</div>
+        <div class="book-desc">${b.desc.slice(0,60)}...</div>
+      `;
+      bookGrid.appendChild(card);
+    });
   </script>
 </body>
 </html>
