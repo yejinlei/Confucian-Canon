@@ -18,16 +18,19 @@
       color: var(--accent-gold);
       text-align: center;
       margin-bottom: 12px;
+      font-weight: 300;
+      letter-spacing: 8px;
     }
     .page-subtitle {
       text-align: center;
       color: var(--text-muted);
       font-size: 16px;
       margin-bottom: 48px;
+      letter-spacing: 2px;
     }
     .ontology-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 24px;
       margin-bottom: 48px;
     }
@@ -74,6 +77,7 @@
       text-align: right;
       color: var(--accent-gold);
       font-size: 14px;
+      text-decoration: none;
     }
 
     .section-title {
@@ -82,6 +86,8 @@
       margin: 48px 0 24px 0;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
+      letter-spacing: 2px;
+      font-weight: 300;
     }
     .concept-tags {
       display: flex;
@@ -103,6 +109,7 @@
       background: var(--accent-gold);
       color: #1a1308;
     }
+
     .person-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -122,20 +129,19 @@
     .person-name {
       font-size: 18px;
       color: #a78bfa;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .person-era {
       font-size: 12px;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .person-title {
       font-size: 13px;
       color: var(--text-secondary);
-      line-height: 1.6;
+      margin-bottom: 10px;
     }
     .person-ideas {
-      margin-top: 10px;
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
@@ -144,8 +150,8 @@
       font-size: 11px;
       padding: 2px 6px;
       border-radius: 4px;
-      background: rgba(212,175,55,0.1);
-      color: var(--accent-gold);
+      background: rgba(167,139,250,0.1);
+      color: #a78bfa;
     }
 
     .school-grid {
@@ -231,44 +237,45 @@
     <p class="page-subtitle">道 · 理 · 心 · 性 · 仁 · 義 · 禮 · 智，構建完整儒學知識本體</p>
 
     <div class="ontology-grid">
-      <div class="ontology-card" onclick="location.href='#concepts'">
+      <div class="ontology-card">
         <div class="card-icon">☯</div>
         <div class="card-title">核心概念本體</div>
         <div class="card-desc">儒家核心哲学范畴、德行条目、功夫论、政治思想等概念的定义、源流、关联关系。</div>
-        <span class="card-count">36個核心概念</span>
+        <span class="card-count" id="conceptCount">加載中…</span>
       </div>
-      <div class="ontology-card" onclick="location.href='#persons'">
+      <div class="ontology-card" onclick="location.href='lineage.html'">
         <div class="card-icon">儒</div>
         <div class="card-title">儒者人物本體</div>
         <div class="card-desc">历代大儒生平、思想、著作、学派传承，从孔孟荀到程朱陆王，完整的儒者谱系。</div>
-        <span class="card-count">11位代表儒者</span>
+        <span class="card-count" id="scholarCount">加載中…</span>
+        <a href="lineage.html" class="card-link">查看道脈傳承 →</a>
       </div>
-      <div class="ontology-card" onclick="location.href='#schools'">
+      <div class="ontology-card">
         <div class="card-icon">派</div>
         <div class="card-title">學派流派本體</div>
         <div class="card-desc">儒家各学派的源流、核心思想、代表人物、传承脉络，从先秦儒学到宋明理学心学。</div>
-        <span class="card-count">7個主要學派</span>
+        <span class="card-count" id="schoolCount">加載中…</span>
       </div>
-      <div class="ontology-card" onclick="location.href='#books'">
+      <div class="ontology-card" onclick="location.href='zhangju.html'">
         <div class="card-icon">籍</div>
         <div class="card-title">典籍章句本體</div>
-        <div class="card-desc">908部儒学典籍的分类、作者、年代、核心思想，从四书五经到清儒著作全覆盖。</div>
+        <div class="card-desc">908部儒学典籍的分类、作者、年代、核心思想，从四书五经到清儒著作全覆盖，按卷章句导航。</div>
         <span class="card-count">908部典籍 · 章句導航</span>
         <a href="zhangju.html" class="card-link">進入章句導航 →</a>
       </div>
       <div class="ontology-card" onclick="location.href='graph.html'">
         <div class="card-icon">圖</div>
         <div class="card-title">本體知識圖譜</div>
-        <div class="card-desc">可交互的力导向知识图谱，直观展示概念、人物、学派、典籍之间的关联关系，拖拽缩放、点击查看详情。</div>
+        <div class="card-desc">可交互的力导向知识图谱，直观展示概念、人物、学派、典籍之间的师承/提出/出处三类关联关系，支持筛选、高亮、拖拽缩放、点击查看详情。</div>
         <span class="card-count">可交互力導向圖</span>
         <a href="graph.html" class="card-link">打開圖譜 →</a>
       </div>
-      <div class="ontology-card" onclick="location.href='timeline.html'">
+      <div class="ontology-card" onclick="location.href='lineage.html'">
         <div class="card-icon">脈</div>
         <div class="card-title">儒門道脈傳承</div>
-        <div class="card-desc">从尧舜禹汤到孔孟程朱陆王的儒家道统传承脉络，两千年儒学发展时间线。</div>
-        <span class="card-count">時間線 · 道統</span>
-        <a href="timeline.html" class="card-link">查看道脈 →</a>
+        <div class="card-desc">从孔子到清初三大家的儒家道统传承脉络，两千年儒学发展代际传承树状图。</div>
+        <span class="card-count">代際樹狀圖 · 道統</span>
+        <a href="lineage.html" class="card-link">查看道脈 →</a>
       </div>
     </div>
 
@@ -286,64 +293,67 @@
   </div>
 
   <script src="data/common.js"></script>
-  <script src="data/ontology.js"></script>
   <script>
     initPage('ontology.html');
 
     // 渲染概念标签
     const conceptTags = document.getElementById('conceptTags');
-    Object.keys(ONTOLOGY.concepts).forEach(name => {
+    Object.keys(CONCEPTS).forEach(name => {
       const tag = document.createElement('div');
       tag.className = 'concept-tag';
       tag.textContent = name;
-      tag.title = ONTOLOGY.concepts[name].def;
+      tag.title = CONCEPTS[name].def;
       tag.onclick = () => {
-        location.href = 'graph.html';
+        location.href = 'dictionary.html?q=' + encodeURIComponent(name);
       };
       conceptTags.appendChild(tag);
     });
+    document.getElementById('conceptCount').textContent = Object.keys(CONCEPTS).length + '個核心概念';
 
     // 渲染人物
     const personGrid = document.getElementById('personGrid');
-    Object.values(ONTOLOGY.persons).forEach(p => {
+    Object.entries(SCHOLARS).forEach(([name, p]) => {
       const card = document.createElement('div');
       card.className = 'person-card';
       let ideasHtml = '';
-      if (p.ideas) {
-        ideasHtml = '<div class="person-ideas">' + p.ideas.slice(0,4).map(i => `<span class="idea-tag">${i}</span>`).join('') + '</div>';
+      if (p.idea) {
+        const ideas = p.idea.split('，').slice(0,3);
+        ideasHtml = '<div class="person-ideas">' + ideas.map(i => `<span class="idea-tag">${i.slice(0,6)}</span>`).join('') + '</div>';
       }
       card.innerHTML = `
-        <div class="person-name">${p.title.split('，')[0]}</div>
+        <div class="person-name">${name}</div>
         <div class="person-era">${p.era}</div>
         <div class="person-title">${p.title}</div>
         ${ideasHtml}
       `;
       personGrid.appendChild(card);
     });
+    document.getElementById('scholarCount').textContent = Object.keys(SCHOLARS).length + '位代表儒者';
 
     // 渲染学派
     const schoolGrid = document.getElementById('schoolGrid');
-    Object.values(ONTOLOGY.schools).forEach(s => {
+    Object.entries(SCHOOLS).forEach(([name, s]) => {
       const card = document.createElement('div');
       card.className = 'school-card';
       card.innerHTML = `
-        <div class="school-name">${Object.keys(ONTOLOGY.schools).find(k => ONTOLOGY.schools[k] === s)}</div>
+        <div class="school-name">${name}</div>
         <div class="school-founder">创始人：${s.founder} · ${s.era}</div>
-        <div class="school-desc">${s.desc}</div>
+        <div class="school-desc">${s.idea}</div>
       `;
       schoolGrid.appendChild(card);
     });
+    document.getElementById('schoolCount').textContent = Object.keys(SCHOOLS).length + '個主要學派';
 
     // 渲染典籍
     const bookGrid = document.getElementById('bookGrid');
-    Object.entries(ONTOLOGY.books).forEach(([name, b]) => {
+    Object.entries(CLASSIC_ONTOLOGY).forEach(([name, b]) => {
       const card = document.createElement('a');
       card.className = 'book-card';
-      card.href = `reader.html?b=${encodeURIComponent(b.category + '/' + name + '.txt')}`;
+      card.href = `reader.html?b=${encodeURIComponent(b.cat + '/' + name + '.txt')}`;
       card.innerHTML = `
         <div class="book-name">${name}</div>
-        <div class="book-meta">${b.author} · ${b.era} · ${b.chapters_count}章</div>
-        <div class="book-desc">${b.desc.slice(0,60)}...</div>
+        <div class="book-meta">${b.author} · ${b.era} · ${b.chapters}章</div>
+        <div class="book-desc">${b.idea.slice(0,60)}…</div>
       `;
       bookGrid.appendChild(card);
     });

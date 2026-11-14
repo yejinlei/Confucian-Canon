@@ -22,6 +22,48 @@
       width: 100%;
       height: 100%;
     }
+    /* 筛选面板 */
+    .graph-filter {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      z-index: 10;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .filter-title {
+      color: var(--accent-gold);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .filter-item:last-child { margin-bottom: 0; }
+    .filter-item input {
+      accent-color: var(--accent-gold);
+      cursor: pointer;
+    }
+    .filter-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .filter-dot.concept { background: #d4af37; }
+    .filter-dot.person { background: #a78bfa; }
+    .filter-dot.school { background: #4ade80; }
+    .filter-dot.book { background: #60a5fa; }
+    /* 详情面板 */
     .graph-panel {
       position: absolute;
       top: 20px;
@@ -55,6 +97,9 @@
     .tag.person { background: rgba(150,100,200,0.2); color: #a78bfa; }
     .tag.school { background: rgba(80,180,120,0.2); color: #4ade80; }
     .tag.book { background: rgba(80,150,220,0.2); color: #60a5fa; }
+    .tag.shicheng { background: rgba(244,114,182,0.2); color: #f472b6; }
+    .tag.propose { background: rgba(251,146,60,0.2); color: #fb923c; }
+    .tag.source { background: rgba(96,165,250,0.2); color: #60a5fa; }
     .graph-panel .def {
       color: var(--text-secondary);
       line-height: 1.8;
@@ -120,12 +165,18 @@
       padding: 16px;
       z-index: 10;
     }
+    .legend-title {
+      color: var(--accent-gold);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
     .legend-item {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
-      font-size: 13px;
+      margin-bottom: 6px;
+      font-size: 12px;
       color: var(--text-secondary);
     }
     .legend-item:last-child { margin-bottom: 0; }
@@ -134,14 +185,21 @@
       height: 12px;
       border-radius: 50%;
     }
-    .legend-dot.concept { background: var(--accent-gold); }
+    .legend-line {
+      width: 20px;
+      height: 2px;
+    }
+    .legend-dot.concept { background: #d4af37; }
     .legend-dot.person { background: #a78bfa; }
     .legend-dot.school { background: #4ade80; }
     .legend-dot.book { background: #60a5fa; }
+    .legend-line.shicheng { background: #f472b6; }
+    .legend-line.propose { background: #fb923c; }
+    .legend-line.source { background: #60a5fa; }
     .graph-tip {
       position: absolute;
       top: 20px;
-      left: 20px;
+      left: 200px;
       color: var(--text-muted);
       font-size: 13px;
       z-index: 10;
@@ -149,6 +207,13 @@
     @media (max-width: 768px) {
       .graph-container {
         left: 0;
+      }
+      .graph-filter {
+        display: none;
+      }
+      .graph-tip {
+        left: 20px;
+        top: 80px;
       }
       .graph-panel {
         width: calc(100% - 40px);
@@ -164,26 +229,30 @@
   </style>
 </head>
 <body>
-  <header class="top-nav">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <div class="logo">儒藏本體論 · Confucian Canon</div>
-    <nav class="top-nav-links" id="topNav"></nav>
-    <div class="nav-right">
-      <button class="nav-btn" id="fontSizeBtn" onclick="toggleFontSize()">字號 中</button>
-      <button class="nav-btn" id="verticalBtn" onclick="toggleVertical()">豎排</button>
-    </div>
-  </header>
-  <aside class="sidebar" id="sidebar"></aside>
-
   <div class="graph-container">
     <canvas id="graphCanvas"></canvas>
     <div class="graph-tip">拖拽節點移動 · 滾輪縮放 · 點擊節點查看詳情</div>
+    <!-- 筛选面板 -->
+    <div class="graph-filter">
+      <div class="filter-title">節點篩選</div>
+      <label class="filter-item"><input type="checkbox" value="concept" checked><span class="filter-dot concept"></span>核心概念</label>
+      <label class="filter-item"><input type="checkbox" value="person" checked><span class="filter-dot person"></span>儒者人物</label>
+      <label class="filter-item"><input type="checkbox" value="school" checked><span class="filter-dot school"></span>学派流派</label>
+      <label class="filter-item"><input type="checkbox" value="book" checked><span class="filter-dot book"></span>典籍著作</label>
+      <div class="filter-title" style="margin-top: 12px;">關係類型</div>
+      <label class="filter-item"><input type="checkbox" value="shicheng" checked><span class="legend-line shicheng"></span>师承傳承</label>
+      <label class="filter-item"><input type="checkbox" value="propose" checked><span class="legend-line propose"></span>思想提出</label>
+      <label class="filter-item"><input type="checkbox" value="source" checked><span class="legend-line source"></span>典籍出處</label>
+    </div>
+    <!-- 图例 -->
     <div class="graph-legend">
+      <div class="legend-title">圖例說明</div>
       <div class="legend-item"><div class="legend-dot concept"></div>核心概念</div>
       <div class="legend-item"><div class="legend-dot person"></div>儒者人物</div>
       <div class="legend-item"><div class="legend-dot school"></div>学派流派</div>
       <div class="legend-item"><div class="legend-dot book"></div>典籍著作</div>
     </div>
+    <!-- 详情面板 -->
     <div class="graph-panel" id="graphPanel" style="display: none;">
       <h3 id="panelTitle"></h3>
       <span class="tag" id="panelTag"></span>
@@ -196,17 +265,12 @@
   </div>
 
   <script src="data/common.js"></script>
-  <script src="data/ontology.js"></script>
   <script>
-    initPage();
-    renderSidebar();
-    renderTopNav();
-    initTheme();
-
+    initPage('graph.html');
     // ========== 力导向图实现 ==========
     const canvas = document.getElementById('graphCanvas');
     const ctx = canvas.getContext('2d');
-    let nodes = [], links = [], selectedNode = null;
+    let allNodes = [], allLinks = [], visibleNodes = [], visibleLinks = [], selectedNode = null;
     let width = canvas.offsetWidth, height = canvas.offsetHeight;
     const nodeColors = {
       concept: '#d4af37',
@@ -214,14 +278,24 @@
       school: '#4ade80',
       book: '#60a5fa'
     };
+    const linkColors = {
+      shicheng: '#f472b6',
+      propose: '#fb923c',
+      source: '#60a5fa',
+      default: 'rgba(212,175,55,0.15)'
+    };
+    let activeFilters = {
+      node: new Set(['concept', 'person', 'school', 'book']),
+      link: new Set(['shicheng', 'propose', 'source'])
+    };
 
     // 构建图谱节点与边
     function buildGraph() {
-      nodes = []; links = [];
+      allNodes = []; allLinks = [];
       const nodeMap = new Map();
 
       // 添加概念节点
-      Object.entries(ONTOLOGY.concepts).forEach(([name, data], i) => {
+      Object.entries(CONCEPTS).forEach(([name, data]) => {
         const node = {
           id: 'concept_' + name,
           name,
@@ -232,12 +306,12 @@
           vx: 0, vy: 0,
           r: name.length <= 2 ? 28 : 22
         };
-        nodes.push(node);
+        allNodes.push(node);
         nodeMap.set(node.id, node);
       });
 
       // 添加人物节点
-      Object.entries(ONTOLOGY.persons).forEach(([name, data], i) => {
+      Object.entries(SCHOLARS).forEach(([name, data]) => {
         const node = {
           id: 'person_' + name,
           name,
@@ -248,21 +322,12 @@
           vx: 0, vy: 0,
           r: 30
         };
-        nodes.push(node);
+        allNodes.push(node);
         nodeMap.set(node.id, node);
-        // 关联思想（概念）
-        if (data.ideas) {
-          data.ideas.forEach(idea => {
-            const targetId = 'concept_' + idea;
-            if (nodeMap.has(targetId)) {
-              links.push({source: node.id, target: targetId});
-            }
-          });
-        }
       });
 
       // 添加学派节点
-      Object.entries(ONTOLOGY.schools).forEach(([name, data], i) => {
+      Object.entries(SCHOOLS).forEach(([name, data]) => {
         const node = {
           id: 'school_' + name,
           name,
@@ -271,30 +336,24 @@
           x: width/2 + (Math.random()-0.5)*450,
           y: height/2 + (Math.random()-0.5)*450,
           vx: 0, vy: 0,
-          r: 34
+          r: name.length <= 4 ? 34 : 28
         };
-        nodes.push(node);
+        allNodes.push(node);
         nodeMap.set(node.id, node);
         // 关联创始人
         if (data.founder) {
-          const founderId = 'person_' + data.founder;
-          if (nodeMap.has(founderId)) {
-            links.push({source: node.id, target: founderId});
-          }
-        }
-        // 关联核心思想
-        if (data.core_ideas) {
-          data.core_ideas.forEach(idea => {
-            const targetId = 'concept_' + idea;
-            if (nodeMap.has(targetId)) {
-              links.push({source: node.id, target: targetId});
+          const founders = data.founder.split('、');
+          founders.forEach(f => {
+            const founderId = 'person_' + f;
+            if (nodeMap.has(founderId)) {
+              allLinks.push({source: node.id, target: founderId, type: 'shicheng'});
             }
           });
         }
       });
 
       // 添加典籍节点
-      Object.entries(ONTOLOGY.books).forEach(([name, data], i) => {
+      Object.entries(CLASSIC_ONTOLOGY).forEach(([name, data]) => {
         const node = {
           id: 'book_' + name,
           name,
@@ -303,58 +362,83 @@
           x: width/2 + (Math.random()-0.5)*500,
           y: height/2 + (Math.random()-0.5)*500,
           vx: 0, vy: 0,
-          r: 26
+          r: name.length <= 2 ? 28 : 24
         };
-        nodes.push(node);
+        allNodes.push(node);
         nodeMap.set(node.id, node);
         // 关联作者
         if (data.author) {
-          const authors = data.author.split('/');
+          const authors = data.author.split('、');
           authors.forEach(a => {
-            a = a.replace(/（.*?）/g, '');
+            a = a.replace(/（.*?）/g, '').split('及')[0].trim();
             const authorId = 'person_' + a;
             if (nodeMap.has(authorId)) {
-              links.push({source: node.id, target: authorId});
-            }
-          });
-        }
-        // 关联核心思想
-        if (data.core_ideas) {
-          data.core_ideas.forEach(idea => {
-            const targetId = 'concept_' + idea;
-            if (nodeMap.has(targetId)) {
-              links.push({source: node.id, target: targetId});
+              allLinks.push({source: node.id, target: authorId, type: 'propose'});
             }
           });
         }
       });
 
-      // 添加概念之间的关联
-      Object.entries(ONTOLOGY.concepts).forEach(([name, data]) => {
-        if (data.related) {
-          data.related.forEach(rel => {
-            const sourceId = 'concept_' + name;
-            const targetId = 'concept_' + rel;
-            if (nodeMap.has(targetId) && !links.find(l => (l.source === sourceId && l.target === targetId) || (l.source === targetId && l.target === sourceId))) {
-              links.push({source: sourceId, target: targetId});
-            }
-          });
+      // 添加师承关系
+      ONTOLOGY_RELATIONS.shicheng.forEach(([from, to, type]) => {
+        const sourceId = 'person_' + from;
+        const targetId = 'person_' + to;
+        if (nodeMap.has(sourceId) && nodeMap.has(targetId)) {
+          allLinks.push({source: sourceId, target: targetId, type: 'shicheng'});
+        }
+      });
+
+      // 添加提出概念关系
+      ONTOLOGY_RELATIONS.propose.forEach(([person, concept, type]) => {
+        const sourceId = 'person_' + person;
+        const targetId = 'concept_' + concept;
+        if (nodeMap.has(sourceId) && nodeMap.has(targetId)) {
+          allLinks.push({source: sourceId, target: targetId, type: 'propose'});
+        }
+      });
+
+      // 添加出处典籍关系
+      ONTOLOGY_RELATIONS.source.forEach(([concept, book, type]) => {
+        const sourceId = 'concept_' + concept;
+        const targetId = 'book_' + book;
+        if (nodeMap.has(sourceId) && nodeMap.has(targetId)) {
+          allLinks.push({source: sourceId, target: targetId, type: 'source'});
+        }
+      });
+
+      // 人物关联学派
+      Object.entries(SCHOLARS).forEach(([name, data]) => {
+        if (data.school) {
+          const sourceId = 'person_' + name;
+          const targetId = 'school_' + data.school;
+          if (nodeMap.has(sourceId) && nodeMap.has(targetId)) {
+            allLinks.push({source: sourceId, target: targetId, type: 'shicheng'});
+          }
         }
       });
 
       // 把边转为节点引用
-      links.forEach(l => {
+      allLinks.forEach(l => {
         l.source = nodeMap.get(l.source);
         l.target = nodeMap.get(l.target);
       });
+
+      updateFilters();
+    }
+
+    // 更新筛选
+    function updateFilters() {
+      visibleNodes = allNodes.filter(n => activeFilters.node.has(n.type));
+      const visibleIds = new Set(visibleNodes.map(n => n.id));
+      visibleLinks = allLinks.filter(l => activeFilters.link.has(l.type) && visibleIds.has(l.source.id) && visibleIds.has(l.target.id));
     }
 
     // 力导向模拟
     function simulate() {
       // 斥力
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i+1; j < nodes.length; j++) {
-          const a = nodes[i], b = nodes[j];
+      for (let i = 0; i < visibleNodes.length; i++) {
+        for (let j = i+1; j < visibleNodes.length; j++) {
+          const a = visibleNodes[i], b = visibleNodes[j];
           let dx = b.x - a.x, dy = b.y - a.y;
           let dist = Math.sqrt(dx*dx + dy*dy) || 1;
           let force = 8000 / (dist * dist);
@@ -365,17 +449,17 @@
         }
       }
       // 引力（边）
-      links.forEach(l => {
+      visibleLinks.forEach(l => {
         let dx = l.target.x - l.source.x, dy = l.target.y - l.source.y;
         let dist = Math.sqrt(dx*dx + dy*dy) || 1;
-        let force = (dist - 100) * 0.02;
+        let force = (dist - 120) * 0.02;
         let fx = dx/dist * force;
         let fy = dy/dist * force;
         l.source.vx += fx; l.source.vy += fy;
         l.target.vx -= fx; l.target.vy -= fy;
       });
       // 中心引力
-      nodes.forEach(n => {
+      visibleNodes.forEach(n => {
         n.vx += (width/2 - n.x) * 0.001;
         n.vy += (height/2 - n.y) * 0.001;
         // 阻尼
@@ -397,17 +481,41 @@
     // 渲染
     function render() {
       ctx.clearRect(0, 0, width, height);
+      // 计算关联高亮
+      const relatedNodeIds = new Set();
+      const relatedLinkIds = new Set();
+      if (selectedNode) {
+        relatedNodeIds.add(selectedNode.id);
+        visibleLinks.forEach((l, idx) => {
+          if (l.source.id === selectedNode.id || l.target.id === selectedNode.id) {
+            relatedNodeIds.add(l.source.id);
+            relatedNodeIds.add(l.target.id);
+            relatedLinkIds.add(idx);
+          }
+        });
+      }
+
       // 画边
-      ctx.strokeStyle = 'rgba(212,175,55,0.15)';
-      ctx.lineWidth = 1;
-      links.forEach(l => {
+      visibleLinks.forEach((l, idx) => {
         ctx.beginPath();
         ctx.moveTo(l.source.x, l.source.y);
         ctx.lineTo(l.target.x, l.target.y);
+        let alpha = 0.15;
+        if (selectedNode) {
+          alpha = relatedLinkIds.has(idx) ? 0.6 : 0.05;
+        }
+        ctx.strokeStyle = linkColors[l.type] ? linkColors[l.type] + Math.floor(alpha*255).toString(16).padStart(2, '0') : linkColors.default;
+        ctx.lineWidth = relatedLinkIds.has(idx) ? 2 : 1;
         ctx.stroke();
       });
+
       // 画节点
-      nodes.forEach(n => {
+      visibleNodes.forEach(n => {
+        let alpha = 1;
+        if (selectedNode) {
+          alpha = relatedNodeIds.has(n.id) ? 1 : 0.2;
+        }
+        ctx.globalAlpha = alpha;
         // 节点光晕
         if (n === selectedNode) {
           ctx.beginPath();
@@ -422,10 +530,11 @@
         ctx.fill();
         // 节点文字
         ctx.fillStyle = '#1a1308';
-        ctx.font = n.type === 'school' ? '13px system-ui' : '14px system-ui';
+        ctx.font = n.type === 'school' ? '12px system-ui' : '13px system-ui';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(n.name, n.x, n.y);
+        ctx.globalAlpha = 1;
       });
       simulate();
       requestAnimationFrame(render);
@@ -446,6 +555,20 @@
     buildGraph();
     render();
 
+    // 筛选监听
+    document.querySelectorAll('.graph-filter input').forEach(input => {
+      input.addEventListener('change', () => {
+        if (input.parentElement.parentElement.querySelector('.filter-title').textContent.includes('節點')) {
+          if (input.checked) activeFilters.node.add(input.value);
+          else activeFilters.node.delete(input.value);
+        } else {
+          if (input.checked) activeFilters.link.add(input.value);
+          else activeFilters.link.delete(input.value);
+        }
+        updateFilters();
+      });
+    });
+
     // 坐标转换
     function getPos(e) {
       const rect = canvas.getBoundingClientRect();
@@ -457,13 +580,16 @@
 
     canvas.addEventListener('mousedown', e => {
       const pos = getPos(e);
-      dragNode = nodes.find(n => {
+      dragNode = visibleNodes.find(n => {
         const dx = n.x - pos.x, dy = n.y - pos.y;
         return dx*dx + dy*dy < n.r*n.r;
       });
       if (dragNode) {
         selectedNode = dragNode;
         showPanel(dragNode);
+      } else {
+        selectedNode = null;
+        document.getElementById('graphPanel').style.display = 'none';
       }
     });
     canvas.addEventListener('mousemove', e => {
@@ -504,66 +630,46 @@
       let metaHTML = '';
       if (node.type === 'concept') {
         def.textContent = node.data.def;
-        metaHTML += `<div>提出者：<span>${node.data.founder}</span></div>`;
-        metaHTML += `<div>所属学派：<span>${node.data.school}</span></div>`;
-        metaHTML += `<div>出处：<span>${node.data.source}</span></div>`;
-        // 跳转
+        metaHTML += `<div>核心出處：<span>${node.data.source}</span></div>`;
         jumpBtn.style.display = 'block';
-        jumpBtn.textContent = `打開 ${node.data.book} - ${node.data.chapter}`;
+        jumpBtn.textContent = `查看概念相關原文`;
         jumpBtn.onclick = () => {
-          const cat = node.data.book === '论语' || node.data.book === '孟子' || node.data.book === '大学' || node.data.book === '中庸' ? '四书' : '';
-          window.location.href = `reader.html?b=${encodeURIComponent(cat + '/' + node.data.book + '.txt')}&anchor=${encodeURIComponent(node.data.chapter)}`;
+          window.location.href = 'dictionary.html?q=' + encodeURIComponent(node.name);
         };
       } else if (node.type === 'person') {
         def.textContent = node.data.bio;
         metaHTML += `<div>年代：<span>${node.data.era}</span></div>`;
-        metaHTML += `<div>头衔：<span>${node.data.title}</span></div>`;
-        metaHTML += `<div>所属学派：<span>${node.data.school}</span></div>`;
+        metaHTML += `<div>頭銜：<span>${node.data.title}</span></div>`;
+        metaHTML += `<div>所屬學派：<span>${node.data.school}</span></div>`;
         if (node.data.works) {
           metaHTML += `<div>代表著作：<span>${node.data.works.join('、')}</span></div>`;
         }
-        // 关联节点
-        if (node.data.ideas) {
-          relatedTitle.style.display = 'block';
-          node.data.ideas.forEach(idea => {
-            const item = document.createElement('div');
-            item.className = 'related-item';
-            item.textContent = idea;
-            item.onclick = () => {
-              const n = nodes.find(n => n.id === 'concept_' + idea);
-              if (n) {selectedNode = n; showPanel(n);}
-            };
-            relatedList.appendChild(item);
-          });
-        }
       } else if (node.type === 'school') {
-        def.textContent = node.data.desc;
-        metaHTML += `<div>创始人：<span>${node.data.founder}</span></div>`;
+        def.textContent = node.data.idea;
+        metaHTML += `<div>創始人：<span>${node.data.founder}</span></div>`;
         metaHTML += `<div>流行年代：<span>${node.data.era}</span></div>`;
-        if (node.data.core_books) {
-          metaHTML += `<div>核心典籍：<span>${node.data.core_books.join('、')}</span></div>`;
+        if (node.data.books) {
+          metaHTML += `<div>核心典籍：<span>${node.data.books.join('、')}</span></div>`;
         }
       } else if (node.type === 'book') {
-        def.textContent = node.data.desc;
+        def.textContent = node.data.idea;
         metaHTML += `<div>作者：<span>${node.data.author}</span></div>`;
         metaHTML += `<div>年代：<span>${node.data.era}</span></div>`;
-        metaHTML += `<div>分类：<span>${node.data.category}</span></div>`;
-        metaHTML += `<div>章节数：<span>${node.data.chapters_count}章/卷</span></div>`;
+        metaHTML += `<div>分類：<span>${node.data.cat}</span></div>`;
+        metaHTML += `<div>章節數：<span>${node.data.chapters}章/卷</span></div>`;
         jumpBtn.style.display = 'block';
         jumpBtn.textContent = `打開 ${node.name}`;
         jumpBtn.onclick = () => {
-          window.location.href = `reader.html?b=${encodeURIComponent(node.data.category + '/' + node.name + '.txt')}`;
+          window.location.href = `reader.html?b=${encodeURIComponent(node.data.cat + '/' + node.name + '.txt')}`;
         };
       }
       meta.innerHTML = metaHTML;
 
-      // 通用关联
-      const relatedNodes = links.filter(l => l.source === node || l.target === node).map(l => l.source === node ? l.target : l.source).filter(n => n !== node);
+      // 关联节点
+      const relatedNodes = visibleLinks.filter(l => l.source.id === node.id || l.target.id === node.id).map(l => l.source.id === node.id ? l.target : l.source).filter(n => n.id !== node.id);
       relatedNodes.forEach(n => {
-        if (relatedList.querySelector(`[data-id="${n.id}"]`)) return;
         const item = document.createElement('div');
         item.className = 'related-item';
-        item.dataset.id = n.id;
         item.textContent = n.name;
         item.onclick = () => {
           selectedNode = n; showPanel(n);
@@ -572,12 +678,6 @@
       });
       if (relatedNodes.length > 0) relatedTitle.style.display = 'block';
     }
-
-    // 主题切换适配
-    const observer = new MutationObserver(() => {
-      // 颜色由CSS变量自动处理
-    });
-    observer.observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
   </script>
 </body>
 </html>

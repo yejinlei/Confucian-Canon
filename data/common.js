@@ -160,6 +160,90 @@ const CONCEPTS = {
   }
 };
 
+// 儒者人物本体
+const SCHOLARS = {
+  '孔子': { era: '前551-前479', title: '大成至圣先师', school: '先秦儒家', works: ['论语', '春秋', '周易'], idea: '创立儒家学派，核心思想为仁、礼，主张为政以德、克己复礼，有教无类。', bio: '名丘，字仲尼，春秋末期鲁国人，儒家学派创始人，中国古代最伟大的思想家、教育家。' },
+  '孟子': { era: '前372-前289', title: '亚圣', school: '思孟学派', works: ['孟子'], idea: '发展仁政学说，主张性善论、民贵君轻、王道政治，提出四端说、浩然之气。', bio: '名轲，字子舆，战国时期邹国人，孔子之后儒家最重要的代表人物，被后世尊为亚圣。' },
+  '荀子': { era: '前313-前238', title: '后圣', school: '荀学', works: ['荀子'], idea: '主张性恶论，强调礼法并治、化性起伪，重视后天教育与学习，提出天行有常、制天命而用之。', bio: '名况，字卿，战国末期赵国人，先秦儒家集大成者，韩非、李斯皆出其门下。' },
+  '董仲舒': { era: '前179-前104', title: '汉代儒宗', school: '汉代经学', works: ['春秋繁露'], idea: '提出罢黜百家、独尊儒术，主张天人感应、三纲五常、大一统，奠定儒学官方地位。', bio: '西汉广川人，汉代经学大师，建议汉武帝独尊儒术，使儒学成为中国两千多年的正统思想。' },
+  '韩愈': { era: '768-824', title: '文起八代之衰', school: '唐代经学', works: ['原道', '师说'], idea: '提出道统说，反对佛老，主张文以载道，复兴儒学，开宋明理学先声。', bio: '字退之，唐代河南河阳人，唐宋八大家之首，古文运动领袖，儒家道统说的提出者。' },
+  '周敦颐': { era: '1017-1073', title: '理学开山', school: '濂学', works: ['太极图说', '通书'], idea: '提出太极生万物、以诚为本，是宋明理学的开山鼻祖。', bio: '字茂叔，号濂溪，北宋道州人，宋明理学创始人，著《太极图说》奠定理学宇宙论基础。' },
+  '张载': { era: '1020-1077', title: '横渠先生', school: '关学', works: ['正蒙', '西铭'], idea: '提出太虚即气、民胞物与，为天地立心，为生民立命，为往圣继绝学，为万世开太平。', bio: '字子厚，号横渠，北宋凤翔郿县人，关学创始人，北宋五子之一，提出气本论哲学。' },
+  '程颢': { era: '1032-1085', title: '明道先生', school: '洛学', works: ['二程遗书'], idea: '提出天者理也、识仁说，与程颐共创洛学，是心学的先驱。', bio: '字伯淳，号明道，北宋河南人，北宋五子之一，与弟程颐并称二程，理学奠基人。' },
+  '程颐': { era: '1033-1107', title: '伊川先生', school: '洛学', works: ['二程遗书', '伊川易传'], idea: '提出性即理、涵养须用敬，进学在致知，是程朱理学的奠基人。', bio: '字正叔，号伊川，北宋河南人，程颢之弟，北宋五子之一，理学体系的重要建立者。' },
+  '朱熹': { era: '1130-1200', title: '朱子', school: '程朱理学', works: ['四书章句集注', '朱子语类', '近思录'], idea: '集理学之大成，主张理先气后、性即理、格物致知、存天理灭人欲，编定四书。', bio: '字元晦，号晦庵，南宋徽州婺源人，宋明理学集大成者，其学说成为后世科举官方标准。' },
+  '陆九渊': { era: '1139-1193', title: '象山先生', school: '陆王心学', works: ['象山语录'], idea: '提出心即理、宇宙便是吾心，吾心即是宇宙，发明本心，是心学创始人。', bio: '字子静，号象山，南宋抚州金溪人，心学创始人，与朱熹鹅湖之会辩论理学与心学分歧。' },
+  '王阳明': { era: '1472-1529', title: '阳明先生', school: '陆王心学', works: ['传习录', '大学问'], idea: '提出心外无物、心即理、知行合一、致良知，集心学之大成。', bio: '名守仁，字伯安，号阳明，明代浙江余姚人，心学集大成者，其思想影响东亚数百年。' },
+  '顾炎武': { era: '1613-1682', title: '亭林先生', school: '清代朴学', works: ['日知录', '天下郡国利病书'], idea: '主张经世致用、天下兴亡匹夫有责，开清代朴学风气，反对空谈心性。', bio: '字宁人，号亭林，明末清初江苏昆山人，明末清初三大儒之一，清代考据学开山。' },
+  '黄宗羲': { era: '1610-1695', title: '梨洲先生', school: '清代朴学', works: ['明儒学案', '宋元学案', '明夷待访录'], idea: '提出天下为主君为客，批判君主专制，主张工商皆本，是中国早期启蒙思想家。', bio: '字太冲，号梨洲，明末清初浙江余姚人，明末清初三大儒之一，浙东学派创始人。' },
+  '王夫之': { era: '1619-1692', title: '船山先生', school: '清代朴学', works: ['读四书大全说', '张子正蒙注'], idea: '主张气者理之依、知行相资以为用，集古代朴素唯物主义之大成。', bio: '字而农，号姜斋，明末清初湖南衡阳人，明末清初三大儒之一，著述宏富，体系博大。' }
+};
+
+// 学派本体
+const SCHOOLS = {
+  '先秦儒家': { founder: '孔子', era: '春秋战国', books: ['论语', '孟子', '荀子', '孝经'], idea: '先秦时期孔子创立的儒家学派，以仁礼为核心，主张德治教化，奠定了儒家思想的基本框架。' },
+  '思孟学派': { founder: '子思、孟子', era: '战国', books: ['中庸', '孟子'], idea: '孔子孙子子思开创、孟子发展的儒家学派，主张性善论、诚者天之道、仁政民本，是宋明理学的源头。' },
+  '荀学': { founder: '荀子', era: '战国', books: ['荀子'], idea: '荀子开创的儒家学派，主张性恶论、礼法并治、化性起伪，重视后天教育，其学生韩非、李斯为法家代表。' },
+  '汉代经学': { founder: '董仲舒', era: '两汉', books: ['春秋繁露', '五经正义'], idea: '汉代独尊儒术后形成的经学传统，分为今文经学与古文经学，主张天人感应、三纲五常，儒学成为官方意识形态。' },
+  '濂学': { founder: '周敦颐', era: '北宋', books: ['太极图说', '通书'], idea: '周敦颐开创的理学学派，以太极图说为核心，构建儒家宇宙论，是宋明理学的开端。' },
+  '关学': { founder: '张载', era: '北宋', books: ['正蒙', '西铭'], idea: '张载在关中开创的理学学派，主张太虚即气、民胞物与，注重躬行礼教，强调经世致用。' },
+  '洛学': { founder: '程颢、程颐', era: '北宋', books: ['二程遗书'], idea: '二程在洛阳开创的理学学派，提出天者理也、性即理，是程朱理学的直接源头。' },
+  '程朱理学': { founder: '二程、朱熹', era: '南宋-明清', books: ['四书章句集注', '近思录'], idea: '朱熹集大成的理学学派，主张理先气后、格物致知、存天理灭人欲，是元明清三代官方哲学。' },
+  '陆王心学': { founder: '陆九渊、王阳明', era: '南宋-明', books: ['象山语录', '传习录'], idea: '陆九渊开创、王阳明集大成的心学学派，主张心即理、知行合一、致良知，强调发明本心。' },
+  '清代朴学': { founder: '顾炎武', era: '清代', books: ['日知录', '孟子字义疏证'], idea: '清代兴起的考据学派，主张经世致用、实事求是，反对宋明空谈心性，注重文字训诂与文献考证。' }
+};
+
+// 典籍本体（核心30部）
+const CLASSIC_ONTOLOGY = {
+  '论语': { author: '孔子弟子及再传弟子', era: '春秋末期', cat: '四书', chapters: 20, idea: '儒家核心经典，记录孔子及其弟子言行，集中体现孔子的仁、礼、德治等核心思想。' },
+  '孟子': { author: '孟子及其弟子', era: '战国', cat: '四书', chapters: 7, idea: '记录孟子言行，阐述性善论、仁政、民贵君轻、王道等思想，是思孟学派的核心经典。' },
+  '大学': { author: '曾子', era: '战国', cat: '四书', chapters: 11, idea: '儒家修身入门经典，提出三纲领（明明德、亲民、止于至善）八条目（格物致知诚意正心修身齐家治国平天下）。' },
+  '中庸': { author: '子思', era: '战国', cat: '四书', chapters: 33, idea: '阐述儒家中庸思想、诚的哲学，是儒家心性论的重要经典。' },
+  '周易': { author: '伏羲、文王、孔子', era: '先秦', cat: '五经', chapters: 64, idea: '群经之首，阐述阴阳变化的哲学思想，包含太极、阴阳、八卦等核心范畴，是儒家宇宙论的源头。' },
+  '尚书': { author: '上古史官', era: '先秦', cat: '五经', chapters: 58, idea: '上古历史文献汇编，记载尧舜禹汤文武周公的言论事迹，包含民本、德治等重要政治思想。' },
+  '诗经': { author: '民间/贵族', era: '先秦', cat: '五经', chapters: 305, idea: '中国最早的诗歌总集，分为风雅颂，是儒家诗教传统的核心经典，孔子曰"不学诗无以言"。' },
+  '礼记': { author: '孔门七十子后学', era: '西汉', cat: '五经', chapters: 49, idea: '记录先秦礼仪制度与儒家思想，包含《大学》《中庸》《礼运》等重要篇章，阐述大同、小康、修身等思想。' },
+  '春秋左传': { author: '左丘明', era: '战国', cat: '五经', chapters: 60, idea: '解释《春秋》的三传之一，以史实解释春秋笔法，记载春秋时期历史，包含儒家的政治伦理思想。' },
+  '孝经': { author: '孔子门人', era: '战国', cat: '孝经', chapters: 18, idea: '儒家孝道经典，阐述孝为德之本、以孝治天下的思想，是古代教化的重要经典。' },
+  '传习录': { author: '王阳明', era: '明', cat: '语录', chapters: 3, idea: '王阳明心学代表作，记录其讲学语录与书信，系统阐述知行合一、致良知等核心思想。' },
+  '近思录': { author: '朱熹、吕祖谦', era: '南宋', cat: '语录', chapters: 14, idea: '朱熹与吕祖谦编定的理学入门书，摘录周敦颐、二程、张载语录，是理学入门必读经典。' },
+  '朱子语类': { author: '朱熹门人', era: '南宋', cat: '语录', chapters: 140, idea: '朱熹讲学语录汇编，全面记录朱熹的理学思想，是程朱理学的重要文献。' }
+};
+
+// 本体关联关系
+const ONTOLOGY_RELATIONS = {
+  // 师承关系
+  'shicheng': [
+    ['孔子', '子思', '师承'], ['子思', '孟子', '师承'],
+    ['周敦颐', '程颢', '师承'], ['周敦颐', '程颐', '师承'],
+    ['程颢', '朱熹', '师承'], ['程颐', '朱熹', '师承'],
+    ['陆九渊', '王阳明', '传承'], ['朱熹', '顾炎武', '批判继承']
+  ],
+  // 提出概念
+  'propose': [
+    ['孔子', '仁', '提出'], ['孔子', '礼', '提出'], ['孔子', '德治', '提出'],
+    ['孟子', '义', '发展'], ['孟子', '仁政', '提出'], ['孟子', '性善论', '提出'], ['孟子', '良知', '提出'],
+    ['荀子', '性恶论', '提出'], ['荀子', '化性起伪', '提出'],
+    ['董仲舒', '天人感应', '提出'], ['董仲舒', '三纲五常', '提出'],
+    ['韩愈', '道统', '提出'],
+    ['周敦颐', '太极', '系统阐述'], ['张载', '气', '发展'], ['张载', '民胞物与', '提出'],
+    ['程颢', '天者理也', '提出'], ['程颐', '性即理', '提出'], ['程颐', '格物致知', '发展'],
+    ['朱熹', '存天理灭人欲', '提出'], ['朱熹', '四书', '编定'],
+    ['陆九渊', '心即理', '提出'], ['王阳明', '知行合一', '提出'], ['王阳明', '致良知', '提出'],
+    ['顾炎武', '经世致用', '提出'], ['顾炎武', '天下兴亡匹夫有责', '提出']
+  ],
+  // 出处典籍
+  'source': [
+    ['仁', '论语', '出处'], ['义', '孟子', '出处'], ['礼', '论语', '出处'],
+    ['格物', '大学', '出处'], ['致知', '大学', '出处'], ['诚意', '大学', '出处'],
+    ['正心', '大学', '出处'], ['修身', '大学', '出处'], ['齐家', '大学', '出处'],
+    ['治国', '大学', '出处'], ['平天下', '大学', '出处'], ['慎独', '中庸', '出处'],
+    ['中庸', '论语', '出处'], ['太极', '周易', '出处'], ['阴阳', '周易', '出处'],
+    ['五行', '尚书', '出处'], ['民本', '尚书', '出处'], ['大同', '礼记', '出处'],
+    ['道统', '原道', '出处'], ['知行合一', '传习录', '出处'], ['致良知', '传习录', '出处']
+  ]
+};
+
 // 侧边栏导航配置
 const SIDEBAR_LINKS = [
   { icon: '☯', text: '首页', href: 'index.html' },
@@ -167,14 +251,13 @@ const SIDEBAR_LINKS = [
   { icon: '書', text: '五经', href: 'wujing.html' },
   { icon: '門', text: '门类本体', href: 'branch.html' },
   { icon: '派', text: '学派流派', href: 'schools.html' },
-  { icon: '脈', text: '儒门道脉', href: 'timeline.html' },
+  { icon: '脈', text: '儒门道脉', href: 'lineage.html' },
   { icon: '辭', text: '儒学词典', href: 'dictionary.html' },
   { icon: '儒', text: '儒者谱系', href: 'scholars.html' },
   { icon: '籍', text: '古籍全文库', href: 'library.html' },
   { icon: '檢', text: '全文检索', href: 'search.html' },
-  { icon: '註', text: '注疏对照', href: 'zhushu.html' },
   { icon: '章', text: '章句导航', href: 'zhangju.html' },
-  { icon: '◇', text: '本体/RDF', href: 'ontology.html' },
+  { icon: '⬡', text: '本体总览', href: 'ontology.html' },
   { icon: '圖', text: '义理图谱', href: 'graph.html' },
   { icon: '→', text: '概念推演', href: 'reasoning.html' }
 ];
@@ -182,13 +265,12 @@ const SIDEBAR_LINKS = [
 // 顶部导航配置
 const TOP_NAV = [
   { text: '首页', href: 'index.html' },
-  { text: '四书', href: 'sishu.html' },
-  { text: '五经', href: 'wujing.html' },
-  { text: '道脉', href: 'timeline.html' },
-  { text: '流派', href: 'schools.html' },
+  { text: '道脉', href: 'lineage.html' },
   { text: '图谱', href: 'graph.html' },
+  { text: '章句', href: 'zhangju.html' },
   { text: '全文库', href: 'library.html' },
-  { text: '词典', href: 'dictionary.html' }
+  { text: '检索', href: 'search.html' },
+  { text: '本体', href: 'ontology.html' }
 ];
 
 // 生成侧边栏
@@ -231,10 +313,8 @@ function toggleFontSize() {
   let idx = sizes.indexOf(current);
   current = sizes[(idx + 1) % sizes.length];
   localStorage.setItem('fontSize', current);
-  const content = document.querySelector('.reader-content');
-  if (content) content.style.fontSize = sizeMap[current];
-  const btn = document.querySelector('.nav-tools button:first-child');
-  if (btn) btn.textContent = `字号 ${current}`;
+  document.querySelector('.reader-content').style.fontSize = sizeMap[current];
+  document.querySelector('.nav-tools button:first-child').textContent = `字号 ${current}`;
 }
 
 // 竖排切换
@@ -246,21 +326,19 @@ function toggleVertical() {
   if (content) {
     content.classList.toggle('vertical', vertical);
   }
-  const btn = document.querySelector('.nav-tools button:last-child');
-  if (btn) btn.textContent = vertical ? '横排' : '竖排';
+  document.querySelector('.nav-tools button:last-child').textContent = vertical ? '横排' : '竖排';
 }
 
-// 概念标注（性能优化：合并为单个预编译正则，一次遍历完成，避免每段重复编译 60+ 次正则）
-let _conceptRe = null;
+// 概念标注
 function annotateConcepts(text) {
-  if (!text || text.length > 4000) return text;
-  if (!_conceptRe) {
-    const keys = Object.keys(CONCEPTS)
-      .sort((a, b) => b.length - a.length)
-      .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    _conceptRe = new RegExp('(' + keys.join('|') + ')', 'g');
-  }
-  return text.replace(_conceptRe, (m) => `<span class="concept" data-concept="${m}">${m}</span>`);
+  let result = text;
+  // 按长度从长到短替换，避免短词覆盖长词
+  const concepts = Object.keys(CONCEPTS).sort((a, b) => b.length - a.length);
+  concepts.forEach(concept => {
+    const regex = new RegExp(`(${concept})`, 'g');
+    result = result.replace(regex, `<span class="concept" data-concept="${concept}">$1</span>`);
+  });
+  return result;
 }
 
 // 概念弹窗
@@ -377,15 +455,11 @@ function renderFooter() {
     const sidebar = document.querySelector('.sidebar');
     if (!sidebar) return; // 没有侧边栏的页面（如阅读页、图谱页）不处理
 
-    // 主题切换按钮（用button避免链接href文字溢出）
-    const themeBtn = document.createElement('button');
+    // 主题切换按钮（样式和其他sidebar-link完全一致）
+    const themeBtn = document.createElement('a');
     themeBtn.className = 'sidebar-link theme-toggle';
     themeBtn.innerHTML = '<span class="icon">◐</span><span>主題切換</span>';
-    themeBtn.style.border = 'none';
-    themeBtn.style.background = 'transparent';
-    themeBtn.style.width = '100%';
-    themeBtn.style.textAlign = 'left';
-    themeBtn.style.cursor = 'pointer';
+    themeBtn.href = 'javascript:void(0)';
 
     // 主题选择面板
     const themePanel = document.createElement('div');
