@@ -558,7 +558,7 @@
       let curVol = 0;
       for (let i = 0; i < volumeStartIdx.length; i++) {
         const el = document.getElementById(`p-${volumeStartIdx[i]}`);
-        if (el && el.offsetTop <= scrollPos) curVol = i;
+        if (el && absTop(el) <= scrollPos) curVol = i;
       }
       // 只加载当前卷，以及紧接的下 1 卷（避免一口气拉完）
       const toLoad = new Set();
@@ -575,8 +575,8 @@
       if (renderedEnd < allParagraphs.length) {
         const bottomEl = document.getElementById(`p-${Math.max(0, renderedEnd - 1)}`);
         if (bottomEl) {
-          const bottom = bottomEl.offsetTop + window.innerHeight * 2;
-          if (scrollBottom() >= bottomEl.offsetTop) {
+          const bottom = absTop(bottomEl) + window.innerHeight * 2;
+          if (scrollBottom() >= absTop(bottomEl)) {
             const to = Math.min(renderedEnd + BATCH_SIZE * 2, allParagraphs.length);
             renderRange(renderedEnd, to, true);
           }
@@ -590,7 +590,7 @@
       const scrollPos = window.scrollY + 140;
       for (let i = chapters.length - 1; i >= 0; i--) {
         const el = document.getElementById(`p-${chapters[i].start}`);
-        if (el && el.offsetTop <= scrollPos) {
+        if (el && absTop(el) <= scrollPos) {
           if (currentChapter !== i) {
             currentChapter = i;
             document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
@@ -611,6 +611,9 @@
         }
       }
     }
+
+    // 计算元素相对文档顶部的绝对位置（offsetTop 受 offsetParent 影响，不可靠）
+    function absTop(el) { return el.getBoundingClientRect().top + window.scrollY; }
 
     // ========== 跳转到章节（保证先加载卷+渲染，再滚动） ==========
     function jumpToChapter(index) {
@@ -636,7 +639,7 @@
           // 等 DOM 替换完成后再滚动
           requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => {
             const target = document.getElementById(`p-${chapStart}`);
-            if (target) window.scrollTo({ top: target.offsetTop - 130, behavior: 'auto' });
+            if (target) window.scrollTo({ top: absTop(target) - 130, behavior: 'auto' });
             document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
               li.classList.toggle('active', idx === index);
             });
@@ -649,7 +652,7 @@
         if (renderedEnd < needEnd) renderRange(renderedEnd, needEnd, true);
         requestAnimationFrame(() => setTimeout(() => {
           const target = document.getElementById(`p-${chap.start}`);
-          if (target) window.scrollTo({ top: target.offsetTop - 130, behavior: 'auto' });
+          if (target) window.scrollTo({ top: absTop(target) - 130, behavior: 'auto' });
           document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
             li.classList.toggle('active', idx === index);
           });
