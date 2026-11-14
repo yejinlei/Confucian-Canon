@@ -124,6 +124,14 @@ a:hover {
   padding: 20px 0;
   overflow-y: auto;
   z-index: 999;
+  /* 隐藏滚动条 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.sidebar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+  width: 0;
+  height: 0;
 }
 
 .sidebar-link {
