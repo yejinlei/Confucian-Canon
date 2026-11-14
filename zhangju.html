@@ -392,17 +392,50 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initZhangjuPage() {
+  // 把数组格式转换为对象格式，并补全路径/大小
+  const BOOKS = BOOKS_DATA.map((item, idx) => {
+    const cat = item[0];
+    const name = item[1];
+    const charCount = item[2];
+    const sizeKB = Math.round(charCount / 512); // 中文1字≈2字节，1KB≈512字
+    return {
+      cat: cat,
+      name: name,
+      path: `${cat}/${name}.txt`,
+      size: sizeKB,
+      charCount: charCount
+    };
+  });
+  // 挂载到全局
+  window.BOOKS_OBJ = BOOKS;
+  
   // 计算每个分类的数量
   const catCount = {};
-  BOOKS_DATA.forEach(b => {
+  BOOKS.forEach(b => {
     catCount[b.cat] = (catCount[b.cat] || 0) + 1;
   });
   
   // 渲染分类标签
   const tabsEl = document.getElementById('categoryTabs');
-  const allCount = BOOKS_DATA.length;
+  const allCount = BOOKS.length;
+  // 分类名称映射，统一显示
+  const CAT_LABELS = {
+    '四书': '四書',
+    '五经总义': '五經總義',
+    '诗经': '詩經',
+    '尚书': '尚書',
+    '礼经': '禮經',
+    '乐经': '樂經',
+    '春秋': '春秋',
+    '孝经': '孝經',
+    '语录': '語錄',
+    '小学': '小學',
+    '修身治家': '修身治家',
+    '启蒙蒙学': '啟蒙蒙學'
+  };
+  const catList = Object.keys(catCount).sort((a,b) => catCount[b] - catCount[b]);
   tabsEl.innerHTML = `<div class="cat-tab active" data-cat="all">全部<span class="count">(${allCount})</span></div>` +
-    CATEGORIES.map(cat => `<div class="cat-tab" data-cat="${cat.name}">${cat.name}<span class="count">(${catCount[cat.name] || 0})</span></div>`).join('');
+    catList.map(cat => `<div class="cat-tab" data-cat="${cat}">${CAT_LABELS[cat] || cat}<span class="count">(${catCount[cat]})</span></div>`).join('');
   
   // 分类点击事件
   tabsEl.querySelectorAll('.cat-tab').forEach(tab => {
@@ -443,7 +476,7 @@ function initZhangjuPage() {
 
 function resetAndRender() {
   // 过滤书目
-  filteredBooks = BOOKS_DATA.filter(b => {
+  filteredBooks = window.BOOKS_OBJ.filter(b => {
     if (currentCategory !== 'all' && b.cat !== currentCategory) return false;
     if (searchKeyword && !b.name.includes(searchKeyword) && !b.path.includes(searchKeyword)) return false;
     return true;
@@ -472,23 +505,50 @@ function renderNextBatch() {
     card.className = 'book-card';
     card.dataset.path = book.path;
     const sizeText = book.size > 1024 ? `${(book.size/1024).toFixed(1)}MB` : `${book.size}KB`;
+    const encPath = encodeURIComponent(book.path);
+    const CAT_LABELS = {
+      '四书': '四書',
+      '五经总义': '五經總義',
+      '诗经': '詩經',
+      '尚书': '尚書',
+      '礼经': '禮經',
+      '乐经': '樂經',
+      '春秋': '春秋',
+      '孝经': '孝經',
+      '语录': '語錄',
+      '小学': '小學',
+      '修身治家': '修身治家',
+      '启蒙蒙学': '啟蒙蒙學'
+    };
     card.innerHTML = `
       <div class="book-header">
-        <h3 class="book-title">${book.name}</h3>
+        <a href="reader.html?b=${encPath}" class="book-title" style="text-decoration:none;color:#d4af37;">${book.name}</a>
         <span class="book-size">${sizeText}</span>
       </div>
       <div class="book-meta">
-        <span class="book-tag">${book.cat}</span>
+        <span class="book-tag">${CAT_LABELS[book.cat] || book.cat}</span>
+        <span class="book-tag">${(book.charCount/10000).toFixed(1)}萬字</span>
       </div>
-      <button class="toggle-chapters" onclick="toggleChapters(this, '${book.path}')">📑 展開章句</button>
+      <button class="toggle-chapters" data-path="${book.path.replace(/"/g,'&quot;')}">📑 展開章句</button>
       <div class="chapters-container"></div>
     `;
+    // 绑定按钮事件
+    card.querySelector('.toggle-chapters').addEventListener('click', function() {
+      toggleChapters(this, this.dataset.path);
+    });
     grid.appendChild(card);
   });
   
   renderedCount = end;
   isLoading = false;
   document.getElementById('loadProgress').style.display = renderedCount < filteredBooks.length ? 'block' : 'none';
+  
+  // 首屏自动补充加载：如果内容高度不足，自动加载下一批直到满屏
+  setTimeout(() => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && renderedCount < filteredBooks.length) {
+      renderNextBatch();
+    }
+  }, 100);
 }
 
 async function toggleChapters(btn, bookPath) {
