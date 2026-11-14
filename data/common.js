@@ -377,11 +377,15 @@ function renderFooter() {
     const sidebar = document.querySelector('.sidebar');
     if (!sidebar) return; // 没有侧边栏的页面（如阅读页、图谱页）不处理
 
-    // 主题切换按钮（样式和其他sidebar-link完全一致）
-    const themeBtn = document.createElement('a');
+    // 主题切换按钮（用button避免链接href文字溢出）
+    const themeBtn = document.createElement('button');
     themeBtn.className = 'sidebar-link theme-toggle';
     themeBtn.innerHTML = '<span class="icon">◐</span><span>主題切換</span>';
-    themeBtn.href = 'javascript:void(0)';
+    themeBtn.style.border = 'none';
+    themeBtn.style.background = 'transparent';
+    themeBtn.style.width = '100%';
+    themeBtn.style.textAlign = 'left';
+    themeBtn.style.cursor = 'pointer';
 
     // 主题选择面板
     const themePanel = document.createElement('div');
