@@ -159,16 +159,16 @@
   margin-top: 15px;
   padding-right: 5px;
   display: none;
+  /* 隐藏滚动条 */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.chapter-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
 }
 .chapter-list.open {
   display: block;
-}
-.chapter-list::-webkit-scrollbar {
-  width: 4px;
-}
-.chapter-list::-webkit-scrollbar-thumb {
-  background: var(--border-light);
-  border-radius: 2px;
 }
 .chapter-item {
   display: block;
