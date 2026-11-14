@@ -29,10 +29,17 @@
       .catch(function () { return null; });
     /* 探测是否有按卷切分索引（几十字节 JSON），命中则走按卷加载，首屏只拉第一卷 */
     window.__splitPreload = fetch(splitIdxUrl).then(function (r) {
-      return r.ok ? r.json() : null;
-    }).then(function (j) {
-      if (j) { try { ac.abort(); } catch (e) {} }
-      return j;
+      // 只有切分索引确实存在（200且有内容）时，才取消整本书预加载
+      if (r.ok) {
+        return r.json().then(function (j) {
+          if (j && j.volumes && j.volumes.length >= 2) {
+            try { ac.abort(); } catch (e) {}
+            return j;
+          }
+          return null;
+        });
+      }
+      return null;
     }).catch(function () { return null; });
   })();
   </script>
@@ -845,12 +852,19 @@
         let streamDone = false;
 
         let response = null;
+        // 优先使用预加载结果；预加载失败或被中断则重新发起请求
         if (window.__bookPreloadUrl === bookUrl && window.__bookPreload) {
-          response = await window.__bookPreload;
-          window.__bookPreload = null;
+          try {
+            const preResp = await window.__bookPreload;
+            if (preResp && preResp.ok && !preResp.bodyUsed) {
+              response = preResp;
+            }
+          } catch (e) {
+            console.warn('预加载失败，重新请求:', e);
+          }
         }
         if (!response) response = await fetch(bookUrl);
-        if (!response.ok) throw new Error('该典籍未收录');
+        if (!response.ok) throw new Error(`文件未找到 (HTTP ${response.status})`);
 
         let reader = response.body.getReader();
         while (receivedText.length < FIRST_CHARS) {
