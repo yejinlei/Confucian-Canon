@@ -20,13 +20,20 @@
     var splitIdxUrl = 'books-split/' + cat + '/' + bookName + '/index.json';
     window.__bookPath = m;
     window.__bookPreloadUrl = bookUrl;
-    /* 先探测是否有按卷切分索引（几十字节的 JSON），命中则走按卷加载，首屏只拉第一卷 */
+    /* 整文件请求（小书/未切分书用）带 AbortController：
+       一旦确认存在按卷索引，立即取消整本下载，避免大书整本抢带宽、拖慢按卷加载 */
+    var ac = new AbortController();
+    window.__bookAbort = ac;
+    window.__bookPreload = fetch(bookUrl, { signal: ac.signal })
+      .then(function (r) { return r.ok ? r : null; })
+      .catch(function () { return null; });
+    /* 探测是否有按卷切分索引（几十字节 JSON），命中则走按卷加载，首屏只拉第一卷 */
     window.__splitPreload = fetch(splitIdxUrl).then(function (r) {
       return r.ok ? r.json() : null;
+    }).then(function (j) {
+      if (j) { try { ac.abort(); } catch (e) {} }
+      return j;
     }).catch(function () { return null; });
-    /* 同时把整文件请求也挂起备用（小书或切分不存在时用）；
-       关键：整文件请求能让服务器 gzip + CDN 缓存整份响应 */
-    window.__bookPreload = fetch(bookUrl).then(function (r) { return r.ok ? r : null; }).catch(function () { return null; });
   })();
   </script>
   <style>
