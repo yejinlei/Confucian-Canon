@@ -526,7 +526,14 @@ async function toggleChapters(btn, bookPath) {
     const initialCount = Math.min(12, chapters.length);
     const renderList = (chapters, count) => {
       return chapters.slice(0, count).map(ch => {
-        const href = `reader.html?b=${encodeURIComponent(bookPath)}#ch-${ch.anchor}`;
+        let href;
+        if (typeof ch.anchor === 'number' && ch.anchor < 1000) {
+          // 精校章：按章节索引跳转
+          href = `reader.html?b=${encodeURIComponent(bookPath)}#ch-${ch.anchor}`;
+        } else {
+          // 预生成索引/按卷切分：带anchor参数跳转
+          href = `reader.html?b=${encodeURIComponent(bookPath)}&anchor=${encodeURIComponent(ch.anchor)}`;
+        }
         return `<a href="${href}" class="chapter-item" target="_blank">${ch.title}${ch.summary ? `<span class="summary">${ch.summary}</span>` : ''}</a>`;
       }).join('');
     };
@@ -569,22 +576,46 @@ async function loadZhangjuForBook(bookPath) {
   if (PRECISE_ZHANGJU[bookPath]) {
     chapters = PRECISE_ZHANGJU[bookPath];
   } else {
-    // 2. 大书加载切分索引
+    // 2. 加载预生成的章句索引（910部典籍全覆盖）
     try {
-      const bookName = bookPath.split('/').pop().replace('.txt', '');
-      const catName = bookPath.split('/')[0];
-      const idxUrl = `books-split/${catName}/${encodeURIComponent(bookName)}/index.json`;
+      const idxUrl = `zhangju-index/${bookPath.replace('.txt','.json')}`;
       const res = await fetch(idxUrl, {cache: 'force-cache'});
       if (res.ok) {
         const idx = await res.json();
-        chapters = idx.chapters.map((ch, i) => ({
-          title: ch.title,
-          anchor: i,
-          volume: ch.volume
-        }));
+        if (idx.chapters && idx.chapters.length > 0) {
+          // 过滤掉明显不是章节标题的条目（包含句子标点的）
+          chapters = idx.chapters.filter(ch => {
+            const t = ch.title;
+            if (!t || t.length > 20) return false;
+            if (t.includes('。') || t.includes('，') || t.includes('？') || t.includes('！')) return false;
+            return true;
+          }).map((ch, i) => ({
+            title: ch.title,
+            anchor: ch.anchor,
+            summary: ch.summary || ''
+          }));
+        }
       }
     } catch (e) {
-      // 索引不存在，继续往下
+      // 索引不存在，回退
+    }
+    
+    // 3. 兜底：大书加载切分索引
+    if (!chapters || chapters.length === 0) {
+      try {
+        const bookName = bookPath.split('/').pop().replace('.txt', '');
+        const catName = bookPath.split('/')[0];
+        const idxUrl = `books-split/${catName}/${encodeURIComponent(bookName)}/index.json`;
+        const res = await fetch(idxUrl, {cache: 'force-cache'});
+        if (res.ok) {
+          const idx = await res.json();
+          chapters = (idx.volumes || []).map((ch, i) => ({
+            title: ch.title || `卷${i+1}`,
+            anchor: 'vol-'+(i+1),
+            summary: `${ch.chars || 0}字`
+          }));
+        }
+      } catch (e) {}
     }
   }
   
