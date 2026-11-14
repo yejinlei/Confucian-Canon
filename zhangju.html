@@ -20,14 +20,11 @@
 .zhangju-hero h1 {
   font-size: 32px;
   margin-bottom: 10px;
-  background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--accent-gold);
 }
 .zhangju-hero p {
   font-size: 16px;
-  color: rgba(255,255,255,0.7);
+  color: var(--text-secondary);
   max-width: 800px;
   margin: 0 auto;
   line-height: 1.8;
@@ -40,27 +37,28 @@
 .search-box input {
   width: 100%;
   padding: 14px 20px 14px 50px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(212,175,55,0.3);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 50px;
-  color: inherit;
-  font-size: 16px;
-  outline: none;
-  transition: all 0.3s;
+  color: var(--text-primary);
+  font-size: 15px;
   font-family: inherit;
+  transition: all 0.3s;
 }
 .search-box input:focus {
-  border-color: rgba(212,175,55,0.8);
-  background: rgba(255,255,255,0.12);
+  outline: none;
+  border-color: var(--accent-gold);
+  background: var(--bg-hover);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
 }
 .search-box::before {
-  content: '🔍';
+  content: "🔍";
   position: absolute;
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 .category-tabs {
   display: flex;
@@ -70,23 +68,24 @@
   margin-bottom: 30px;
 }
 .cat-tab {
-  padding: 6px 16px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(212,175,55,0.2);
+  padding: 8px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  color: var(--text-secondary);
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
-  font-size: 14px;
+  font-family: inherit;
 }
-.cat-tab:hover, .cat-tab.active {
+.cat-tab.active {
   background: rgba(212,175,55,0.15);
-  border-color: rgba(212,175,55,0.5);
-  color: #d4af37;
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
 }
-.cat-tab .count {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-left: 4px;
+.cat-tab:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
 }
 .books-grid {
   display: grid;
@@ -94,16 +93,16 @@
   gap: 20px;
 }
 .book-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(212,175,55,0.15);
-  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 20px;
   transition: all 0.3s;
 }
 .book-card:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(212,175,55,0.3);
+  border-color: var(--accent-gold);
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
 .book-header {
   display: flex;
@@ -113,104 +112,106 @@
 }
 .book-title {
   font-size: 18px;
-  font-weight: 500;
-  color: #d4af37;
-  margin: 0;
+  font-weight: 600;
+  color: var(--accent-gold);
+  text-decoration: none;
+  transition: color 0.3s;
 }
-.book-meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-  font-size: 12px;
-}
-.book-tag {
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: rgba(212,175,55,0.1);
-  color: rgba(212,175,55,0.8);
+.book-title:hover {
+  text-decoration: underline;
 }
 .book-size {
   font-size: 12px;
-  opacity: 0.7;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
-.toggle-chapters {
-  width: 100%;
-  padding: 8px;
+.book-meta {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.book-cat {
+  font-size: 12px;
+  padding: 3px 10px;
   background: rgba(212,175,55,0.1);
-  border: 1px solid rgba(212,175,55,0.2);
-  border-radius: 8px;
-  color: inherit;
+  color: var(--accent-gold);
+  border-radius: 12px;
+}
+.chapter-toggle {
+  width: 100%;
+  padding: 10px;
+  background: var(--bg-hover);
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s;
-  font-size: 14px;
   font-family: inherit;
+  transition: all 0.3s;
 }
-.toggle-chapters:hover {
+.chapter-toggle:hover {
   background: rgba(212,175,55,0.2);
+  color: var(--accent-gold);
 }
-.chapters-loading {
-  text-align: center;
-  padding: 20px;
-  opacity: 0.7;
-  font-size: 14px;
-}
-.chapters-list {
-  margin-top: 15px;
-  max-height: 400px;
+.chapter-list {
+  max-height: 300px;
   overflow-y: auto;
-  padding-right: 8px;
+  margin-top: 15px;
+  padding-right: 5px;
+  display: none;
 }
-.chapters-list::-webkit-scrollbar {
+.chapter-list.open {
+  display: block;
+}
+.chapter-list::-webkit-scrollbar {
   width: 4px;
 }
-.chapters-list::-webkit-scrollbar-thumb {
-  background: rgba(212,175,55,0.3);
+.chapter-list::-webkit-scrollbar-thumb {
+  background: var(--border-light);
   border-radius: 2px;
 }
 .chapter-item {
   display: block;
-  padding: 6px 10px;
-  margin-bottom: 4px;
-  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text-secondary);
+  font-size: 13px;
   text-decoration: none;
-  color: inherit;
-  font-size: 14px;
+  border-radius: 4px;
   transition: all 0.2s;
-  line-height: 1.5;
+  border-left: 2px solid transparent;
 }
 .chapter-item:hover {
   background: rgba(212,175,55,0.1);
-  color: #d4af37;
+  color: var(--accent-gold);
+  border-left-color: var(--accent-gold);
 }
-.chapter-item .summary {
-  font-size: 12px;
-  opacity: 0.6;
-  margin-left: 8px;
-}
-.show-more {
-  text-align: center;
-  margin-top: 10px;
+.chapter-more {
+  width: 100%;
   padding: 6px;
-  font-size: 12px;
-  opacity: 0.7;
-  cursor: pointer;
+  margin-top: 5px;
+  background: transparent;
+  border: 1px dashed var(--border);
   border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
 }
-.show-more:hover {
-  background: rgba(255,255,255,0.05);
-}
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  opacity: 0.6;
-  grid-column: 1 / -1;
+.chapter-more:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
 }
 .load-progress {
   text-align: center;
-  padding: 10px;
+  padding: 20px;
+  color: var(--text-muted);
   font-size: 14px;
-  opacity: 0.7;
+}
+.chapter-loading {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 13px;
 }
 @media (max-width: 768px) {
   .books-grid {
