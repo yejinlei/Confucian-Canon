@@ -1,292 +1,599 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="bronze">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>章句本体 - 儒藏本体論</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="style/common.css">
-    <script src="data/common.js"></script>
-    <script src="data/books.js"></script>
-    <script src="data/chapters_all.js"></script>
-    <style>
-        .zhangju-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-        .zhangju-header { text-align: center; margin-bottom: 40px; }
-        .zhangju-title { font-size: 2.4em; font-weight: bold; background: linear-gradient(135deg, var(--accent-color), #e8c07d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
-        .zhangju-sub { color: var(--text-secondary); font-size: 1.1em; line-height: 1.6; }
-        .stats-bar { display: flex; justify-content: center; gap: 48px; margin: 24px 0; flex-wrap: wrap; }
-        .stat-item { text-align: center; }
-        .stat-num { font-size: 2em; font-weight: bold; color: var(--accent-color); }
-        .stat-label { font-size: 0.9em; color: var(--text-secondary); }
-        
-        .search-box { max-width: 600px; margin: 0 auto 32px; }
-        .search-input { width: 100%; padding: 14px 20px; font-size: 1.05em; border: 1px solid var(--border-color); border-radius: 8px; background: var(--panel-bg); color: var(--text-primary); outline: none; transition: all .3s; }
-        .search-input:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(200,160,80,.15); }
-        
-        .cat-tabs { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 32px; }
-        .cat-tab { padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-primary); cursor: pointer; transition: all .3s; font-size: 0.95em; }
-        .cat-tab:hover, .cat-tab.active { background: var(--accent-color); border-color: var(--accent-color); color: #1a1a1a; }
-        .cat-tab .count { font-size: 0.8em; opacity: 0.8; margin-left: 4px; }
-        
-        .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; }
-        .book-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; transition: all .3s; }
-        .book-card:hover { border-color: var(--accent-color); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
-        .book-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .book-title { font-size: 1.2em; font-weight: 600; color: var(--accent-color); text-decoration: none; }
-        .book-title:hover { text-decoration: underline; }
-        .book-meta { display: flex; gap: 12px; align-items: center; font-size: 0.85em; color: var(--text-secondary); }
-        .book-badge { padding: 2px 8px; border-radius: 4px; background: rgba(200,160,80,.15); color: var(--accent-color); font-size: 0.8em; }
-        .book-source { font-size: 0.75em; color: #8b7355; }
-        
-        .chapters-list { padding: 16px 24px 20px; max-height: 380px; overflow-y: auto; display: none; }
-        .book-card.expanded .chapters-list { display: block; }
-        .chapter-item { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.05); display: flex; gap: 12px; align-items: baseline; }
-        .chapter-item:last-child { border-bottom: none; }
-        .chapter-title { color: var(--text-primary); font-weight: 500; cursor: pointer; flex-shrink: 0; }
-        .chapter-title:hover { color: var(--accent-color); }
-        .chapter-desc { font-size: 0.85em; color: var(--text-secondary); line-height: 1.5; }
-        
-        .expand-btn { padding: 4px 12px; font-size: 0.8em; border-radius: 4px; background: rgba(200,160,80,.1); color: var(--accent-color); border: none; cursor: pointer; transition: all .2s; margin-top: 8px; }
-        .expand-btn:hover { background: rgba(200,160,80,.2); }
-        
-        .loading, .empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
-        
-        @media (max-width: 768px) {
-            .zhangju-container { padding: 16px; }
-            .books-grid { grid-template-columns: 1fr; gap: 16px; }
-            .stats-bar { gap: 24px; }
-            .stat-num { font-size: 1.6em; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>章句導航 | 儒藏本体論 · Confucian Canon</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="style/common.css">
+<style>
+.zhangju-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.zhangju-hero {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px 20px;
+}
+.zhangju-hero h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.zhangju-hero p {
+  font-size: 16px;
+  color: rgba(255,255,255,0.7);
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+.search-box {
+  max-width: 600px;
+  margin: 30px auto 20px;
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  padding: 14px 20px 14px 50px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 50px;
+  color: inherit;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+.search-box input:focus {
+  border-color: rgba(212,175,55,0.8);
+  background: rgba(255,255,255,0.12);
+}
+.search-box::before {
+  content: '🔍';
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  opacity: 0.7;
+}
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.cat-tab {
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(212,175,55,0.2);
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+.cat-tab:hover, .cat-tab.active {
+  background: rgba(212,175,55,0.15);
+  border-color: rgba(212,175,55,0.5);
+  color: #d4af37;
+}
+.cat-tab .count {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+.book-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(212,175,55,0.15);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+.book-card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(212,175,55,0.3);
+  transform: translateY(-2px);
+}
+.book-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.book-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #d4af37;
+  margin: 0;
+}
+.book-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.book-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(212,175,55,0.1);
+  color: rgba(212,175,55,0.8);
+}
+.book-size {
+  font-size: 12px;
+  opacity: 0.7;
+}
+.toggle-chapters {
+  width: 100%;
+  padding: 8px;
+  background: rgba(212,175,55,0.1);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+  font-family: inherit;
+}
+.toggle-chapters:hover {
+  background: rgba(212,175,55,0.2);
+}
+.chapters-loading {
+  text-align: center;
+  padding: 20px;
+  opacity: 0.7;
+  font-size: 14px;
+}
+.chapters-list {
+  margin-top: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.chapters-list::-webkit-scrollbar {
+  width: 4px;
+}
+.chapters-list::-webkit-scrollbar-thumb {
+  background: rgba(212,175,55,0.3);
+  border-radius: 2px;
+}
+.chapter-item {
+  display: block;
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  font-size: 14px;
+  transition: all 0.2s;
+  line-height: 1.5;
+}
+.chapter-item:hover {
+  background: rgba(212,175,55,0.1);
+  color: #d4af37;
+}
+.chapter-item .summary {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-left: 8px;
+}
+.show-more {
+  text-align: center;
+  margin-top: 10px;
+  padding: 6px;
+  font-size: 12px;
+  opacity: 0.7;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.show-more:hover {
+  background: rgba(255,255,255,0.05);
+}
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  opacity: 0.6;
+  grid-column: 1 / -1;
+}
+.load-progress {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+@media (max-width: 768px) {
+  .books-grid {
+    grid-template-columns: 1fr;
+  }
+  .zhangju-hero h1 {
+    font-size: 24px;
+  }
+}
+</style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="sidebar-overlay"></div>
-        <aside class="sidebar" id="sidebar"></aside>
-        <main class="main-content">
-            <header class="top-nav" id="topNav"></header>
-            
-            <div class="zhangju-container">
-                <div class="zhangju-header">
-                    <h1 class="zhangju-title">章句本体導航</h1>
-                    <p class="zhangju-sub">依經傳註疏之序，明章句訓詁之旨。全經典籍層級導航，由書入篇，由篇入章，尋義理於字裏行間。</p>
-                    <div class="stats-bar" id="statsBar"></div>
-                </div>
-                
-                <div class="search-box">
-                    <input type="text" class="search-input" id="searchInput" placeholder="🔍 搜索典籍名稱（如：論語、左傳、朱子、傳習錄…）">
-                </div>
-                
-                <div class="cat-tabs" id="catTabs"></div>
-                
-                <div id="booksContainer">
-                    <div class="loading">正在加載全部典籍章句數據，請稍候…</div>
-                </div>
-            </div>
-            
-            <footer class="site-footer" id="footer"></footer>
-        </main>
-        <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+<div class="app-container">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <div class="overlay" onclick="toggleSidebar()"></div>
+  
+  <aside class="sidebar" id="sidebar"></aside>
+  
+  <main class="main-content">
+    <nav class="top-nav" id="topNav"></nav>
+    
+    <div class="content-area">
+      <div class="zhangju-container">
+        <div class="zhangju-hero">
+          <h1>📖 章句導航</h1>
+          <p>依經傳註疏之序，明章句訓詁之旨。全經典籍層級導航，由書入篇，由篇入章，尋義理於字裏行間。</p>
+        </div>
+        
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="搜索典籍名稱（如：論語、左傳、朱子、傳習錄…）">
+        </div>
+        
+        <div class="category-tabs" id="categoryTabs"></div>
+        
+        <div class="load-progress" id="loadProgress" style="display:none;">正在加載更多典籍…</div>
+        
+        <div class="books-grid" id="booksGrid"></div>
+        
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <p>未找到匹配的典籍，請嘗試其他關鍵詞</p>
+        </div>
+      </div>
     </div>
     
-    <div class="theme-panel" id="themePanel"></div>
+    <footer class="footer" id="footer"></footer>
+  </main>
+</div>
 
-    <script>
-        // 初始化公共组件
-        initPage();
-        renderSidebar();
-        renderTopNav();
-        renderFooter();
-        initTheme();
-        
-        // 分类映射
-        const CAT_NAMES = {
-            '四书': '四書', '五经总义': '五經總義', '诗经': '詩經', '尚书': '尚書',
-            '礼经': '禮經', '乐经': '樂經', '春秋': '春秋', '孝经': '孝經',
-            '语录': '語錄', '小学': '小學', '修身治家': '修身治家', '启蒙蒙学': '啟蒙蒙學'
-        };
-        
-        let currentCat = 'all';
-        let searchKey = '';
-        let allBooks = [];
-        
-        // 统计数据
-        function calcStats() {
-            let totalChapters = 0;
-            Object.values(window.ALL_CHAPTERS).forEach(d => totalChapters += d.chapters.length);
-            return {
-                books: Object.keys(window.ALL_CHAPTERS).length,
-                chapters: totalChapters,
-                cats: Object.keys(CAT_NAMES).length
-            };
-        }
-        
-        // 渲染统计栏
-        function renderStats() {
-            const s = calcStats();
-            document.getElementById('statsBar').innerHTML = `
-                <div class="stat-item"><div class="stat-num">${s.cats}</div><div class="stat-label">經部門類</div></div>
-                <div class="stat-item"><div class="stat-num">${s.books}</div><div class="stat-label">部典籍</div></div>
-                <div class="stat-item"><div class="stat-num">${s.chapters}</div><div class="stat-label">章/卷節點</div></div>
-            `;
-        }
-        
-        // 渲染分类标签
-        function renderCatTabs() {
-            // 统计每个分类的书籍数
-            const catCounts = {};
-            Object.keys(window.ALL_CHAPTERS).forEach(path => {
-                const cat = path.split('/')[0];
-                catCounts[cat] = (catCounts[cat] || 0) + 1;
-            });
-            
-            let html = `<div class="cat-tab ${currentCat==='all'?'active':''}" data-cat="all">全部<span class="count">${calcStats().books}</span></div>`;
-            Object.keys(CAT_NAMES).forEach(cat => {
-                const count = catCounts[cat] || 0;
-                if (count > 0) {
-                    html += `<div class="cat-tab ${currentCat===cat?'active':''}" data-cat="${cat}">${CAT_NAMES[cat]}<span class="count">${count}</span></div>`;
-                }
-            });
-            document.getElementById('catTabs').innerHTML = html;
-            
-            document.querySelectorAll('.cat-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    currentCat = tab.dataset.cat;
-                    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    renderBooks();
-                });
-            });
-        }
-        
-        // 渲染书籍列表
-        function renderBooks() {
-            const container = document.getElementById('booksContainer');
-            let filtered = Object.entries(window.ALL_CHAPTERS).filter(([path, data]) => {
-                const cat = path.split('/')[0];
-                const name = path.split('/')[1].replace('.txt','');
-                if (currentCat !== 'all' && cat !== currentCat) return false;
-                if (searchKey && !name.includes(searchKey) && !cat.includes(searchKey)) return false;
-                return true;
-            });
-            
-            // 按分类排序
-            filtered.sort((a,b) => {
-                const catA = a[0].split('/')[0];
-                const catB = b[0].split('/')[0];
-                const nameA = a[0].split('/')[1];
-                const nameB = b[0].split('/')[1];
-                return catA.localeCompare(catB, 'zh-CN') || nameA.localeCompare(nameB, 'zh-CN');
-            });
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty">未找到匹配的典籍，請嘗試其他關鍵詞</div>';
-                return;
-            }
-            
-            let html = '<div class="books-grid">';
-            filtered.forEach(([path, data], idx) => {
-                const cat = path.split('/')[0];
-                const name = path.split('/')[1].replace('.txt','');
-                const chapters = data.chapters;
-                const sourceMap = {manual: '精校', split: '按卷切分', auto: '自動識別'};
-                const sourceLabel = sourceMap[data.source] || '';
-                
-                html += `
-                <div class="book-card" data-path="${path}">
-                    <div class="book-header">
-                        <div>
-                            <a href="reader.html?b=${encodeURIComponent(path)}" class="book-title" target="_blank">${name}</a>
-                            <div class="book-meta">
-                                <span class="book-badge">${CAT_NAMES[cat]||cat}</span>
-                                <span>${chapters.length} 章/卷</span>
-                                <span class="book-source">${sourceLabel}</span>
-                            </div>
-                        </div>
-                        <span class="toggle-icon">▼</span>
-                    </div>
-                    <div class="chapters-list" id="chapters-${idx}">
-                        ${renderChapters(path, chapters)}
-                        ${chapters.length > 12 ? `<button class="expand-btn" onclick="toggleExpand(this)">展開全部 ${chapters.length} 卷</button>` : ''}
-                    </div>
-                </div>
-                `;
-            });
-            html += '</div>';
-            container.innerHTML = html;
-            
-            // 绑定展开事件
-            document.querySelectorAll('.book-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    const card = header.closest('.book-card');
-                    card.classList.toggle('expanded');
-                });
-            });
-        }
-        
-        // 渲染章节列表
-        function renderChapters(bookPath, chapters) {
-            const showCount = Math.min(12, chapters.length);
-            let html = '';
-            chapters.slice(0, showCount).forEach((ch, i) => {
-                html += `
-                <div class="chapter-item">
-                    <span class="chapter-title" onclick="gotoChapter('${bookPath}', ${i}, ${ch.volume !== undefined ? ch.volume : -1})">${ch.title}</span>
-                    <span class="chapter-desc">${ch.desc || ''}</span>
-                </div>
-                `;
-            });
-            if (chapters.length > 12) {
-                html += `<div class="more-chapters" style="display:none">`;
-                chapters.slice(12).forEach((ch, i) => {
-                    html += `
-                    <div class="chapter-item">
-                        <span class="chapter-title" onclick="gotoChapter('${bookPath}', ${i+12}, ${ch.volume !== undefined ? ch.volume : -1})">${ch.title}</span>
-                        <span class="chapter-desc">${ch.desc || ''}</span>
-                    </div>
-                    `;
-                });
-                html += `</div>`;
-            }
-            return html;
-        }
-        
-        // 展开全部章节
-        window.toggleExpand = function(btn) {
-            const list = btn.closest('.chapters-list');
-            const more = list.querySelector('.more-chapters');
-            if (more.style.display === 'none') {
-                more.style.display = 'block';
-                btn.textContent = '收起';
-            } else {
-                more.style.display = 'none';
-                btn.textContent = btn.textContent.replace('收起', '展開全部 ');
-            }
-        };
-        
-        // 跳转到章节
-        window.gotoChapter = function(bookPath, chIdx, volIdx) {
-            if (volIdx >= 0) {
-                // 大书按卷跳转
-                window.open(`reader.html?b=${encodeURIComponent(bookPath)}&vol=${volIdx}`, '_blank');
-            } else {
-                // 小书按章节位置跳转
-                window.open(`reader.html?b=${encodeURIComponent(bookPath)}&ch=${chIdx}`, '_blank');
-            }
-        };
-        
-        // 搜索
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            searchKey = e.target.value.trim();
-            renderBooks();
-        });
-        
-        // 初始化
-        window.addEventListener('load', () => {
-            renderStats();
-            renderCatTabs();
-            renderBooks();
-        });
-    </script>
+<script src="data/common.js"></script>
+<script src="data/books.js"></script>
+<script>
+const zhangjuCache = {}; // 缓存已加载的章句数据
+let currentCategory = 'all';
+let searchKeyword = '';
+const BATCH_SIZE = 50; // 每批渲染50个书目卡片
+let renderedCount = 0;
+let filteredBooks = [];
+let isLoading = false;
+
+// 精校章句数据（核心经典，精准到章）
+const PRECISE_ZHANGJU = {
+  '四书/大学章句.txt': [
+    {title: '經一章', summary: '三綱領八條目', anchor: 0},
+    {title: '傳第一章', summary: '釋明明德', anchor: 1},
+    {title: '傳第二章', summary: '釋新民', anchor: 2},
+    {title: '傳第三章', summary: '釋止於至善', anchor: 3},
+    {title: '傳第四章', summary: '釋本末', anchor: 4},
+    {title: '傳第五章', summary: '釋格物致知', anchor: 5},
+    {title: '傳第六章', summary: '釋誠意', anchor: 6},
+    {title: '傳第七章', summary: '釋正心修身', anchor: 7},
+    {title: '傳第八章', summary: '釋修身齊家', anchor: 8},
+    {title: '傳第九章', summary: '釋齊家治國', anchor: 9},
+    {title: '傳第十章', summary: '釋治國平天下', anchor: 10}
+  ],
+  '四书/中庸章句.txt': [
+    {title: '第一章', summary: '天命之謂性，中和之本', anchor: 0},
+    {title: '第二章', summary: '仲尼曰君子中庸', anchor: 1},
+    {title: '第三章', summary: '中庸其至矣乎', anchor: 2},
+    {title: '第四章', summary: '道之不行也我知之矣', anchor: 3},
+    {title: '第五章', summary: '道其不行矣夫', anchor: 4},
+    {title: '第六章', summary: '舜其大知也與', anchor: 5},
+    {title: '第七章', summary: '人皆曰予知', anchor: 6},
+    {title: '第八章', summary: '回之為人也擇乎中庸', anchor: 7},
+    {title: '第九章', summary: '天下國家可均也', anchor: 8},
+    {title: '第十章', summary: '子路問強', anchor: 9},
+    {title: '第十一章', summary: '素隱行怪', anchor: 10},
+    {title: '第十二章', summary: '君子之道費而隱', anchor: 11},
+    {title: '第十三章', summary: '道不遠人', anchor: 12},
+    {title: '第十四章', summary: '君子素其位而行', anchor: 13},
+    {title: '第十五章', summary: '君子之道辟如行遠必自邇', anchor: 14},
+    {title: '第十六章', summary: '鬼神之為德', anchor: 15},
+    {title: '第十七章', summary: '舜其大孝也與', anchor: 16},
+    {title: '第十八章', summary: '無憂者其惟文王乎', anchor: 17},
+    {title: '第十九章', summary: '武王周公其達孝矣乎', anchor: 18},
+    {title: '第二十章', summary: '哀公問政，誠者天之道', anchor: 19},
+    {title: '第二十一章', summary: '自誠明謂之性', anchor: 20},
+    {title: '第二十二章', summary: '唯天下至誠', anchor: 21},
+    {title: '第二十三章', summary: '其次致曲', anchor: 22},
+    {title: '第二十四章', summary: '至誠之道可以前知', anchor: 23},
+    {title: '第二十五章', summary: '誠者自成也', anchor: 24},
+    {title: '第二十六章', summary: '至誠無息', anchor: 25},
+    {title: '第二十七章', summary: '大哉聖人之道', anchor: 26},
+    {title: '第二十八章', summary: '愚而好自用', anchor: 27},
+    {title: '第二十九章', summary: '王天下有三重焉', anchor: 28},
+    {title: '第三十章', summary: '仲尼祖述堯舜', anchor: 29},
+    {title: '第三十一章', summary: '唯天下至聖', anchor: 30},
+    {title: '第三十二章', summary: '唯天下至誠', anchor: 31},
+    {title: '第三十三章', summary: '詩曰衣錦尚絅，至誠無聲', anchor: 32}
+  ],
+  '四书/论语.txt': [
+    {title: '學而篇第一', summary: '為學之本、仁孝之基', anchor: 0},
+    {title: '為政篇第二', summary: '為政以德、治國之道', anchor: 1},
+    {title: '八佾篇第三', summary: '禮樂制度、祭祀之禮', anchor: 2},
+    {title: '里仁篇第四', summary: '處仁擇里、義利之辨', anchor: 3},
+    {title: '公冶長篇第五', summary: '評論弟子、人物品鑒', anchor: 4},
+    {title: '雍也篇第六', summary: '中庸之德、仁之境界', anchor: 5},
+    {title: '述而篇第七', summary: '孔子自述、為學態度', anchor: 6},
+    {title: '泰伯篇第八', summary: '泰伯至德、先王之道', anchor: 7},
+    {title: '子罕篇第九', summary: '孔子行事、性命之說', anchor: 8},
+    {title: '鄉黨篇第十', summary: '孔子容止、日常禮儀', anchor: 9},
+    {title: '先進篇第十一', summary: '弟子言行、孔門政事', anchor: 10},
+    {title: '顏淵篇第十二', summary: '仁政德治、克己復禮', anchor: 11},
+    {title: '子路篇第十三', summary: '為政方略、士之修身', anchor: 12},
+    {title: '憲問篇第十四', summary: '古今人物、為政之道', anchor: 13},
+    {title: '衛靈公篇第十五', summary: '君子固窮、忠信篤敬', anchor: 14},
+    {title: '季氏篇第十六', summary: '季氏伐顓臾、君子三戒', anchor: 15},
+    {title: '陽貨篇第十七', summary: '陽貨見孔子、性相近習相遠', anchor: 16},
+    {title: '微子篇第十八', summary: '隱士之行、出處進退', anchor: 17},
+    {title: '子張篇第十九', summary: '弟子言論、聖學傳承', anchor: 18},
+    {title: '堯曰篇第二十', summary: '堯舜禹湯、治道總綱', anchor: 19}
+  ],
+  '四书/孟子.txt': [
+    {title: '梁惠王上', summary: '仁義而已、何必曰利', anchor: 0},
+    {title: '梁惠王下', summary: '與民同樂、王政之始', anchor: 1},
+    {title: '公孫丑上', summary: '我善養吾浩然之氣', anchor: 2},
+    {title: '公孫丑下', summary: '天時不如地利', anchor: 3},
+    {title: '滕文公上', summary: '孟子道性善、言必稱堯舜', anchor: 4},
+    {title: '滕文公下', summary: '富貴不能淫、貧賤不能移', anchor: 5},
+    {title: '離婁上', summary: '不以規矩不能成方圓', anchor: 6},
+    {title: '離婁下', summary: '君之視臣如手足', anchor: 7},
+    {title: '萬章上', summary: '大孝終身慕父母', anchor: 8},
+    {title: '萬章下', summary: '伯夷聖之清者也', anchor: 9},
+    {title: '告子上', summary: '人性之善也猶水之就下也', anchor: 10},
+    {title: '告子下', summary: '生於憂患死於安樂', anchor: 11},
+    {title: '盡心上', summary: '盡其心者知其性也', anchor: 12},
+    {title: '盡心下', summary: '民為貴、社稷次之、君為輕', anchor: 13}
+  ],
+  '孝经/孝经.txt': [
+    {title: '開宗明義章第一', summary: '孝德之本、教之所由生', anchor: 0},
+    {title: '天子章第二', summary: '天子之孝、愛敬盡於事親', anchor: 1},
+    {title: '諸侯章第三', summary: '諸侯之孝、保社稷和人民', anchor: 2},
+    {title: '卿大夫章第四', summary: '卿大夫之孝、服先王之法服', anchor: 3},
+    {title: '士章第五', summary: '士之孝、忠順不失以事其上', anchor: 4},
+    {title: '庶人章第六', summary: '庶人之孝、謹身節用以養父母', anchor: 5},
+    {title: '三才章第七', summary: '孝天之經地之義民之行', anchor: 6},
+    {title: '孝治章第八', summary: '以孝治天下', anchor: 7},
+    {title: '聖治章第九', summary: '聖人之德無加於孝', anchor: 8},
+    {title: '紀孝行章第十', summary: '孝子事親、五者備矣', anchor: 9},
+    {title: '五刑章第十一', summary: '五刑之屬三千而罪莫大於不孝', anchor: 10},
+    {title: '廣要道章第十二', summary: '教民親愛莫善於孝', anchor: 11},
+    {title: '廣至德章第十三', summary: '君子之教以孝也', anchor: 12},
+    {title: '廣揚名章第十四', summary: '立身行道揚名於後世', anchor: 13},
+    {title: '諫諍章第十五', summary: '父有爭子則身不陷於不義', anchor: 14},
+    {title: '感應章第十六', summary: '孝悌之至通於神明', anchor: 15},
+    {title: '事君章第十七', summary: '君子之事上也進思盡忠', anchor: 16},
+    {title: '喪親章第十八', summary: '孝子之喪親也、生事愛敬死事哀戚', anchor: 17}
+  ],
+  '语录/传习录.txt': [
+    {title: '傳習錄上', summary: '徐愛錄、知行合一、心即理', anchor: 0},
+    {title: '傳習錄中', summary: '答顧東橋書、致良知、知行合一', anchor: 1},
+    {title: '傳習錄下', summary: '陳九川等錄、四句教、大學問', anchor: 2}
+  ]
+};
+
+// 初始化
+document.addEventListener('DOMContentLoaded', function() {
+  initPage();
+  initZhangjuPage();
+});
+
+function initZhangjuPage() {
+  // 计算每个分类的数量
+  const catCount = {};
+  BOOKS_DATA.forEach(b => {
+    catCount[b.cat] = (catCount[b.cat] || 0) + 1;
+  });
+  
+  // 渲染分类标签
+  const tabsEl = document.getElementById('categoryTabs');
+  const allCount = BOOKS_DATA.length;
+  tabsEl.innerHTML = `<div class="cat-tab active" data-cat="all">全部<span class="count">(${allCount})</span></div>` +
+    CATEGORIES.map(cat => `<div class="cat-tab" data-cat="${cat.name}">${cat.name}<span class="count">(${catCount[cat.name] || 0})</span></div>`).join('');
+  
+  // 分类点击事件
+  tabsEl.querySelectorAll('.cat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabsEl.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentCategory = tab.dataset.cat;
+      searchKeyword = '';
+      document.getElementById('searchInput').value = '';
+      resetAndRender();
+    });
+  });
+  
+  // 搜索事件
+  const searchInput = document.getElementById('searchInput');
+  let searchTimer;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchKeyword = searchInput.value.trim();
+      currentCategory = 'all';
+      tabsEl.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      tabsEl.querySelector('[data-cat="all"]').classList.add('active');
+      resetAndRender();
+    }, 300);
+  });
+  
+  // 滚动加载
+  window.addEventListener('scroll', () => {
+    if (isLoading || renderedCount >= filteredBooks.length) return;
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+      renderNextBatch();
+    }
+  });
+  
+  resetAndRender();
+}
+
+function resetAndRender() {
+  // 过滤书目
+  filteredBooks = BOOKS_DATA.filter(b => {
+    if (currentCategory !== 'all' && b.cat !== currentCategory) return false;
+    if (searchKeyword && !b.name.includes(searchKeyword) && !b.path.includes(searchKeyword)) return false;
+    return true;
+  });
+  
+  renderedCount = 0;
+  document.getElementById('booksGrid').innerHTML = '';
+  document.getElementById('emptyState').style.display = filteredBooks.length === 0 ? 'block' : 'none';
+  
+  if (filteredBooks.length > 0) {
+    renderNextBatch();
+  }
+}
+
+function renderNextBatch() {
+  if (renderedCount >= filteredBooks.length) return;
+  isLoading = true;
+  document.getElementById('loadProgress').style.display = 'block';
+  
+  const end = Math.min(renderedCount + BATCH_SIZE, filteredBooks.length);
+  const batch = filteredBooks.slice(renderedCount, end);
+  
+  const grid = document.getElementById('booksGrid');
+  batch.forEach(book => {
+    const card = document.createElement('div');
+    card.className = 'book-card';
+    card.dataset.path = book.path;
+    const sizeText = book.size > 1024 ? `${(book.size/1024).toFixed(1)}MB` : `${book.size}KB`;
+    card.innerHTML = `
+      <div class="book-header">
+        <h3 class="book-title">${book.name}</h3>
+        <span class="book-size">${sizeText}</span>
+      </div>
+      <div class="book-meta">
+        <span class="book-tag">${book.cat}</span>
+      </div>
+      <button class="toggle-chapters" onclick="toggleChapters(this, '${book.path}')">📑 展開章句</button>
+      <div class="chapters-container"></div>
+    `;
+    grid.appendChild(card);
+  });
+  
+  renderedCount = end;
+  isLoading = false;
+  document.getElementById('loadProgress').style.display = renderedCount < filteredBooks.length ? 'block' : 'none';
+}
+
+async function toggleChapters(btn, bookPath) {
+  const card = btn.closest('.book-card');
+  const container = card.querySelector('.chapters-container');
+  
+  // 如果已经加载过，切换显示/隐藏
+  if (container.classList.contains('loaded')) {
+    if (container.style.display === 'none') {
+      container.style.display = 'block';
+      btn.textContent = '📖 收起章句';
+    } else {
+      container.style.display = 'none';
+      btn.textContent = '📑 展開章句';
+    }
+    return;
+  }
+  
+  // 显示加载状态
+  btn.disabled = true;
+  container.innerHTML = '<div class="chapters-loading">正在加載章句結構…</div>';
+  container.style.display = 'block';
+  
+  try {
+    let chapters = await loadZhangjuForBook(bookPath);
+    
+    if (!chapters || chapters.length === 0) {
+      container.innerHTML = '<div class="chapters-loading">該典籍章句結構即將上線，點擊書名直接閱讀</div>';
+      btn.disabled = false;
+      btn.textContent = '📑 展開章句';
+      return;
+    }
+    
+    // 渲染章句列表，默认显示前12条
+    const initialCount = Math.min(12, chapters.length);
+    const renderList = (chapters, count) => {
+      return chapters.slice(0, count).map(ch => {
+        const href = `reader.html?b=${encodeURIComponent(bookPath)}#ch-${ch.anchor}`;
+        return `<a href="${href}" class="chapter-item" target="_blank">${ch.title}${ch.summary ? `<span class="summary">${ch.summary}</span>` : ''}</a>`;
+      }).join('');
+    };
+    
+    container.innerHTML = `<div class="chapters-list">${renderList(chapters, initialCount)}</div>`;
+    
+    // 如果有更多章节，显示展开按钮
+    if (chapters.length > initialCount) {
+      const showMore = document.createElement('div');
+      showMore.className = 'show-more';
+      showMore.textContent = `展開全部 ${chapters.length} 章`;
+      showMore.onclick = () => {
+        container.querySelector('.chapters-list').innerHTML = renderList(chapters, chapters.length);
+        showMore.remove();
+      };
+      container.appendChild(showMore);
+    }
+    
+    container.classList.add('loaded');
+    btn.disabled = false;
+    btn.textContent = '📖 收起章句';
+    
+  } catch (e) {
+    console.error(e);
+    container.innerHTML = '<div class="chapters-loading">章句加載失敗，點擊書名直接閱讀</div>';
+    btn.disabled = false;
+    btn.textContent = '📑 展開章句';
+  }
+}
+
+async function loadZhangjuForBook(bookPath) {
+  // 优先读缓存
+  if (zhangjuCache[bookPath]) {
+    return zhangjuCache[bookPath];
+  }
+  
+  let chapters = null;
+  
+  // 1. 优先用精校数据
+  if (PRECISE_ZHANGJU[bookPath]) {
+    chapters = PRECISE_ZHANGJU[bookPath];
+  } else {
+    // 2. 大书加载切分索引
+    try {
+      const bookName = bookPath.split('/').pop().replace('.txt', '');
+      const catName = bookPath.split('/')[0];
+      const idxUrl = `books-split/${catName}/${encodeURIComponent(bookName)}/index.json`;
+      const res = await fetch(idxUrl, {cache: 'force-cache'});
+      if (res.ok) {
+        const idx = await res.json();
+        chapters = idx.chapters.map((ch, i) => ({
+          title: ch.title,
+          anchor: i,
+          volume: ch.volume
+        }));
+      }
+    } catch (e) {
+      // 索引不存在，继续往下
+    }
+  }
+  
+  // 缓存结果
+  if (chapters) {
+    zhangjuCache[bookPath] = chapters;
+  }
+  return chapters;
+}
+</script>
 </body>
 </html>
