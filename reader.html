@@ -216,6 +216,14 @@
       background: #d93025;
       color: #fff;
     }
+    /* 章句跳转高亮 */
+    .highlight-target {
+      animation: highlight-fade 2s ease-out;
+    }
+    @keyframes highlight-fade {
+      0% { background: rgba(193, 154, 107, 0.6); }
+      100% { background: transparent; }
+    }
     @media (max-width: 1200px) {
       .chapter-sidebar {
         position: fixed;
@@ -302,6 +310,7 @@
     const bookPath = params.get('b');
     const [bookCat, bookFile] = bookPath.split('/');
     const bookName = bookFile.replace('.txt', '');
+    const targetAnchor = params.get('anchor'); // 预生成章句索引的锚点参数
 
     // 更新标题和面包屑
     document.getElementById('bookCat').textContent = bookCat;
@@ -984,6 +993,51 @@
         }
         highlightSearch();
       }, 900);
+    }
+
+    // 支持从章句导航带anchor进入：reader.html?b=xxx&anchor=xxx
+    if (targetAnchor) {
+      const jumpToAnchor = () => {
+        let targetPos = 0;
+        // 1. 按卷锚点 vol-X
+        if (targetAnchor.startsWith('vol-')) {
+          const volId = parseInt(targetAnchor.replace('vol-',''));
+          if (splitIndex && volumeStartIdx[volId-1] !== undefined) {
+            targetPos = volumeStartIdx[volId-1];
+            // 确保该卷已加载
+            if (!loadedVolumes[volId]) loadVolume(volId);
+          }
+        } 
+        // 2. 字符位置锚点 cXXX / bXXX（按2万字分块）
+        else if (targetAnchor.startsWith('c') || targetAnchor.startsWith('b')) {
+          const charPos = parseInt(targetAnchor.slice(1));
+          if (!isNaN(charPos)) {
+            // 找到对应段落
+            let curChars = 0;
+            for (let i=0; i<allParagraphs.length; i++) {
+              curChars += allParagraphs[i].length;
+              if (curChars >= charPos) {
+                targetPos = i;
+                break;
+              }
+            }
+          }
+        }
+        // 渲染到目标位置并滚动
+        if (targetPos > 0) {
+          renderRange(0, Math.min(targetPos + 50, allParagraphs.length), true);
+          setTimeout(() => {
+            const el = document.getElementById('p-'+targetPos);
+            if (el) {
+              el.scrollIntoView({behavior:'smooth', block:'start'});
+              el.classList.add('highlight-target');
+              setTimeout(()=>el.classList.remove('highlight-target'), 2000);
+            }
+          }, 300);
+        }
+      };
+      // 等内容加载完成后跳转
+      setTimeout(jumpToAnchor, splitMode ? 1200 : 800);
     }
   </script>
 </body>
