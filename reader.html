@@ -191,83 +191,155 @@
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let curBid = params.get('b') || '';
+let curFile = '';
 let curBook = null;
+let curBookMeta = null;
+let BOOK_INDEX = []; // 存索引全部条目，便于 bid→file 查找
 let activeLayers = new Set(['经','注','疏','笺','郑笺','集注','集传','御注','章句','本义','象传','眉批','总评','评']);
 let activeTerm = null;
 let readerFs = 18;
 let vertical = false;
 
-const LAYER_COLORS = {'注':'#a78b5a','疏':'#c0392b','笺':'#6b8e8e','郑笺':'#6b8e8e','集注':'#7a9e7e','集传':'#7a9e7e','御注':'#b8860b','经':'#d4a853','象传':'#d4a853','眉批':'#9b59b6','总评':'#9b59b6','评':'#9b59b6'};
+const LAYER_COLORS = {'注':'#a78b5a','疏':'#c0392b','笺':'#6b8e8e','郑笺':'#6b8e8e','集注':'#7a9e7e','集传':'#7a9e7e','正义':'#c0392b','御注':'#b8860b','经':'#d4a853','象传':'#d4a853','眉批':'#9b59b6','总评':'#9b59b6','评':'#9b59b6'};
 
 // 加载索引 → 填下拉 → 加载当前典籍
 fetch('data/reader-data-index.json').then(r=>r.json()).then(idx=>{
+  BOOK_INDEX = idx.books || [];
+  // 构建 id→file/meta 映射
+  const bidMap = {};
+  BOOK_INDEX.forEach(b=>{ bidMap[b.id] = b; });
+  // 如果URL给的b是文件名（带.json或不带），也能定位
   const sel = $('bookSelect');
-  idx.books.forEach(b=>{
-    const o = document.createElement('option');
-    o.value = b.id; o.textContent = `${b.title}（${b.dynasty}·${b.author.split('；')[0]}）`;
-    sel.appendChild(o);
+  // 按分类分组排序
+  const catOrder = ['四书','五经总义','诗经','尚书','礼经','乐经','春秋','孝经','小学','语录','修身治家','启蒙蒙学'];
+  const groups = {};
+  BOOK_INDEX.forEach(b=>{
+    const c = b.category || '其他';
+    (groups[c]=groups[c]||[]).push(b);
   });
-  if(curBid){ sel.value = curBid; loadBook(curBid); }
-  sel.onchange = ()=>{ const v=sel.value; if(v){curBid=v;history.replaceState(null,'',`reader.html?b=${v}`);loadBook(v);} };
-  fillBookSidebar(idx.books);
+  catOrder.forEach(c=>{
+    if(!groups[c]) return;
+    const og = document.createElement('optgroup');
+    og.label = `${c}（${groups[c].length}）`;
+    groups[c].sort((x,y)=>x.title.localeCompare(y.title,'zh')).forEach(b=>{
+      const o = document.createElement('option');
+      o.value = b.id;
+      const era = b.era || '';
+      const author = (b.author||'').split('；')[0];
+      o.textContent = `${b.title}${era?'（'+era+'·'+author+'）':''}`;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+  // curBid 可能是id，也可能是文件名，也可能是title
+  let target = null;
+  if(curBid){
+    target = bidMap[curBid]
+          || BOOK_INDEX.find(b=>b.file===curBid)
+          || BOOK_INDEX.find(b=>b.file===curBid+'.json')
+          || BOOK_INDEX.find(b=>b.title===curBid);
+  }
+  if(!target && BOOK_INDEX.length) target = BOOK_INDEX.find(b=>b.id==='lunyu') || BOOK_INDEX[0];
+  if(target){
+    curBid = target.id;
+    sel.value = curBid;
+    loadBook(target);
+  }
+  sel.onchange = ()=>{
+    const v=sel.value; if(!v) return;
+    const b = bidMap[v]; if(!b) return;
+    curBid = v;
+    history.replaceState(null,'',`reader.html?b=${encodeURIComponent(v)}`);
+    loadBook(b);
+  };
+  fillBookSidebar(BOOK_INDEX);
 }).catch(err=>{
-  $('textBody').innerHTML = '<div class="cmt-empty">索引加载失败，请稍后重试</div>';
+  $('textBody').innerHTML = '<div class="cmt-empty">索引加载失败，请稍后重试：'+err.message+'</div>';
 });
 
 function fillBookSidebar(books){
   const side = $('bookSidebar');
   const cats = {};
   books.forEach(b=>{
-    const c = b.cat || '其他';
+    const c = b.category || '其他';
     (cats[c]=cats[c]||[]).push(b);
   });
   let html = '<div class="sidebar-title">典籍导航</div>';
-  const catName = {'四书':'四書','五经总义':'五經','诗经':'詩經','孝经':'孝經'};
-  Object.keys(cats).forEach(c=>{
-    html += `<div class="sidebar-group"><div class="sidebar-group-title">${catName[c]||c}</div>`;
-    cats[c].forEach(b=>{
-      html += `<a href="reader.html?b=${b.id}" class="sidebar-link" data-b="${b.id}">${b.title}<span class="sidebar-link-meta">${b.chapter_count}章</span></a>`;
+  const catOrder = ['四书','五经总义','诗经','尚书','礼经','乐经','春秋','孝经','小学','语录','修身治家','启蒙蒙学'];
+  catOrder.forEach(c=>{
+    if(!cats[c]) return;
+    html += `<div class="sidebar-group"><div class="sidebar-group-title">${c}（${cats[c].length}）</div>`;
+    cats[c].slice(0,80).forEach(b=>{
+      html += `<a href="reader.html?b=${encodeURIComponent(b.id)}" class="sidebar-link" data-b="${b.id}">${b.title}<span class="sidebar-link-meta">${b.chapter_count}章</span></a>`;
     });
+    if(cats[c].length>80) html += `<div style="font-size:11px;color:var(--ink-3);padding:2px 8px">...其余 ${cats[c].length-80} 部请用顶部下拉</div>`;
     html += '</div>';
   });
-  html += '<div class="sidebar-group" style="margin-top:20px"><div class="sidebar-group-title">更多典籍</div>'+
-          '<a href="library.html" class="sidebar-link">前往典籍库 →</a></div>';
+  html += '<div class="sidebar-group" style="margin-top:20px"><div class="sidebar-group-title">统计</div>'+
+          `<div style="font-size:12px;color:var(--ink-3);padding:4px 8px;line-height:1.8">共 ${books.length} 部<br>${books.reduce((a,b)=>a+b.chapter_count,0)} 章<br>${books.reduce((a,b)=>a+b.pericopes_count,0)} 节<br>${(books.reduce((a,b)=>a+b.word_count,0)/10000).toFixed(0)} 万字</div>`+
+          '</div>';
   side.innerHTML = html;
 }
 
-function loadBook(bid){
+function loadBook(bookMeta){
+  curBookMeta = bookMeta;
+  curFile = bookMeta.file;
   $('bookName').textContent = '加载中…';
-  fetch(`reader-data/${bid}.json`).then(r=>{
+  const url = 'reader-data/' + encodeURIComponent(curFile);
+  fetch(url).then(r=>{
     if(!r.ok) throw new Error('http '+r.status);
     return r.json();
   }).then(data=>{
     curBook = data;
+    const md = data.metadata || {};
+    // 统一扁平化 pericopes
+    if(Array.isArray(data.pericopes)){
+      const pd={}; data.pericopes.forEach(p=>{pd[p.id]=p}); data.pericopes=pd;
+    }
     renderBook(data);
-    const md = data.metadata;
-    $('bookName').textContent = md.title;
-    $('bookMeta').innerHTML = `<b>${md.title}</b>${md.dynasty} · ${md.author.split('；')[0]} · ${md.juan_count}卷 ${md.chapter_count}章 ${md.word_count}字`;
+    $('bookName').textContent = md.title || bookMeta.title;
+    const era = md.era || md.dynasty || bookMeta.era || '';
+    const author = (md.author||bookMeta.author||'').split('；')[0];
+    const chN = (data.chapters||[]).length;
+    const perN = data.pericopes ? Object.keys(data.pericopes).length : 0;
+    $('bookMeta').innerHTML = `<b>${escapeHtml(md.title||bookMeta.title)}</b>${era?' · '+escapeHtml(era):''}${author?' · '+escapeHtml(author):''} · ${chN}章 ${perN}节 ${(md.word_count||bookMeta.word_count||0).toLocaleString()}字`;
     // 定位章节
     const ch = params.get('ch');
-    if(ch){ setTimeout(()=>{const el=document.getElementById('ch-'+ch);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},100); }
-    // 定位查询
+    if(ch){ setTimeout(()=>{
+      const el = document.getElementById('ch-'+padCh(ch)) || document.getElementById('ch-'+ch);
+      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    },150); }
     const q = params.get('find')||params.get('q');
-    if(q){ highlightQuery(q); }
-    // 更新侧栏高亮
+    if(q){ setTimeout(()=>highlightQuery(q),200); }
     document.querySelectorAll('.sidebar-link[data-b]').forEach(a=>{
-      a.classList.toggle('active', a.dataset.b===bid);
+      a.classList.toggle('active', a.dataset.b===curBid);
     });
     buildLayerToggle(data);
   }).catch(err=>{
     $('bookName').textContent = '加载失败';
-    $('textBody').innerHTML = `<div class="cmt-empty">加载 ${bid} 失败：${err.message}<br>该典籍可能尚未入库，或前往 <a href="library.html">典籍库</a> 选择其它。</div>`;
+    $('textBody').innerHTML = `<div class="cmt-empty">加载 ${bookMeta.title} 失败：${err.message}<br>请从左侧典籍库或顶部下拉选择其它典籍。</div>`;
     $('noteBody').innerHTML = '';
   });
 }
 
+function padCh(s){
+  // ch 参数兼容：纯数字补零到3位
+  if(/^\d+$/.test(s)) return String(s).padStart(3,'0');
+  return s;
+}
+
 function buildLayerToggle(data){
-  // 统计实际出现的层
   const layers = new Set();
-  data.chapters.forEach(c=>c.pericopes.forEach(p=>(p.commentaries||[]).forEach(n=>{if(n.layer)layers.add(n.layer);})));
+  (data.chapters||[]).forEach(c=>{
+    (c.pericope_ids||[]).forEach(pid=>{
+      const p = (data.pericopes||{})[pid];
+      if(!p) return;
+      // commentaries (list)
+      (p.commentaries||[]).forEach(n=>{ if(n && n.layer) layers.add(n.layer); });
+      // comments (list of {layer,...})
+      (p.comments||[]).forEach(n=>{ if(n && n.layer) layers.add(n.layer); });
+    });
+  });
   const tog = $('layerToggle');
   tog.innerHTML = '<span style="font-size:12px;color:var(--ink-3);letter-spacing:2px;margin-right:6px">注疏层</span>';
   layers.forEach(l=>{
@@ -283,109 +355,135 @@ function buildLayerToggle(data){
 }
 
 function renderBook(data){
-  const md = data.metadata;
-  const chapters = data.chapters;
-  const conceptMap = {};
+  const md = data.metadata || {};
+  const chapters = data.chapters || [];
+  const perAll = data.pericopes || {};
+  // concepts：统一为 name→concept dict
   const conceptByName = {};
-  (data.concepts||[]).forEach(c=>{
-    conceptMap[c.id]=c;
-    if(c.name) conceptByName[c.name]=c;
+  const conceptById = {};
+  const csRaw = data.concepts || [];
+  const csList = Array.isArray(csRaw) ? csRaw : Object.values(csRaw);
+  csList.forEach(c=>{
+    if(!c) return;
+    if(c.name) conceptByName[c.name] = c;
+    if(c.id) conceptById[c.id] = c;
   });
-  const commMap = {};
-  (data.commentators||[]).forEach(c=>commMap[c.id]=c);
-  const perConcept = {};
+  // 合并全局本体
+  if(window.ONTOLOGY && ONTOLOGY.concepts){
+    Object.keys(ONTOLOGY.concepts).forEach(n=>{
+      if(!conceptByName[n]) conceptByName[n] = {name:n, definition:ONTOLOGY.concepts[n].def||'', related:ONTOLOGY.concepts[n].related||[], layer:'本体', _fromOnt:true};
+    });
+  }
+  // commentators：统一 name→cmt dict
+  const cmtByName = {};
+  const cmtsRaw = data.commentators || [];
+  const cmtsList = Array.isArray(cmtsRaw) ? cmtsRaw : Object.values(cmtsRaw);
+  cmtsList.forEach(c=>{
+    if(!c) return;
+    if(c.name) cmtByName[c.name] = c;
+    if(c.id) cmtByName[c.id] = c;
+  });
 
-  // 辅助：把pericope的concepts统一解析为概念对象数组
-  function normConcepts(arr){
-    if(!arr) return [];
-    return arr.map(x=>{
-      if(typeof x==='string') return conceptMap[x] || conceptByName[x] || null;
-      if(x && typeof x==='object'){
-        // 按id查，找不到就按name查，都找不到就把它本身当作一个临时概念
-        return conceptMap[x.id] || conceptByName[x.name] || x;
-      }
-      return null;
-    }).filter(Boolean);
+  function findConcept(ref){
+    if(!ref) return null;
+    if(typeof ref==='string'){
+      return conceptById[ref] || conceptByName[ref] || (conceptByName[ref.replace(/^c_/,'')] || null);
+    }
+    if(typeof ref==='object'){
+      if(ref.id && conceptById[ref.id]) return conceptById[ref.id];
+      if(ref.name && conceptByName[ref.name]) return conceptByName[ref.name];
+      return ref;
+    }
+    return null;
   }
 
+  const cat = md.category || curBookMeta?.category || '';
+  const era = md.era || md.dynasty || curBookMeta?.era || '';
+  const author = md.author || curBookMeta?.author || '';
+  const intro = md.intro || md.description || curBookMeta?.intro || '';
+  const version = md.version || '';
+
   let textHtml = `<div class="book-intro" style="margin-bottom:18px;padding:14px 18px;background:rgba(212,168,83,.05);border-left:3px solid var(--gold);border-radius:0 4px 4px 0">
-    <div style="font-size:16px;color:var(--gold);letter-spacing:4px;margin-bottom:6px">${md.title} <span style="font-size:12px;color:var(--ink-3);letter-spacing:2px">${md.subtitle||''}</span></div>
-    <div style="font-size:12px;color:var(--ink-3);letter-spacing:2px;margin-bottom:8px">${md.dynasty} · ${md.author} · ${md.category}</div>
-    <div style="font-size:13px;line-height:1.9;color:var(--ink-2)">${md.intro||''}</div>
+    <div style="font-size:16px;color:var(--gold);letter-spacing:4px;margin-bottom:6px">${escapeHtml(md.title||'')}</div>
+    <div style="font-size:12px;color:var(--ink-3);letter-spacing:2px;margin-bottom:8px">${era?escapeHtml(era)+' · ':''}${escapeHtml(author)}${cat?' · '+escapeHtml(cat):''}${version?' · '+escapeHtml(version):''}</div>
+    ${intro?`<div style="font-size:13px;line-height:1.9;color:var(--ink-2)">${escapeHtml(intro)}</div>`:''}
   </div>`;
 
   let noteHtml = '';
-  let totalPer=0, totalCmt=0, hitCmt=0;
+  let totalPer=0, hitCmt=0, totalCmt=0;
 
   chapters.forEach(ch=>{
-    textHtml += `<div class="deep-chapter" id="${ch.id}">
+    const chId = ch.id;
+    const chNum = chId.replace(/^ch-/,'');
+    textHtml += `<div class="deep-chapter" id="${chId}">
       <div class="ch-head">
-        <div class="ch-title">${ch.title}</div>
-        <div class="ch-juan">${ch.juan}卷</div>
+        <div class="ch-title">${escapeHtml(ch.title||'第'+chNum+'章')}</div>
+        ${ch.juan?`<div class="ch-juan">${escapeHtml(ch.juan)}卷</div>`:''}
       </div>`;
-    if(ch.summary) textHtml += `<div class="ch-summary">${ch.summary}</div>`;
+    if(ch.summary) textHtml += `<div class="ch-summary">${escapeHtml(ch.summary)}</div>`;
 
     let chNoteHtml = '';
-    (ch.pericopes||[]).forEach((p,pi)=>{
+    const pids = ch.pericope_ids || [];
+    pids.forEach(pid=>{
+      const p = perAll[pid];
+      if(!p) return;
       totalPer++;
-      // 渲染正文 + 概念标红
-      let t = escapeHtml(p.text);
-      const cs = normConcepts(p.concepts||[]);
-      perConcept[p.id] = cs;
-      // 给每个概念在正文中第一次出现处标红（用唯一cid，即使原concepts里是临时对象也能命中）
+      // 正文 + 概念标红
+      let t = escapeHtml(p.text||'');
+      const cRefs = p.concept_ids || (p.concepts||[]);
+      const cs = (cRefs||[]).map(findConcept).filter(Boolean);
+      // 去重（同名只标第一次）
+      const markedNames = new Set();
       cs.forEach(c=>{
-        if(!c || !c.name) return;
-        const keys = [c.name];
-        if(Array.isArray(c.related)) keys.push(...c.related.slice(0,2));
-        // 生成本地cid，兼容拼音id和中文名id
-        const localCid = c.id || ('c_'+c.name);
-        // 把概念加入conceptMap，保证showTerm能查到
-        if(!conceptMap[localCid]) conceptMap[localCid] = c;
-        for(const k of keys){
-          if(!k) continue;
-          const idx = t.indexOf(escapeHtml(k));
-          if(idx>=0){
-            const ek = escapeHtml(k);
-            t = t.slice(0,idx) + `<span class="term" data-cid="${localCid}" data-per="${p.id}">${ek}</span>` + t.slice(idx+ek.length);
-            break;
-          }
+        const nm = c.name; if(!nm || markedNames.has(nm)) return;
+        const ek = escapeHtml(nm);
+        const idx = t.indexOf(ek);
+        if(idx>=0){
+          markedNames.add(nm);
+          const cid = c.id || ('c_'+nm);
+          if(!conceptById[cid]) conceptById[cid] = c;
+          t = t.slice(0,idx) + `<span class="term" data-cid="${cid}" data-per="${pid}">${ek}</span>` + t.slice(idx+ek.length);
         }
       });
-      textHtml += `<div class="deep-pericope" id="${p.id}">
-        <div class="per-label">${p.label||''}</div>
+      textHtml += `<div class="deep-pericope" id="${pid}">
+        <div class="per-label">${escapeHtml(p.label||pid)}</div>
         <div class="per-text">${t}</div>
       </div>`;
 
-      // 注疏
-      const notes = (p.commentaries||[]).filter(n=>activeLayers.has(n.layer));
-      if(notes.length){
-        hitCmt += notes.length;
-        chNoteHtml += `<div class="deep-pericope" data-for="${p.id}">
-          <div class="per-label">${p.label||''} · 注疏</div>
-          <div class="cmt-list">${notes.map(n=>renderCmt(n,commMap)).join('')}</div>
+      // 注疏：合并 commentaries + comments（comments是带quote的疏证）
+      const notes = [];
+      (p.commentaries||[]).forEach(n=>{ if(n) notes.push(n); });
+      (p.comments||[]).forEach(n=>{
+        if(!n) return;
+        notes.push({layer:n.layer||'注', commentator:n.source_cid||'注', text:(n.quote?n.quote+' —— ':'')+(n.comment||'')});
+      });
+      const visible = notes.filter(n=>activeLayers.has(n.layer||'注'));
+      totalCmt += notes.length;
+      if(visible.length){
+        hitCmt += visible.length;
+        chNoteHtml += `<div class="deep-pericope" data-for="${pid}">
+          <div class="per-label">${escapeHtml(p.label||pid)} · 注疏</div>
+          <div class="cmt-list">${visible.map(n=>renderCmt(n,cmtByName)).join('')}</div>
         </div>`;
-        totalCmt += p.commentaries.length;
       }
     });
 
-    // 章末论争/总评
-    if(data.critical_notes && data.critical_notes.length){
+    // 章末论争（均匀分布）
+    if(Array.isArray(data.critical_notes) && data.critical_notes.length){
       const chIdx = chapters.indexOf(ch);
-      // 均匀分布论争到章末
       if(chIdx < data.critical_notes.length){
         const cn = data.critical_notes[chIdx];
-        chNoteHtml += `<div class="crit-card"><div class="crit-title">【${cn.topic||'章末总评'}】</div><div class="crit-body">${cn.summary||''}</div></div>`;
-      }else if(chIdx === chapters.length-1){
-        // 最后一章补剩余
-        data.critical_notes.forEach(cn=>{
-          chNoteHtml += `<div class="crit-card"><div class="crit-title">【${cn.topic||'章末总评'}】</div><div class="crit-body">${cn.summary||''}</div></div>`;
+        chNoteHtml += `<div class="crit-card"><div class="crit-title">【${escapeHtml(cn.topic||'章末总评')}】</div><div class="crit-body">${escapeHtml(cn.summary||'')}</div></div>`;
+      } else if(chIdx === chapters.length-1){
+        data.critical_notes.slice(chapters.indexOf(ch)).forEach(cn=>{
+          chNoteHtml += `<div class="crit-card"><div class="crit-title">【${escapeHtml(cn.topic||'章末总评')}】</div><div class="crit-body">${escapeHtml(cn.summary||'')}</div></div>`;
         });
       }
     }
 
     textHtml += '</div>';
-    noteHtml += `<div class="deep-chapter-note" data-ch="${ch.id}">
-      <div class="ch-head"><div class="ch-title" style="font-size:16px">${ch.title}</div><div class="ch-juan">${ch.juan}卷</div></div>
+    noteHtml += `<div class="deep-chapter-note" data-ch="${chId}">
+      <div class="ch-head"><div class="ch-title" style="font-size:16px">${escapeHtml(ch.title||'第'+chNum+'章')}</div>${ch.juan?`<div class="ch-juan">${escapeHtml(ch.juan)}卷</div>`:''}</div>
       ${chNoteHtml || '<div class="cmt-empty">本章暂无已收录的注疏</div>'}
     </div>`;
   });
@@ -393,66 +491,71 @@ function renderBook(data){
   $('textBody').innerHTML = textHtml;
   $('noteBody').innerHTML = noteHtml;
   $('textCount').textContent = `${chapters.length}章 / ${totalPer}节`;
-  $('noteCount').textContent = `共录${hitCmt}条注疏`;
+  $('noteCount').textContent = `共录${hitCmt}条注疏（共${totalCmt}）`;
   document.documentElement.style.setProperty('--reader-fs', readerFs+'px');
-  $('readerDeep').classList.toggle('vertical', vertical);
+  $('readerDeep').classList.toggle('vertical', !!vertical);
 
   // 术语点击
   document.querySelectorAll('.term').forEach(el=>{
     el.onclick = ()=>{
       const cid = el.dataset.cid;
-      showTerm(cid, conceptMap);
+      showTerm(cid, conceptById);
       document.querySelectorAll('.term.active').forEach(x=>x.classList.remove('active'));
       el.classList.add('active');
     };
   });
-
-  // 同步滚动
   bindSyncScroll();
-
   if(activeTerm){
-    const stillExists = conceptMap[activeTerm];
-    if(stillExists) showTerm(activeTerm, conceptMap);
+    if(conceptById[activeTerm]) showTerm(activeTerm, conceptById);
     else activeTerm = null;
   }
 }
 
-function renderCmt(n, commMap){
-  const c = commMap[n.commentator] || {name:n.commentator,dynasty:'',role:''};
-  const color = LAYER_COLORS[n.layer]||'#d4a853';
-  return `<div class="cmt-card cmt-layer-${n.layer}">
+function renderCmt(n, cmtByName){
+  let authorName = n.commentator || n.author || '注';
+  // 去掉 c_ 前缀
+  const key = authorName.replace(/^c_/,'');
+  const c = cmtByName[key] || cmtByName[authorName] || {name:key, era:'', role:n.layer||''};
+  const layer = n.layer || '注';
+  const color = LAYER_COLORS[layer] || '#d4a853';
+  return `<div class="cmt-card cmt-layer-${layer}">
     <div class="cmt-meta">
-      <span class="layer" style="background:${color}22;color:${color};border:1px solid ${color}55">${n.layer||'注'}</span>
-      <span class="author">${c.dynasty?c.dynasty+'·':''}${c.name}</span>
-      ${c.role?`<span style="font-size:11px;color:var(--ink-3)">${c.role}</span>`:''}
+      <span class="layer" style="background:${color}22;color:${color};border:1px solid ${color}55">${escapeHtml(layer)}</span>
+      <span class="author">${c.era?escapeHtml(c.era)+'·':''}${escapeHtml(c.name||key)}</span>
+      ${c.role?`<span style="font-size:11px;color:var(--ink-3)">${escapeHtml(c.role)}</span>`:''}
     </div>
-    <div class="cmt-text">${escapeHtml(n.text||'')}</div>
+    <div class="cmt-text">${escapeHtml(n.text||n.comment||'')}</div>
   </div>`;
 }
 
-function showTerm(cid, conceptMap){
+function showTerm(cid, conceptById){
   activeTerm = cid;
-  const c = conceptMap[cid] || {name:cid};
-  const g = (window.ONTOLOGY && ONTOLOGY.concepts) ? ONTOLOGY.concepts[cid] : null;
+  let c = conceptById[cid] || {name:cid};
+  // 也查 name
+  if(!c || !c.name){
+    const key = String(cid).replace(/^c_/,'');
+    c = (window.ONTOLOGY && ONTOLOGY.concepts && ONTOLOGY.concepts[key]) ? {name:key, definition:ONTOLOGY.concepts[key].def, related:ONTOLOGY.concepts[key].related, _fromOnt:true} : (c||{name:key});
+  }
+  const g = (window.ONTOLOGY && ONTOLOGY.concepts) ? ONTOLOGY.concepts[c.name] : null;
   const panel = $('termPanel');
   const name = c.name || cid;
-  const explain = (g && g.def) ? g.def : (c.explain || '');
-  const badge = g ? '<span style="background:var(--gold);color:#141008;padding:1px 7px;border-radius:8px;font-size:11px;margin-left:8px;letter-spacing:1px">本体</span>' : '';
+  const explain = c.definition || c.explain || (g?g.def:'') || '';
+  const badge = (g || c._fromOnt) ? '<span style="background:var(--gold);color:#141008;padding:1px 7px;border-radius:8px;font-size:11px;margin-left:8px;letter-spacing:1px">本体</span>' : '';
   const srcLine = (g && g.source) ? `<div style="font-size:12px;color:var(--ink-3);margin-top:8px;line-height:1.7;border-top:1px dashed var(--line);padding-top:6px">出处　${escapeHtml(g.source)}</div>` : '';
-  const relArr = (c.related && c.related.length) ? c.related : (g && g.related ? g.related : []);
+  const relArr = (Array.isArray(c.related) && c.related.length) ? c.related : (g && g.related ? g.related : []);
   let rel = '';
   if(relArr.length){
     rel = '<div class="t-related">相关：'+relArr.slice(0,10).map(r=>`<span data-r="${escapeHtml(r)}">${escapeHtml(r)}</span>`).join('')+'</div>';
   }
-  let layers = (c.layers||[]).map(l=>`<span style="background:var(--line);color:var(--ink-3);padding:1px 6px;border-radius:8px;font-size:11px;margin-right:4px">${l}</span>`).join('');
+  let layers = '';
+  if(c.layer) layers = `<span style="background:var(--line);color:var(--ink-3);padding:1px 6px;border-radius:8px;font-size:11px;margin-right:4px">${escapeHtml(c.layer)}</span>`;
   panel.innerHTML = `<div class="term-current">
     <div class="t-name">${escapeHtml(name)}${badge}</div>
-    <div class="t-short">${escapeHtml(c.short||'')} ${layers}</div>
+    <div class="t-short">${layers}${escapeHtml(c.short||c.py||'')}</div>
     <div class="t-explain">${escapeHtml(explain)}</div>
     ${srcLine}
     ${rel}
   </div>`;
-  // 相关词：优先跳到本页同名术语，否则跳本体页
   panel.querySelectorAll('.t-related span').forEach(s=>{
     s.onclick = ()=>{
       const nm = s.dataset.r;
