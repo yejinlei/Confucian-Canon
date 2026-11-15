@@ -6,6 +6,29 @@
 <title>章句导航 · 儒藏本体论</title>
 <link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="style/common.css">
+<style>
+.zj-cats{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.zj-cats button{background:var(--line);color:var(--ink-2);border:none;padding:6px 14px;border-radius:16px;cursor:pointer;font-size:13px;letter-spacing:2px}
+.zj-cats button.on{background:var(--gold);color:#fff}
+.zj-search{display:flex;gap:8px;margin:10px 0}
+.zj-search input{flex:1;background:var(--panel);color:var(--ink);border:1px solid var(--line);padding:8px 12px;border-radius:4px;font-size:14px;letter-spacing:2px}
+.zj-books{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:14px}
+.zj-book{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px;cursor:pointer;transition:.2s}
+.zj-book:hover{border-color:var(--gold);background:rgba(212,168,83,.06)}
+.zj-book.active{border-color:var(--gold);background:rgba(212,168,83,.1)}
+.zj-book .t{color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zj-book .m{font-size:11px;color:var(--ink-3);letter-spacing:1px}
+.zj-chapters{margin-top:18px}
+.zj-ch{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:10px 0}
+.zj-ch .zh{display:flex;align-items:baseline;gap:10px}
+.zj-ch .zh .zt{color:var(--gold);font-size:16px;letter-spacing:2px}
+.zj-ch .zh .zm{font-size:12px;color:var(--ink-3);margin-left:auto}
+.zj-ch .zs{font-size:13px;color:var(--ink-2);line-height:1.8;margin-top:6px}
+.zj-ch .zcs{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.zj-ch .zcs a{font-size:11px;background:var(--line);color:var(--ink-3);padding:2px 8px;border-radius:10px;text-decoration:none}
+.zj-ch .zcs a:hover{background:var(--gold);color:#fff}
+.zj-ch a.zlink{text-decoration:none}
+</style>
 </head>
 <body>
 
@@ -33,77 +56,161 @@
   <div class="section-head" style="margin-top:24px">
     <div class="en">CHAPTER NAVIGATION</div>
     <h2>儒 藏 章 句 导 航</h2>
-    <div class="desc" id="zjDesc">精校核心典籍 · 逐章主旨与概念标签</div>
+    <div class="desc" id="zjDesc">全 部 典 籍 · 逐 章 主 旨 与 概 念 标 签</div>
   </div>
 
-  <div class="filter-bar" id="bookBar"></div>
-  <div id="chapterList"></div>
+  <div class="zj-search">
+    <input id="zjSearch" placeholder="搜索典籍名 / 作者 / 时代…" />
+  </div>
+  <div class="zj-cats" id="zjCats"></div>
+  <div id="zjBookCount" style="font-size:12px;color:var(--ink-3);letter-spacing:1px;margin-top:6px"></div>
+  <div class="zj-books" id="zjBooks"></div>
+  <div class="zj-chapters" id="zjChapters"></div>
 
-<footer class="footer">儒藏本体论 · 章句导航 · 精校章句</footer>
+<footer class="footer">儒藏本体论 · 章句导航 · <span id="zjFoot"></span></footer>
 
 <script src="data/common.js"></script>
 <script src="data/ontology.js"></script>
 <script src="data/ontology-enhance.js"></script>
 <script>
-/* 章句导航：数据源与阅读器同源（reader-data），点章直达 reader.html 对应章 */
-fetch('data/reader-data-index.json').then(function(r){ return r.json(); }).then(function(idx){
-  var books = idx.books || [];
+(function(){ function d(){ if(typeof initPage==='function') initPage('zhangju.html'); else setTimeout(d,50); } d(); })();
+</script>
+<script>
+var ALL_BOOKS = [];
+var CUR_CAT = '全部';
+var CUR_ID = null;
+var curBid = new URLSearchParams(location.search).get('b');
+
+fetch('data/reader-data-index.json').then(r=>r.json()).then(idx=>{
+  ALL_BOOKS = idx.books || [];
+  var total = ALL_BOOKS.length;
+  var totalCh = ALL_BOOKS.reduce(function(a,b){return a+b.chapter_count;},0);
+  var totalPer = ALL_BOOKS.reduce(function(a,b){return a+b.pericopes_count;},0);
+  var totalW = ALL_BOOKS.reduce(function(a,b){return a+b.word_count;},0);
   document.getElementById('zjDesc').textContent =
-    books.length + ' 部精校核心典籍 · ' +
-    books.reduce(function(a,b){ return a + (b.chapter_count||0); }, 0) + ' 章 · 逐章主旨与概念标签';
-  var bar = document.getElementById('bookBar');
-  bar.innerHTML = books.map(function(b, i){
-    return '<button class="btn btn-ghost ' + (i===0?'active':'') + '" data-bid="' + b.id + '" data-cat="' + (b.cat||'其他') +
-      '" style="padding:4px 14px;font-size:12px">' + b.title + '</button>';
-  }).join('');
-  bar.querySelectorAll('button[data-bid]').forEach(function(btn){
-    btn.onclick = function(){
-      bar.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); });
-      btn.classList.add('active');
-      loadBook(btn.dataset.bid);
-    };
-  });
-  if (books.length) loadBook(books[0].id);
+    total + ' 部儒家典籍 · ' + totalCh + ' 章 · ' + totalPer + ' 节 · ' +
+    (totalW/10000).toFixed(0) + ' 万字 · 逐章主旨与概念标签';
+  document.getElementById('zjFoot').textContent = total + '部';
+  renderCats();
+  applyFilter();
+  // URL带b时，自动定位到该书
+  if(curBid){
+    var hit = ALL_BOOKS.find(function(b){return b.id===curBid;}) ||
+              ALL_BOOKS.find(function(b){return b.file===curBid || b.file===curBid+'.json'});
+    if(hit){ CUR_CAT = hit.category; CUR_ID = hit.id; loadBook(hit); }
+  }
 }).catch(function(){
-  document.getElementById('chapterList').innerHTML =
+  document.getElementById('zjChapters').innerHTML =
     '<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">典籍索引加载失败</div>';
 });
 
-function loadBook(bid){
-  var list = document.getElementById('chapterList');
-  list.innerHTML = '<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">章句加载中…</div>';
-  fetch('reader-data/' + bid + '.json').then(function(r){ return r.json(); }).then(function(d){
-    var md = d.metadata || {};
-    var html = '<div class="card" style="margin-bottom:20px">'
-      + '<div style="font-size:20px;color:var(--gold);letter-spacing:4px;margin-bottom:6px">' + (md.title||bid) + '</div>'
-      + (md.intro ? '<div style="font-size:13px;color:var(--ink-3);line-height:1.9">' + md.intro + '</div>' : '')
-      + '<div style="margin-top:10px;font-size:12px;color:var(--ink-3)">共 ' + d.chapters.length + ' 章 · '
-      + (md.pericope_count||0) + ' 节 · ' + (md.word_count||0) + ' 字 · <span style="color:var(--zhu)">精校章句</span></div>'
-      + '</div>';
-    d.chapters.forEach(function(ch){
-      var chip = String(ch.id).replace(/^ch-/, '');
-      var url = 'reader.html?b=' + encodeURIComponent(bid) + '&ch=' + encodeURIComponent(chip);
-      html += '<div class="dict-entry">';
-      html += '<div class="head"><span class="han" style="font-size:18px"><a href="' + url +
-        '" style="color:var(--gold)">' + ch.title + '</a></span>' +
-        '<span style="font-size:12px;color:var(--ink-3);margin-left:10px">' + ch.pericopes.length + ' 节</span></div>';
-      if (ch.summary) html += '<div class="def" style="color:var(--ink-3)">' + ch.summary + '</div>';
-      var cs = {};
-      ch.pericopes.forEach(function(p){ (p.concepts||[]).forEach(function(c){ if(c && c.name) cs[c.name] = 1; }); });
-      var ks = Object.keys(cs).slice(0, 8);
-      if (ks.length) html += '<div class="related">' + ks.map(function(k){
-        return '<a href="ontology.html#' + encodeURIComponent(k) + '">' + k + '</a>';
-      }).join('') + '</div>';
-      html += '</div>';
-    });
-    list.innerHTML = html;
-  }).catch(function(){
-    list.innerHTML = '<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">章句数据加载失败：' + bid + '</div>';
+document.getElementById('zjSearch').oninput = applyFilter;
+
+function renderCats(){
+  var cats = {'全部':ALL_BOOKS.length};
+  ALL_BOOKS.forEach(function(b){ cats[b.category]=(cats[b.category]||0)+1; });
+  var order = ['全部','四书','五经总义','诗经','尚书','礼经','乐经','春秋','孝经','小学','语录','修身治家','启蒙蒙学'];
+  var box = document.getElementById('zjCats');
+  box.innerHTML = '';
+  order.forEach(function(c){
+    if(!(c in cats)) return;
+    var btn = document.createElement('button');
+    btn.textContent = c + '（' + cats[c] + '）';
+    btn.dataset.cat = c;
+    if(c===CUR_CAT) btn.classList.add('on');
+    btn.onclick = function(){ CUR_CAT=c; CUR_ID=null;
+      box.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});
+      btn.classList.add('on');
+      document.getElementById('zjChapters').innerHTML='';
+      applyFilter();
+    };
+    box.appendChild(btn);
   });
 }
+
+function applyFilter(){
+  var q = document.getElementById('zjSearch').value.trim();
+  var list = ALL_BOOKS.filter(function(b){
+    if(CUR_CAT!=='全部' && b.category!==CUR_CAT) return false;
+    if(q){
+      var s = (b.title+' '+b.author+' '+b.era+' '+b.school).toLowerCase();
+      if(s.indexOf(q.toLowerCase())<0) return false;
+    }
+    return true;
+  });
+  document.getElementById('zjBookCount').textContent = '当前显示 ' + list.length + ' 部';
+  var box = document.getElementById('zjBooks');
+  box.innerHTML = list.slice(0,120).map(function(b){
+    var cls = (b.id===CUR_ID)?'zj-book active':'zj-book';
+    return '<div class="'+cls+'" data-id="'+esc(b.id)+'">'+
+      '<div class="t">'+esc(b.title)+'</div>'+
+      '<div class="m">'+esc(b.era||'')+(b.author?' · '+esc(b.author):'')+' · '+b.chapter_count+'章 '+b.pericopes_count+'节</div>'+
+    '</div>';
+  }).join('') + (list.length>120?'<div class="zj-book" style="cursor:default;opacity:.6"><div class="t">…</div><div class="m">其余 '+ (list.length-120) +' 部请用搜索框筛选</div></div>':'');
+  box.querySelectorAll('.zj-book[data-id]').forEach(function(el){
+    el.onclick = function(){
+      var id = el.dataset.id;
+      var b = ALL_BOOKS.find(function(x){return x.id===id});
+      if(!b) return;
+      CUR_ID = id;
+      box.querySelectorAll('.zj-book').forEach(function(x){x.classList.remove('active')});
+      el.classList.add('active');
+      history.replaceState(null,'','zhangju.html?b='+encodeURIComponent(id));
+      loadBook(b);
+    };
+  });
+}
+
+function loadBook(b){
+  var list = document.getElementById('zjChapters');
+  list.innerHTML = '<div class="card" style="text-align:center;color:var(--ink-3);padding:30px">正在加载《'+esc(b.title)+'》章句…</div>';
+  fetch('reader-data/'+encodeURIComponent(b.file)).then(function(r){ return r.json(); }).then(function(d){
+    var md = d.metadata || {};
+    var per = d.pericopes || {};
+    var csRaw = d.concepts || [];
+    var csList = Array.isArray(csRaw)?csRaw:Object.values(csRaw);
+    var conceptByName = {};
+    csList.forEach(function(c){ if(c && c.name) conceptByName[c.name]=c; });
+    var html = '<div class="card" style="margin:20px 0">'+
+      '<div style="font-size:20px;color:var(--gold);letter-spacing:4px;margin-bottom:6px">'+esc(md.title||b.title)+'</div>'+
+      '<div style="font-size:12px;color:var(--ink-3);letter-spacing:2px;margin-bottom:8px">'+
+        esc(md.era||b.era||'')+(md.author?' · '+esc(md.author):'')+(md.category?' · '+esc(md.category):'')+
+      '</div>'+
+      (md.description?'<div style="font-size:13px;color:var(--ink-2);line-height:1.9">'+esc(md.description)+'</div>':'')+
+      '<div style="margin-top:10px;font-size:12px;color:var(--ink-3)">共 '+(d.chapters||[]).length+' 章 · '+Object.keys(per).length+' 节 · '+(md.word_count||0).toLocaleString()+' 字 · <a href="reader.html?b='+encodeURIComponent(b.id)+'" style="color:var(--zhu)">前往深度阅读 →</a></div>'+
+    '</div>';
+    (d.chapters||[]).forEach(function(ch){
+      var pids = ch.pericope_ids || [];
+      var cs = {};
+      pids.forEach(function(pid){
+        var p = per[pid]; if(!p) return;
+        (p.concept_ids||[]).forEach(function(cid){
+          var c = conceptByName[cid]; if(!c && typeof cid==='string') c = conceptByName[cid.replace(/^c_/,'')];
+          if(c && c.name) cs[c.name]=1;
+        });
+      });
+      var ks = Object.keys(cs).slice(0,10);
+      var chNum = (ch.id||'').replace(/^ch-/,'');
+      var link = 'reader.html?b='+encodeURIComponent(b.id)+'&ch='+encodeURIComponent(chNum);
+      html += '<div class="zj-ch"><a class="zlink" href="'+link+'">'+
+        '<div class="zh"><span class="zt">'+esc(ch.title||'第'+chNum+'章')+'</span>'+
+        '<span class="zm">'+pids.length+'节 →</span></div></a>'+
+        (ch.summary?'<div class="zs">'+esc(ch.summary)+'</div>':'')+
+        (ks.length?'<div class="zcs">'+ks.map(function(k){
+          return '<a href="ontology.html#'+encodeURIComponent(k)+'">'+esc(k)+'</a>';
+        }).join('')+'</div>':'')+
+      '</div>';
+    });
+    list.innerHTML = html;
+    list.scrollIntoView({behavior:'smooth',block:'start'});
+  }).catch(function(e){
+    list.innerHTML = '<div class="card" style="text-align:center;color:var(--ink-3);padding:30px">章句加载失败：'+b.title+'（'+e.message+'）</div>';
+  });
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
 </script>
 
 </div></div>
-<script>initPage("zhangju.html")</script>
 </body>
 </html>
