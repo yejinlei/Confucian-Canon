@@ -60,6 +60,7 @@
 
 <script src="data/common.js"></script>
 <script src="data/ontology-enhance.js"></script>
+<script src="data/commentary.js"></script>
 <script>
 function initTheme(){
   const wrap=document.getElementById('themeDots');
@@ -182,6 +183,10 @@ function render(){
       ${cls.length?`<div style="font-size:12px;color:var(--ink-3);margin-top:4px">
         <span style="color:var(--jade);margin-right:6px">主要出处：</span>${cls.map(b=>`<a href="reader.html?b=${encodeURIComponent(b)}" style="margin-right:8px">${b}</a>`).join('')}
       </div>`:''}
+      ${(window.getAllCommentaries?(()=>{const qs=getAllCommentaries().filter(n=>n.text&&(n.text.includes(k)||(n.anchor||'').includes(k))).slice(0,4);return qs.length?`<div class="evolutions" style="border-left:2px solid var(--cinnabar)">
+        <div style="font-size:12px;color:var(--cinnabar);letter-spacing:2px;margin:10px 0 6px">名 家 原 文（${qs.length}）</div>
+        ${qs.map(q=>`<div class="evo"><span class="era" style="background:var(--cinnabar)">${q.dynasty}·${q.scholar}</span>${escapeHtml(q.text.length>90?q.text.slice(0,90)+'…':q.text)}</div>`).join('')}
+      </div>`:''})():'')}
       ${evos.length?`<div class="evolutions">
         <div style="font-size:12px;color:var(--gold);letter-spacing:2px;margin:10px 0 6px">历 代 诠 释（${evos.length}）</div>
         ${evos.map(e=>`<div class="evo"><span class="era">${e.era}</span>${e.text}</div>`).join('')}
@@ -190,6 +195,7 @@ function render(){
     </div>`;
   }).join(''):`<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">未检索到匹配概念</div>`;
 }
+function escapeHtml(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
 render();
 
 document.getElementById('q').addEventListener('input',e=>{currentQ=e.target.value.trim();render()});
