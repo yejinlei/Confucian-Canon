@@ -18,6 +18,36 @@
       "annotation_count": 4
     },
     {
+      "id": "erya",
+      "title": "尔雅",
+      "subtitle": "Erya",
+      "author": "周公作（传）；郭璞注，邢昺疏",
+      "dynasty": "先秦-西汉",
+      "cat": "小学",
+      "juan_count": 3,
+      "chapter_count": 20,
+      "pericope_count": 93,
+      "word_count": 15478,
+      "concept_count": 20,
+      "commentator_count": 3,
+      "annotation_count": 4
+    },
+    {
+      "id": "liji",
+      "title": "礼记",
+      "subtitle": "Book of Rites",
+      "author": "七十子后学所记；郑玄注，孔颖达疏",
+      "dynasty": "战国-西汉",
+      "cat": "礼经",
+      "juan_count": 5,
+      "chapter_count": 38,
+      "pericope_count": 297,
+      "word_count": 55010,
+      "concept_count": 25,
+      "commentator_count": 3,
+      "annotation_count": 4
+    },
+    {
       "id": "lunyu",
       "title": "论语",
       "subtitle": "Confucian Analects",
@@ -46,6 +76,21 @@
       "concept_count": 34,
       "commentator_count": 3,
       "annotation_count": 4
+    },
+    {
+      "id": "shangshu",
+      "title": "尚书",
+      "subtitle": "Book of Documents",
+      "author": "孔子删定；孔安国传，孔颖达疏",
+      "dynasty": "商周-春秋",
+      "cat": "尚书",
+      "juan_count": 3,
+      "chapter_count": 29,
+      "pericope_count": 180,
+      "word_count": 33423,
+      "concept_count": 27,
+      "commentator_count": 3,
+      "annotation_count": 6
     },
     {
       "id": "shijing",
@@ -78,6 +123,21 @@
       "annotation_count": 3
     },
     {
+      "id": "xunzi",
+      "title": "荀子",
+      "subtitle": "Xunzi",
+      "author": "荀况著；杨倞注，王先谦集解",
+      "dynasty": "战国末",
+      "cat": "语录",
+      "juan_count": 7,
+      "chapter_count": 43,
+      "pericope_count": 344,
+      "word_count": 64493,
+      "concept_count": 33,
+      "commentator_count": 4,
+      "annotation_count": 4
+    },
+    {
       "id": "zhongyong",
       "title": "中庸",
       "subtitle": "Doctrine of the Mean",
@@ -91,6 +151,36 @@
       "concept_count": 30,
       "commentator_count": 2,
       "annotation_count": 4
+    },
+    {
+      "id": "zhouli",
+      "title": "周礼",
+      "subtitle": "Rites of Zhou",
+      "author": "周公所作（传）；郑玄注，贾公彦疏",
+      "dynasty": "西周（传）/战国",
+      "cat": "礼经",
+      "juan_count": 7,
+      "chapter_count": 42,
+      "pericope_count": 329,
+      "word_count": 61132,
+      "concept_count": 21,
+      "commentator_count": 3,
+      "annotation_count": 11
+    },
+    {
+      "id": "zuozhuan",
+      "title": "春秋左传",
+      "subtitle": "Zuo's Commentary",
+      "author": "左丘明所作（传）；杜预注，孔颖达疏",
+      "dynasty": "春秋末-战国",
+      "cat": "春秋",
+      "juan_count": 22,
+      "chapter_count": 43,
+      "pericope_count": 342,
+      "word_count": 64076,
+      "concept_count": 29,
+      "commentator_count": 3,
+      "annotation_count": 12
     }
   ]
 }
