@@ -2,1052 +2,116 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>章句導航 | 儒藏本体論 · Confucian Canon</title>
-<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>章句导航 · 儒藏本体论</title>
+<link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="style/common.css">
-<style>
-.zhangju-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-.zhangju-hero {
-  text-align: center;
-  margin-bottom: 40px;
-  padding: 30px 20px;
-}
-.zhangju-hero h1 {
-  font-size: 32px;
-  margin-bottom: 10px;
-  color: var(--accent-gold);
-}
-.zhangju-hero p {
-  font-size: 16px;
-  color: var(--text-secondary);
-  max-width: 800px;
-  margin: 0 auto;
-  line-height: 1.8;
-}
-.search-box {
-  max-width: 600px;
-  margin: 30px auto 20px;
-  position: relative;
-}
-.search-box input {
-  width: 100%;
-  padding: 14px 20px 14px 50px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 50px;
-  color: var(--text-primary);
-  font-size: 15px;
-  font-family: inherit;
-  transition: all 0.3s;
-}
-.search-box input:focus {
-  outline: none;
-  border-color: var(--accent-gold);
-  background: var(--bg-hover);
-  box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
-}
-.search-box::before {
-  content: "🔍";
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 18px;
-  opacity: 0.6;
-}
-.category-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 30px;
-}
-.cat-tab {
-  padding: 8px 18px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 30px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-family: inherit;
-}
-.cat-tab.active {
-  background: rgba(212,175,55,0.15);
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
-}
-.cat-tab:hover {
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
-}
-.books-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
-}
-.book-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  transition: all 0.3s;
-}
-.book-card:hover {
-  border-color: var(--accent-gold);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-}
-.book-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-.book-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--accent-gold);
-  text-decoration: none;
-  transition: color 0.3s;
-}
-.book-title:hover {
-  text-decoration: underline;
-}
-.book-size {
-  font-size: 12px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-.book-meta {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-.book-cat {
-  font-size: 12px;
-  padding: 3px 10px;
-  background: rgba(212,175,55,0.1);
-  color: var(--accent-gold);
-  border-radius: 12px;
-}
-.chapter-toggle {
-  width: 100%;
-  padding: 10px;
-  background: var(--bg-hover);
-  border: none;
-  border-radius: 6px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.3s;
-}
-.chapter-toggle:hover {
-  background: rgba(212,175,55,0.2);
-  color: var(--accent-gold);
-}
-.chapter-list {
-  max-height: 300px;
-  overflow-y: auto;
-  margin-top: 15px;
-  padding-right: 5px;
-  display: none;
-}
-.chapter-list.open {
-  display: block;
-}
-.chapter-list::-webkit-scrollbar {
-  width: 4px;
-}
-.chapter-list::-webkit-scrollbar-thumb {
-  background: var(--border-light);
-  border-radius: 2px;
-}
-.chapter-item {
-  display: block;
-  padding: 8px 10px;
-  color: var(--text-secondary);
-  font-size: 13px;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: all 0.2s;
-  border-left: 2px solid transparent;
-}
-.chapter-item:hover {
-  background: rgba(212,175,55,0.1);
-  color: var(--accent-gold);
-  border-left-color: var(--accent-gold);
-}
-.chapter-more {
-  width: 100%;
-  padding: 6px;
-  margin-top: 5px;
-  background: transparent;
-  border: 1px dashed var(--border);
-  border-radius: 4px;
-  color: var(--text-muted);
-  font-size: 12px;
-  cursor: pointer;
-  font-family: inherit;
-}
-.chapter-more:hover {
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
-}
-.load-progress {
-  text-align: center;
-  padding: 20px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-.chapter-loading {
-  text-align: center;
-  padding: 20px;
-  color: var(--text-muted);
-  font-size: 13px;
-}
-@media (max-width: 768px) {
-  .books-grid {
-    grid-template-columns: 1fr;
-  }
-  .zhangju-hero h1 {
-    font-size: 24px;
-  }
-}
-
-/* 精校徽章 */
-.precise-badge{display:inline-block;font-size:11px;background:linear-gradient(135deg,#c8102e,#8b0000);color:#fff;padding:1px 7px;border-radius:3px;margin-left:8px;vertical-align:middle;font-family:"Noto Serif SC",serif;letter-spacing:1px;}
-/* 章行容器 */
-.chapter-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:5px 0;border-bottom:1px dashed rgba(212,175,55,.15);}
-.chapter-row .chapter-item{flex:1;min-width:200px;}
-.chapter-row .summary{color:#b08d57;font-size:12px;margin-left:8px;}
-/* 概念标签 */
-.chapter-concepts{display:flex;flex-wrap:wrap;gap:4px;}
-.concept-tag{display:inline-block;font-size:11px;padding:1px 6px;border:1px solid rgba(212,175,55,.4);color:#d4af37;border-radius:3px;cursor:pointer;transition:all .2s;font-family:"Noto Serif SC",serif;}
-.concept-tag:hover{background:rgba(212,175,55,.15);border-color:#d4af37;color:#ffd700;}
-
-</style>
 </head>
-<body>
-<div class="app-container">
-  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <div class="overlay" onclick="toggleSidebar()"></div>
-  
-  <aside class="sidebar" id="sidebar"></aside>
-  
-  <main class="main-content">
-    <nav class="top-nav" id="topNav"></nav>
-    
-    <div class="content-area">
-      <div class="zhangju-container">
-        <div class="zhangju-hero">
-          <h1>📖 章句導航</h1>
-          <p>依經傳註疏之序，明章句訓詁之旨。全經典籍層級導航，由書入篇，由篇入章，尋義理於字裏行間。</p>
-        </div>
-        
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="搜索典籍名稱（如：論語、左傳、朱子、傳習錄…）">
-        </div>
-        
-        <div class="category-tabs" id="categoryTabs"></div>
-        
-        <div class="load-progress" id="loadProgress" style="display:none;">正在加載更多典籍…</div>
-        
-        <div class="books-grid" id="booksGrid"></div>
-        
-        <div class="empty-state" id="emptyState" style="display:none;">
-          <p>未找到匹配的典籍，請嘗試其他關鍵詞</p>
-        </div>
-      </div>
-    </div>
-    
-    <footer class="footer" id="footer"></footer>
-  </main>
+<body data-theme="star">
+
+<header class="topbar">
+  <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
+  <nav class="topbar-nav">
+    <a href="index.html">总纲</a>
+    <a href="ontology.html">本体</a>
+    <a href="graph.html">关系</a>
+    <a href="dictionary.html">词典</a>
+    <a href="zhangju.html" class="active">章句</a>
+    <a href="scholars.html">儒者</a>
+    <a href="schools.html">学派</a>
+    <a href="debate.html">论争</a>
+    <a href="library.html">典籍</a>
+    <a href="search.html">检索</a>
+    <a href="reader.html">阅读</a>
+    <a href="lineage.html">谱系</a>
+    <a href="timeline.html">年谱</a>
+  </nav>
+  <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
+</header>
+
+<div class="layout">
+<div class="content">
+  <div class="section-head" style="margin-top:24px">
+    <div class="en">CHAPTER NAVIGATION</div>
+    <h2>儒 藏 章 句 导 航</h2>
+    <div class="desc">22部精校核心典籍 · 394章 · 逐章主旨与概念标签</div>
+  </div>
+
+  <div class="filter-bar" id="bookBar"></div>
+  <div id="chapterList"></div>
+
+</div>
 </div>
 
+<footer class="footer">儒藏本体论 · 章句导航 · 精校章句</footer>
+
 <script src="data/common.js"></script>
-<script src="data/books.js"></script>
+<script src="data/ontology-enhance.js"></script>
 <script>
-const zhangjuCache = {}; // 缓存已加载的章句数据
-let currentCategory = 'all';
-let searchKeyword = '';
-const BATCH_SIZE = 50; // 每批渲染50个书目卡片
-let renderedCount = 0;
-let filteredBooks = [];
-let isLoading = false;
-
-// 精校章句数据（核心经典，精准到章）
-// 精校章句数据 - 核心经典 22 部精校
-const PRECISE_ZHANGJU = {
-  '四书/大学.txt': [
-    {title:'經一章',summary:'三綱領八條目，大學之道總綱',concepts:['明明德', '亲民', '止于至善', '格物', '致知', '诚意', '正心', '修身', '齐家', '治国', '平天下'],anchor:0,incipit:'大学之道，在明明德'},
-    {title:'傳第一章',summary:'釋明明德，引康誥太甲以明之',concepts:['明明德'],anchor:1,incipit:'《康诰》曰：“克明德。”'},
-    {title:'傳第二章',summary:'釋新民，湯之盤銘日新又新',concepts:['亲民'],anchor:2,incipit:'汤之《盘铭》曰'},
-    {title:'傳第三章',summary:'釋止於至善，引詩文為止於仁敬孝慈信',concepts:['止于至善'],anchor:3,incipit:'《诗》云：“邦畿千里'},
-    {title:'傳第四章',summary:'釋本末，知所先後則近道',concepts:['修身', '格物'],anchor:4,incipit:'子曰：“听讼，吾犹人也'},
-    {title:'傳第五章',summary:'釋格物致知，即物窮理之義（朱子補傳）',concepts:['格物', '致知'],anchor:5,incipit:'此谓知本，此谓知之至也'},
-    {title:'傳第六章',summary:'釋誠意，毋自欺必慎其獨',concepts:['诚意', '慎独'],anchor:6,incipit:'所谓诚其意者，毋自欺也'},
-    {title:'傳第七章',summary:'釋正心修身，身有所忿懥則不得其正',concepts:['正心', '修身'],anchor:7,incipit:'所谓修身在正其心者'},
-    {title:'傳第八章',summary:'釋修身齊家，好惡辟則身不修',concepts:['修身', '齐家'],anchor:8,incipit:'所谓齐其家在修其身者'},
-    {title:'傳第九章',summary:'釋齊家治國，孝弟慈以教國人',concepts:['齐家', '治国', '孝', '悌'],anchor:9,incipit:'所谓治国必先齐其家者'},
-    {title:'傳第十章',summary:'釋治國平天下，絜矩之道、民本、德本財末',concepts:['治国', '平天下', '絜矩之道', '民本', '德治'],anchor:10,incipit:'所谓平天下在治其国者'}
-  ],
-  '四书/大学章句.txt': [
-    {title:'經一章',summary:'三綱領八條目，大學之道總綱',concepts:['明明德', '亲民', '止于至善', '格物', '致知', '诚意', '正心', '修身', '齐家', '治国', '平天下'],anchor:0,incipit:'大学之道，在明明德'},
-    {title:'傳第一章',summary:'釋明明德，引康誥太甲以明之',concepts:['明明德'],anchor:1,incipit:'《康诰》曰：“克明德。”'},
-    {title:'傳第二章',summary:'釋新民，湯之盤銘日新又新',concepts:['亲民'],anchor:2,incipit:'汤之《盘铭》曰'},
-    {title:'傳第三章',summary:'釋止於至善，引詩文為止於仁敬孝慈信',concepts:['止于至善'],anchor:3,incipit:'《诗》云：“邦畿千里'},
-    {title:'傳第四章',summary:'釋本末，知所先後則近道',concepts:['修身', '格物'],anchor:4,incipit:'子曰：“听讼，吾犹人也'},
-    {title:'傳第五章',summary:'釋格物致知，即物窮理之義（朱子補傳）',concepts:['格物', '致知'],anchor:5,incipit:'此谓知本，此谓知之至也'},
-    {title:'傳第六章',summary:'釋誠意，毋自欺必慎其獨',concepts:['诚意', '慎独'],anchor:6,incipit:'所谓诚其意者，毋自欺也'},
-    {title:'傳第七章',summary:'釋正心修身，身有所忿懥則不得其正',concepts:['正心', '修身'],anchor:7,incipit:'所谓修身在正其心者'},
-    {title:'傳第八章',summary:'釋修身齊家，好惡辟則身不修',concepts:['修身', '齐家'],anchor:8,incipit:'所谓齐其家在修其身者'},
-    {title:'傳第九章',summary:'釋齊家治國，孝弟慈以教國人',concepts:['齐家', '治国', '孝', '悌'],anchor:9,incipit:'所谓治国必先齐其家者'},
-    {title:'傳第十章',summary:'釋治國平天下，絜矩之道、民本、德本財末',concepts:['治国', '平天下', '絜矩之道', '民本', '德治'],anchor:10,incipit:'所谓平天下在治其国者'}
-  ],
-  '四书/中庸.txt': [
-    {title:'第一章',summary:'天命之謂性，中和之大本達道',concepts:['性', '道', '教', '中和', '慎独', '戒慎恐惧'],anchor:0,incipit:'天命之谓性，率性之谓道'},
-    {title:'第二章',summary:'仲尼曰君子中庸，小人反中庸',concepts:['中庸', '君子'],anchor:1,incipit:'仲尼曰：“君子中庸'},
-    {title:'第三章',summary:'中庸其至矣乎，民鮮能久',concepts:['中庸'],anchor:2,incipit:'子曰：“中庸其至矣乎'},
-    {title:'第四章',summary:'道之不行，知愚賢不肖過與不及',concepts:['道', '中庸'],anchor:3,incipit:'子曰：“道之不行也'},
-    {title:'第五章',summary:'道其不行矣夫，歎道不明',concepts:['道'],anchor:4,incipit:'子曰：“道其不行矣夫'},
-    {title:'第六章',summary:'舜其大知，執兩用中',concepts:['中庸', '执两用中'],anchor:5,incipit:'子曰：“舜其大知也与'},
-    {title:'第七章',summary:'人皆曰予知，不能擇乎中庸',concepts:['中庸'],anchor:6,incipit:'子曰：“人皆曰予知'},
-    {title:'第八章',summary:'顏回擇乎中庸，得一善拳拳服膺',concepts:['中庸'],anchor:7,incipit:'子曰：“回之为人也'},
-    {title:'第九章',summary:'天下國家可均，中庸不可能也',concepts:['中庸'],anchor:8,incipit:'子曰：“天下国家可均也'},
-    {title:'第十章',summary:'子路問強，南方之強與北方之強',concepts:['中庸', '勇'],anchor:9,incipit:'子路问强'},
-    {title:'第十一章',summary:'素隱行怪，半途而廢',concepts:['中庸'],anchor:10,incipit:'子曰：“素隐行怪'},
-    {title:'第十二章',summary:'君子之道費而隱，夫婦之愚可以與知',concepts:['道'],anchor:11,incipit:'君子之道费而隐'},
-    {title:'第十三章',summary:'道不遠人，忠恕違道不遠',concepts:['道', '忠', '恕'],anchor:12,incipit:'子曰：“道不远人'},
-    {title:'第十四章',summary:'君子素其位而行，不願乎其外',concepts:['君子', '正名'],anchor:13,incipit:'君子素其位而行'},
-    {title:'第十五章',summary:'君子之道辟如行遠必自邇',concepts:['修身', '齐家'],anchor:14,incipit:'君子之道，辟如行远必自迩'},
-    {title:'第十六章',summary:'鬼神之為德，其盛矣乎',concepts:['诚', '祭'],anchor:15,incipit:'子曰：“鬼神之为德'},
-    {title:'第十七章',summary:'舜其大孝，德為聖人',concepts:['孝', '德', '圣人'],anchor:16,incipit:'子曰：“舜其大孝也与'},
-    {title:'第十八章',summary:'無憂者其惟文王乎',concepts:['孝'],anchor:17,incipit:'子曰：“无忧者，其惟文王乎'},
-    {title:'第十九章',summary:'武王周公達孝，宗廟饗之',concepts:['孝', '礼', '宗法'],anchor:18,incipit:'子曰：“武王、周公，其达孝矣乎'},
-    {title:'第二十章',summary:'哀公問政，誠者天之道誠之者人之道',concepts:['诚', '仁政', '五伦', '治国', '修身'],anchor:19,incipit:'哀公问政'},
-    {title:'第二十一章',summary:'自誠明謂之性，自明誠謂之教',concepts:['诚', '性', '教'],anchor:20,incipit:'自诚明，谓之性'},
-    {title:'第二十二章',summary:'唯天下至誠，能盡其性',concepts:['诚', '尽性', '天人合一'],anchor:21,incipit:'唯天下至诚，为能尽其性'},
-    {title:'第二十三章',summary:'其次致曲，曲能有誠',concepts:['诚'],anchor:22,incipit:'其次致曲'},
-    {title:'第二十四章',summary:'至誠之道可以前知，國之將興必有禎祥',concepts:['诚', '几'],anchor:23,incipit:'至诚之道，可以前知'},
-    {title:'第二十五章',summary:'誠者自成也而道自道也',concepts:['诚', '道'],anchor:24,incipit:'诚者，自成也'},
-    {title:'第二十六章',summary:'至誠無息，不測配天',concepts:['诚', '天道', '天地之性'],anchor:25,incipit:'故至诚无息'},
-    {title:'第二十七章',summary:'大哉聖人之道，洋洋乎發育萬物',concepts:['圣人', '道', '礼'],anchor:26,incipit:'大哉圣人之道'},
-    {title:'第二十八章',summary:'愚而好自用賤而好自專，雖有其德苟無其位',concepts:['礼', '中庸'],anchor:27,incipit:'子曰：“愚而好自用'},
-    {title:'第二十九章',summary:'王天下有三重焉，議禮制度考文',concepts:['礼', '王道'],anchor:28,incipit:'王天下有三重焉'},
-    {title:'第三十章',summary:'仲尼祖述堯舜，上律天時下襲水土',concepts:['圣人', '中庸', '天人合一'],anchor:29,incipit:'仲尼祖述尧舜，宪章文武'},
-    {title:'第三十一章',summary:'唯天下至聖，聰明睿知足以有臨',concepts:['圣人', '仁', '义', '礼', '智'],anchor:30,incipit:'唯天下至圣'},
-    {title:'第三十二章',summary:'唯天下至誠，經綸天下之大經',concepts:['诚', '经世致用'],anchor:31,incipit:'唯天下至诚，为能经纶天下之大经'},
-    {title:'第三十三章',summary:'詩曰衣錦尚絅，至誠無聲無臭',concepts:['诚', '君子', '慎独'],anchor:32,incipit:'《诗》曰“衣锦尚絅'}
-  ],
-  '四书/中庸章句.txt': [
-    {title:'第一章',summary:'天命之謂性，中和之大本達道',concepts:['性', '道', '教', '中和', '慎独', '戒慎恐惧'],anchor:0,incipit:'天命之谓性，率性之谓道'},
-    {title:'第二章',summary:'仲尼曰君子中庸，小人反中庸',concepts:['中庸', '君子'],anchor:1,incipit:'仲尼曰：“君子中庸'},
-    {title:'第三章',summary:'中庸其至矣乎，民鮮能久',concepts:['中庸'],anchor:2,incipit:'子曰：“中庸其至矣乎'},
-    {title:'第四章',summary:'道之不行，知愚賢不肖過與不及',concepts:['道', '中庸'],anchor:3,incipit:'子曰：“道之不行也'},
-    {title:'第五章',summary:'道其不行矣夫，歎道不明',concepts:['道'],anchor:4,incipit:'子曰：“道其不行矣夫'},
-    {title:'第六章',summary:'舜其大知，執兩用中',concepts:['中庸', '执两用中'],anchor:5,incipit:'子曰：“舜其大知也与'},
-    {title:'第七章',summary:'人皆曰予知，不能擇乎中庸',concepts:['中庸'],anchor:6,incipit:'子曰：“人皆曰予知'},
-    {title:'第八章',summary:'顏回擇乎中庸，得一善拳拳服膺',concepts:['中庸'],anchor:7,incipit:'子曰：“回之为人也'},
-    {title:'第九章',summary:'天下國家可均，中庸不可能也',concepts:['中庸'],anchor:8,incipit:'子曰：“天下国家可均也'},
-    {title:'第十章',summary:'子路問強，南方之強與北方之強',concepts:['中庸', '勇'],anchor:9,incipit:'子路问强'},
-    {title:'第十一章',summary:'素隱行怪，半途而廢',concepts:['中庸'],anchor:10,incipit:'子曰：“素隐行怪'},
-    {title:'第十二章',summary:'君子之道費而隱，夫婦之愚可以與知',concepts:['道'],anchor:11,incipit:'君子之道费而隐'},
-    {title:'第十三章',summary:'道不遠人，忠恕違道不遠',concepts:['道', '忠', '恕'],anchor:12,incipit:'子曰：“道不远人'},
-    {title:'第十四章',summary:'君子素其位而行，不願乎其外',concepts:['君子', '正名'],anchor:13,incipit:'君子素其位而行'},
-    {title:'第十五章',summary:'君子之道辟如行遠必自邇',concepts:['修身', '齐家'],anchor:14,incipit:'君子之道，辟如行远必自迩'},
-    {title:'第十六章',summary:'鬼神之為德，其盛矣乎',concepts:['诚', '祭'],anchor:15,incipit:'子曰：“鬼神之为德'},
-    {title:'第十七章',summary:'舜其大孝，德為聖人',concepts:['孝', '德', '圣人'],anchor:16,incipit:'子曰：“舜其大孝也与'},
-    {title:'第十八章',summary:'無憂者其惟文王乎',concepts:['孝'],anchor:17,incipit:'子曰：“无忧者，其惟文王乎'},
-    {title:'第十九章',summary:'武王周公達孝，宗廟饗之',concepts:['孝', '礼', '宗法'],anchor:18,incipit:'子曰：“武王、周公，其达孝矣乎'},
-    {title:'第二十章',summary:'哀公問政，誠者天之道誠之者人之道',concepts:['诚', '仁政', '五伦', '治国', '修身'],anchor:19,incipit:'哀公问政'},
-    {title:'第二十一章',summary:'自誠明謂之性，自明誠謂之教',concepts:['诚', '性', '教'],anchor:20,incipit:'自诚明，谓之性'},
-    {title:'第二十二章',summary:'唯天下至誠，能盡其性',concepts:['诚', '尽性', '天人合一'],anchor:21,incipit:'唯天下至诚，为能尽其性'},
-    {title:'第二十三章',summary:'其次致曲，曲能有誠',concepts:['诚'],anchor:22,incipit:'其次致曲'},
-    {title:'第二十四章',summary:'至誠之道可以前知，國之將興必有禎祥',concepts:['诚', '几'],anchor:23,incipit:'至诚之道，可以前知'},
-    {title:'第二十五章',summary:'誠者自成也而道自道也',concepts:['诚', '道'],anchor:24,incipit:'诚者，自成也'},
-    {title:'第二十六章',summary:'至誠無息，不測配天',concepts:['诚', '天道', '天地之性'],anchor:25,incipit:'故至诚无息'},
-    {title:'第二十七章',summary:'大哉聖人之道，洋洋乎發育萬物',concepts:['圣人', '道', '礼'],anchor:26,incipit:'大哉圣人之道'},
-    {title:'第二十八章',summary:'愚而好自用賤而好自專，雖有其德苟無其位',concepts:['礼', '中庸'],anchor:27,incipit:'子曰：“愚而好自用'},
-    {title:'第二十九章',summary:'王天下有三重焉，議禮制度考文',concepts:['礼', '王道'],anchor:28,incipit:'王天下有三重焉'},
-    {title:'第三十章',summary:'仲尼祖述堯舜，上律天時下襲水土',concepts:['圣人', '中庸', '天人合一'],anchor:29,incipit:'仲尼祖述尧舜，宪章文武'},
-    {title:'第三十一章',summary:'唯天下至聖，聰明睿知足以有臨',concepts:['圣人', '仁', '义', '礼', '智'],anchor:30,incipit:'唯天下至圣'},
-    {title:'第三十二章',summary:'唯天下至誠，經綸天下之大經',concepts:['诚', '经世致用'],anchor:31,incipit:'唯天下至诚，为能经纶天下之大经'},
-    {title:'第三十三章',summary:'詩曰衣錦尚絅，至誠無聲無臭',concepts:['诚', '君子', '慎独'],anchor:32,incipit:'《诗》曰“衣锦尚絅'}
-  ],
-  '四书/论语.txt': [
-    {title:'學而篇第一',summary:'為學之本、仁孝之基',concepts:['学思结合', '仁', '孝', '悌', '忠信', '君子', '曾子', '三省吾身'],anchor:0,incipit:'子曰：“学而时习之'},
-    {title:'為政篇第二',summary:'為政以德、治國之道',concepts:['为政以德', '德治', '礼', '孝', '学而不思则罔'],anchor:1,incipit:'子曰：“为政以德，譬如北辰'},
-    {title:'八佾篇第三',summary:'禮樂制度、祭祀之禮',concepts:['礼', '乐', '仁'],anchor:2,incipit:'孔子谓季氏，“八佾舞于庭'},
-    {title:'里仁篇第四',summary:'處仁擇里、義利之辨',concepts:['仁', '义利之辨', '君子', '道'],anchor:3,incipit:'子曰：“里仁为美'},
-    {title:'公冶長篇第五',summary:'評論弟子、人物品鑒',concepts:['孔子', '弟子', '仁'],anchor:4,incipit:'子谓公冶长'},
-    {title:'雍也篇第六',summary:'中庸之德、仁之境界',concepts:['中庸', '仁', '知者乐水'],anchor:5,incipit:'子曰：“雍也可使南面'},
-    {title:'述而篇第七',summary:'孔子自述、為學態度',concepts:['孔子', '学思结合', '仁', '恕'],anchor:6,incipit:'子曰：“述而不作，信而好古'},
-    {title:'泰伯篇第八',summary:'泰伯至德、先王之道',concepts:['至德', '德治', '尧', '舜', '禹'],anchor:7,incipit:'子曰：“泰伯，其可谓至德也已矣'},
-    {title:'子罕篇第九',summary:'孔子行事、性命之說',concepts:['孔子', '命', '仁', '道'],anchor:8,incipit:'子罕言利与命与仁'},
-    {title:'鄉黨篇第十',summary:'孔子容止、日常禮儀',concepts:['礼', '孔子', '容止'],anchor:9,incipit:'孔子于乡党，恂恂如也'},
-    {title:'先進篇第十一',summary:'弟子言行、孔門政事',concepts:['弟子', '政事', '礼乐', '孔门四科'],anchor:10,incipit:'子曰：“先进于礼乐，野人也'},
-    {title:'顏淵篇第十二',summary:'仁政德治、克己復禮',concepts:['仁', '克己复礼', '君子', '政者正也'],anchor:11,incipit:'颜渊问仁'},
-    {title:'子路篇第十三',summary:'為政方略、士之修身',concepts:['为政', '正名', '修身', '仁政', '举贤才'],anchor:12,incipit:'子路问政'},
-    {title:'憲問篇第十四',summary:'古今人物、為政之道',concepts:['耻', '仁', '君子', '为政'],anchor:13,incipit:'宪问耻'},
-    {title:'衛靈公篇第十五',summary:'君子固窮、忠信篤敬',concepts:['君子固穷', '仁', '恕', '忠信', '有教无类'],anchor:14,incipit:'卫灵公问陈于孔子'},
-    {title:'季氏篇第十六',summary:'季氏伐顓臾、君子三戒',concepts:['为政', '礼治', '君子三戒', '均无贫'],anchor:15,incipit:'季氏将伐颛臾'},
-    {title:'陽貨篇第十七',summary:'陽貨見孔子、性相近習相遠',concepts:['性相近习相远', '仁', '礼', '诗教'],anchor:16,incipit:'阳货欲见孔子'},
-    {title:'微子篇第十八',summary:'隱士之行、出處進退',concepts:['出处进退', '仁', '圣人'],anchor:17,incipit:'微子去之，箕子为之奴'},
-    {title:'子張篇第十九',summary:'弟子言論、聖學傳承',concepts:['弟子', '士', '仁', '学'],anchor:18,incipit:'子张曰：“士见危致命'},
-    {title:'堯曰篇第二十',summary:'堯舜禹湯、治道總綱',concepts:['尧', '舜', '汤', '武', '天命', '为政'],anchor:19,incipit:'尧曰：“咨！尔舜！'}
-  ],
-  '四书/孟子.txt': [
-    {title:'卷一　梁惠王上',summary:'仁義而已、何必曰利，與民同樂王政之始',concepts:['仁', '义', '义利之辨', '仁政', '王政', '与民同乐'],anchor:0,incipit:'孟子见梁惠王'},
-    {title:'卷二　梁惠王下',summary:'與民同樂、文王之囿、弔民伐罪',concepts:['与民同乐', '仁政', '民本', '汤武革命'],anchor:1,incipit:'庄暴见孟子'},
-    {title:'卷三　公孫丑上',summary:'我善養吾浩然之氣，仁政端於四端',concepts:['养气', '浩然之气', '四端', '仁政', '知言'],anchor:2,incipit:'公孙丑问曰'},
-    {title:'卷四　公孫丑下',summary:'天時不如地利，得道多助',concepts:['天时地利人和', '道', '义', '君臣'],anchor:3,incipit:'孟子曰：“天时不如地利'},
-    {title:'卷五　滕文公上',summary:'孟子道性善、言必稱堯舜，井田學校',concepts:['性善论', '尧舜', '井田', '学校', '劳心劳力'],anchor:4,incipit:'滕文公为世子'},
-    {title:'卷六　滕文公下',summary:'富貴不能淫，大丈夫、距楊墨',concepts:['大丈夫', '富贵不能淫', '义', '道统', '距杨墨'],anchor:5,incipit:'景春曰：“公孙衍、张仪'},
-    {title:'卷七　離婁上',summary:'不以規矩不能成方圓，先王之道、仁政',concepts:['规矩', '仁政', '先王之道', '反求诸己', '诚'],anchor:6,incipit:'孟子曰：“离娄之明'},
-    {title:'卷八　離婁下',summary:'君之視臣如手足，孟子自道、聖之時者',concepts:['君臣', '圣人', '舜', '汤', '武王'],anchor:7,incipit:'孟子曰：“君子所以异于人者'},
-    {title:'卷九　萬章上',summary:'大孝終身慕父母，堯舜禪讓',concepts:['孝', '舜', '禅让', '天命'],anchor:8,incipit:'万章问曰：“舜往于田'},
-    {title:'卷十　萬章下',summary:'伯夷聖之清者也，孔子聖之時者',concepts:['圣人', '伯夷', '伊尹', '柳下惠', '孔子'],anchor:9,incipit:'孟子曰：“伯夷，目不视恶色'},
-    {title:'卷十一　告子上',summary:'人性之善猶水之就下，四端、義內義外',concepts:['性善论', '四端', '仁义礼智', '理义', '操存舍亡'],anchor:10,incipit:'告子曰：“性犹杞柳也'},
-    {title:'卷十二　告子下',summary:'生於憂患死於安樂，舜發於畎畝',concepts:['生于忧患死于安乐', '仁义', '礼', '法先王'],anchor:11,incipit:'任人有问屋庐子曰'},
-    {title:'卷十三　盡心上',summary:'盡其心者知其性也，萬物皆備於我',concepts:['尽心知性', '心', '性', '天命', '万物皆备于我', '立命'],anchor:12,incipit:'孟子曰：“尽其心者'},
-    {title:'卷十四　盡心下',summary:'民為貴社稷次之君為輕，堯舜性之湯武身之',concepts:['民贵君轻', '民本', '仁', '义', '命', '养心莫善于寡欲'],anchor:13,incipit:'孟子曰：“不仁哉梁惠王也'}
-  ],
-  '四书/孟子集注.txt': [
-    {title:'卷一　梁惠王上',summary:'仁義而已、何必曰利，與民同樂王政之始（朱熹集注）',concepts:['仁', '义', '义利之辨', '仁政', '王政', '与民同乐'],anchor:0,incipit:'孟子见梁惠王'},
-    {title:'卷二　梁惠王下',summary:'與民同樂、文王之囿、弔民伐罪（朱熹集注）',concepts:['与民同乐', '仁政', '民本', '汤武革命'],anchor:1,incipit:'庄暴见孟子'},
-    {title:'卷三　公孫丑上',summary:'我善養吾浩然之氣，仁政端於四端（朱熹集注）',concepts:['养气', '浩然之气', '四端', '仁政', '知言'],anchor:2,incipit:'公孙丑问曰'},
-    {title:'卷四　公孫丑下',summary:'天時不如地利，得道多助（朱熹集注）',concepts:['天时地利人和', '道', '义', '君臣'],anchor:3,incipit:'孟子曰：“天时不如地利'},
-    {title:'卷五　滕文公上',summary:'孟子道性善、言必稱堯舜，井田學校（朱熹集注）',concepts:['性善论', '尧舜', '井田', '学校', '劳心劳力'],anchor:4,incipit:'滕文公为世子'},
-    {title:'卷六　滕文公下',summary:'富貴不能淫，大丈夫、距楊墨（朱熹集注）',concepts:['大丈夫', '富贵不能淫', '义', '道统', '距杨墨'],anchor:5,incipit:'景春曰：“公孙衍、张仪'},
-    {title:'卷七　離婁上',summary:'不以規矩不能成方圓，先王之道、仁政（朱熹集注）',concepts:['规矩', '仁政', '先王之道', '反求诸己', '诚'],anchor:6,incipit:'孟子曰：“离娄之明'},
-    {title:'卷八　離婁下',summary:'君之視臣如手足，孟子自道、聖之時者（朱熹集注）',concepts:['君臣', '圣人', '舜', '汤', '武王'],anchor:7,incipit:'孟子曰：“君子所以异于人者'},
-    {title:'卷九　萬章上',summary:'大孝終身慕父母，堯舜禪讓（朱熹集注）',concepts:['孝', '舜', '禅让', '天命'],anchor:8,incipit:'万章问曰：“舜往于田'},
-    {title:'卷十　萬章下',summary:'伯夷聖之清者也，孔子聖之時者（朱熹集注）',concepts:['圣人', '伯夷', '伊尹', '柳下惠', '孔子'],anchor:9,incipit:'孟子曰：“伯夷，目不视恶色'},
-    {title:'卷十一　告子上',summary:'人性之善猶水之就下，四端、義內義外（朱熹集注）',concepts:['性善论', '四端', '仁义礼智', '理义', '操存舍亡'],anchor:10,incipit:'告子曰：“性犹杞柳也'},
-    {title:'卷十二　告子下',summary:'生於憂患死於安樂，舜發於畎畝（朱熹集注）',concepts:['生于忧患死于安乐', '仁义', '礼', '法先王'],anchor:11,incipit:'任人有问屋庐子曰'},
-    {title:'卷十三　盡心上',summary:'盡其心者知其性也，萬物皆備於我（朱熹集注）',concepts:['尽心知性', '心', '性', '天命', '万物皆备于我', '立命'],anchor:12,incipit:'孟子曰：“尽其心者'},
-    {title:'卷十四　盡心下',summary:'民為貴社稷次之君為輕，堯舜性之湯武身之（朱熹集注）',concepts:['民贵君轻', '民本', '仁', '义', '命', '养心莫善于寡欲'],anchor:13,incipit:'孟子曰：“不仁哉梁惠王也'}
-  ],
-  '四书/论语集注.txt': [
-    {title:'論語卷一上：學而為政',summary:'為學之本、仁孝之基、為政以德、治國之道',concepts:['学思结合', '仁', '孝', '悌', '忠信', '君子', '曾子', '三省吾身', '为政以德', '德治', '礼', '学而不思则罔'],anchor:0,incipit:'子曰：“学而时习之'},
-    {title:'論語卷一下：八佾里仁',summary:'禮樂制度、祭祀之禮、處仁擇里、義利之辨',concepts:['礼', '乐', '仁', '义利之辨', '君子', '道'],anchor:1,incipit:'孔子谓季氏，“八佾舞于庭'},
-    {title:'論語卷二上：公冶長雍也',summary:'評論弟子、人物品鑒、中庸之德、仁之境界',concepts:['孔子', '弟子', '仁', '中庸', '知者乐水'],anchor:2,incipit:'子谓公冶长'},
-    {title:'論語卷二下：述而泰伯',summary:'孔子自述、為學態度、泰伯至德、先王之道',concepts:['孔子', '学思结合', '仁', '恕', '至德', '德治', '尧', '舜', '禹'],anchor:3,incipit:'子曰：“述而不作，信而好古'},
-    {title:'論語卷三上：子罕鄉黨',summary:'孔子行事、性命之說、孔子容止、日常禮儀',concepts:['孔子', '命', '仁', '道', '礼', '容止'],anchor:4,incipit:'子罕言利与命与仁'},
-    {title:'論語卷三下：先進顏淵',summary:'弟子言行、孔門政事、仁政德治、克己復禮',concepts:['弟子', '政事', '礼乐', '孔门四科', '仁', '克己复礼', '君子', '政者正也'],anchor:5,incipit:'子曰：“先进于礼乐，野人也'},
-    {title:'論語卷四上：子路憲問',summary:'為政方略、士之修身、古今人物、為政之道',concepts:['为政', '正名', '修身', '仁政', '举贤才', '耻', '仁', '君子'],anchor:6,incipit:'子路问政'},
-    {title:'論語卷四下：衛靈公季氏',summary:'君子固窮、忠信篤敬、季氏伐顓臾、君子三戒',concepts:['君子固穷', '仁', '恕', '忠信', '有教无类', '为政', '礼治', '君子三戒', '均无贫'],anchor:7,incipit:'卫灵公问陈于孔子'},
-    {title:'論語卷五上：陽貨微子',summary:'陽貨見孔子、性相近習相遠、隱士之行、出處進退',concepts:['性相近习相远', '仁', '礼', '诗教', '出处进退', '圣人'],anchor:8,incipit:'阳货欲见孔子'},
-    {title:'論語卷五下：子張堯曰',summary:'弟子言論、聖學傳承、堯舜禹湯、治道總綱',concepts:['弟子', '士', '仁', '学', '尧', '舜', '汤', '武', '天命', '为政'],anchor:9,incipit:'子张曰：“士见危致命'}
-  ],
-  '孝经/孝经.txt': [
-    {title:'開宗明義章第一',summary:'孝德之本、教之所由生',concepts:['孝', '德', '教', '立身行道'],anchor:0,incipit:'仲尼居，曾子侍'},
-    {title:'天子章第二',summary:'天子之孝、愛敬盡於事親',concepts:['孝', '天子', '德教'],anchor:1,incipit:'子曰：“爱亲者，不敢恶于人'},
-    {title:'諸侯章第三',summary:'諸侯之孝、保社稷和人民',concepts:['孝', '诸侯', '社稷'],anchor:2,incipit:'在上不骄，高而不危'},
-    {title:'卿大夫章第四',summary:'卿大夫之孝、服先王之法服',concepts:['孝', '卿大夫', '礼法'],anchor:3,incipit:'非先王之法服不敢服'},
-    {title:'士章第五',summary:'士之孝、忠順不失以事其上',concepts:['孝', '士', '忠', '顺'],anchor:4,incipit:'资于事父以事母'},
-    {title:'庶人章第六',summary:'庶人之孝、謹身節用以養父母',concepts:['孝', '庶人', '养亲'],anchor:5,incipit:'用天之道，分地之利'},
-    {title:'三才章第七',summary:'孝天之經地之義民之行',concepts:['孝', '三才', '天经地义', '教化'],anchor:6,incipit:'曾子曰：“甚哉，孝之大也'},
-    {title:'孝治章第八',summary:'以孝治天下',concepts:['孝治', '治国', '天下'],anchor:7,incipit:'子曰：“昔者明王之以孝治天下也'},
-    {title:'聖治章第九',summary:'聖人之德無加於孝',concepts:['孝', '圣人', '德', '周公', '孔子'],anchor:8,incipit:'曾子曰：“敢问圣人之德'},
-    {title:'紀孝行章第十',summary:'孝子事親五者備矣',concepts:['孝', '养亲', '敬亲', '祭'],anchor:9,incipit:'子曰：“孝子之事亲也'},
-    {title:'五刑章第十一',summary:'五刑之屬三千罪莫大於不孝',concepts:['孝', '五刑', '不孝'],anchor:10,incipit:'子曰：“五刑之属三千'},
-    {title:'廣要道章第十二',summary:'教民親愛莫善於孝',concepts:['孝', '要道', '礼乐', '教化'],anchor:11,incipit:'子曰：“教民亲爱'},
-    {title:'廣至德章第十三',summary:'君子之教以孝',concepts:['孝', '至德', '敬', '让'],anchor:12,incipit:'子曰：“君子之教以孝也'},
-    {title:'廣揚名章第十四',summary:'立身行道揚名於後世',concepts:['孝', '忠', '立身扬名', '事君', '立身行道'],anchor:13,incipit:'子曰：“君子之事亲孝'},
-    {title:'諫諍章第十五',summary:'父有爭子則身不陷於不義',concepts:['谏诤', '孝', '义', '父有争子'],anchor:14,incipit:'曾子曰：“若夫慈爱恭敬'},
-    {title:'感應章第十六',summary:'孝悌之至通於神明',concepts:['孝', '感应', '神明', '天下'],anchor:15,incipit:'子曰：“昔者明王事父孝'},
-    {title:'事君章第十七',summary:'君子之事上進思盡忠',concepts:['事君', '忠', '顺', '君子'],anchor:16,incipit:'子曰：“君子之事上也'},
-    {title:'喪親章第十八',summary:'孝子喪親、生事愛敬死事哀戚',concepts:['丧亲', '孝', '哀戚', '祭'],anchor:17,incipit:'子曰：“孝子之丧亲也'}
-  ],
-  '诗经/诗经.txt': [
-    {title:'國風·周南',summary:'詩經之始，正風之首，關雎至麟之趾十一篇，文王之化',concepts:['诗教', '教化', '王道', '夫妇'],anchor:0,incipit:'国风 周南 关雎'},
-    {title:'國風·召南',summary:'周南之繼，鵲巢至騶虞十四篇，南國被文王之化',concepts:['诗教', '教化'],anchor:1,incipit:'国风 召南 鹊巢'},
-    {title:'國風·邶風',summary:'邶地之風，柏舟至靜女十九篇',concepts:['诗教'],anchor:2,incipit:'国风 邶风 柏舟'},
-    {title:'國風·鄘風',summary:'鄘地之風，柏舟至載馳十篇',concepts:['诗教'],anchor:3,incipit:'国风 鄘风 柏舟'},
-    {title:'國風·衛風',summary:'衛地之風，淇奧至木瓜十篇',concepts:['诗教', '德'],anchor:4,incipit:'国风 卫风 淇奥'},
-    {title:'國風·王風',summary:'王畿之風，黍離至采葛十篇',concepts:['诗教'],anchor:5,incipit:'国风 王风 黍离'},
-    {title:'國風·鄭風',summary:'鄭地之風，緇衣至溱洧二十一篇',concepts:['诗教'],anchor:6,incipit:'国风 郑风 缁衣'},
-    {title:'國風·齊風',summary:'齊地之風，雞鳴至猗嗟十一篇',concepts:['诗教'],anchor:7,incipit:'国风 齐风 鸡鸣'},
-    {title:'國風·魏風',summary:'魏地之風，葛屨至碩鼠七篇',concepts:['诗教', '民本'],anchor:8,incipit:'国风 魏风 葛屦'},
-    {title:'國風·唐風',summary:'唐地之風，蟋蟀至采苓十二篇',concepts:['诗教'],anchor:9,incipit:'国风 唐风 蟋蟀'},
-    {title:'國風·秦風',summary:'秦地之風，車鄰至權輿十篇',concepts:['诗教'],anchor:10,incipit:'国风 秦风 车邻'},
-    {title:'國風·陳風',summary:'陳地之風，宛丘至澤陂十篇',concepts:['诗教'],anchor:11,incipit:'国风 陈风 宛丘'},
-    {title:'國風·檜風',summary:'檜地之風，羔裘至隰有萇楚四篇',concepts:['诗教'],anchor:12,incipit:'国风 桧风 羔裘'},
-    {title:'國風·曹風',summary:'曹地之風，蜉蝣至下泉四篇',concepts:['诗教'],anchor:13,incipit:'国风 曹风 蜉蝣'},
-    {title:'國風·豳風',summary:'豳地之風，七月至狼跋七篇，周公陳王業之艱',concepts:['诗教', '王业', '周公'],anchor:14,incipit:'国风 豳风 七月'},
-    {title:'小雅',summary:'小雅之始，鹿鳴至魚麗為正經，後為變雅，共七十四篇',concepts:['诗教', '礼乐', '王政'],anchor:15,incipit:'小雅 鹿鸣之什 鹿鸣'},
-    {title:'大雅',summary:'大雅之始，文王至卷阿為正大雅，後為正大雅、變大雅共三十一篇',concepts:['诗教', '天命', '文王', '武王'],anchor:16,incipit:'大雅 文王之什 文王'},
-    {title:'周頌',summary:'周室宗廟之樂，清廟至般三十一篇',concepts:['祭', '礼乐', '文王', '武王', '周公'],anchor:17,incipit:'周颂 清庙之什 清庙'},
-    {title:'魯頌',summary:'魯國宗廟之樂，駉至閟宮四篇',concepts:['祭', '礼乐', '周公'],anchor:18,incipit:'鲁颂 駉之什 駉'},
-    {title:'商頌',summary:'商代之遺，那至殷武五篇',concepts:['祭', '礼乐', '汤'],anchor:19,incipit:'商颂 那'}
-  ],
-  '尚书/尚书.txt': [
-    {title:'虞書·堯典',summary:'堯舜禪讓、命羲和曆象、命舜攝位',concepts:['尧', '舜', '禅让', '天命', '历法'],anchor:0,incipit:'虞书 尧典第一'},
-    {title:'虞書·舜典',summary:'舜即位、命九官、五刑五服',concepts:['舜', '官制', '五刑', '礼乐'],anchor:1,incipit:'虞书 舜典第二'},
-    {title:'虞書·大禹謨',summary:'大禹謀略、人心道心、十六字心傳',concepts:['大禹', '道心人心', '精一执中'],anchor:2,incipit:'虞书 大禹谟第三'},
-    {title:'虞書·皋陶謨',summary:'皋陶陳九德、知人安民',concepts:['九德', '知人', '安民', '修身'],anchor:3,incipit:'虞书 皋陶谟第四'},
-    {title:'虞書·益稷',summary:'益稷佐禹、臯陶賡歌',concepts:['大禹', '益', '稷', '君臣'],anchor:4,incipit:'虞书 益稷第五'},
-    {title:'夏書·禹貢',summary:'禹別九州、任土作貢',concepts:['大禹', '九州', '地理', '治水'],anchor:5,incipit:'夏书 禹贡第一'},
-    {title:'夏書·甘誓',summary:'啟伐有扈、大戰于甘',concepts:['天命', '征伐', '夏启'],anchor:6,incipit:'夏书 甘誓第二'},
-    {title:'商書·湯誓',summary:'湯伐桀、弔民伐罪',concepts:['汤', '汤武革命', '天命', '民本'],anchor:7,incipit:'商书 汤誓第一'},
-    {title:'商書·盤庚',summary:'盤庚遷殷、誥諭臣民',concepts:['盘庚', '迁都', '天命', '臣民'],anchor:8,incipit:'商书 盘庚上第九'},
-    {title:'周書·牧誓',summary:'武王伐紂、牧野之戰',concepts:['武王', '纣王', '汤武革命', '天命'],anchor:9,incipit:'周书 牧誓'},
-    {title:'周書·洪範',summary:'洪範九疇、五行五事皇極',concepts:['五行', '皇极', '王道', '箕子'],anchor:10,incipit:'周书 洪范'},
-    {title:'周書·大誥',summary:'周公東征、誥諭庶邦',concepts:['周公', '天命', '东征'],anchor:11,incipit:'周书 大诰'},
-    {title:'周書·康誥',summary:'封康叔於衛、明德慎罰',concepts:['周公', '明德慎罚', '德治'],anchor:12,incipit:'周书 康诰'},
-    {title:'周書·酒誥',summary:'誥康叔禁酒',concepts:['周公', '禁酒', '德'],anchor:13,incipit:'周书 酒诰'},
-    {title:'周書·梓材',summary:'告康叔為政如梓人治材',concepts:['周公', '德治', '养民'],anchor:14,incipit:'周书 梓材'},
-    {title:'周書·召誥',summary:'召公營洛、誥告成王',concepts:['召公', '天命', '德治', '洛邑'],anchor:15,incipit:'周书 召诰'},
-    {title:'周書·洛誥',summary:'周公營洛、還政成王',concepts:['周公', '成王', '礼乐', '洛邑'],anchor:16,incipit:'周书 洛诰'},
-    {title:'周書·無逸',summary:'周公戒成王無逸、以殷為鑒',concepts:['周公', '成王', '敬德', '保民'],anchor:17,incipit:'周书 无逸'},
-    {title:'周書·顧命',summary:'成王顧命、康王即位',concepts:['成王', '康王', '丧礼', '即位'],anchor:18,incipit:'周书 顾命'},
-    {title:'周書·呂刑',summary:'穆王訓刑、五刑之屬、祥刑之要',concepts:['五刑', '祥刑', '赎刑', '德'],anchor:19,incipit:'周书 吕刑'}
-  ],
-  '礼经/礼记.txt': [
-    {title:'曲禮上',summary:'曲禮上，禮之儀文節度',concepts:['礼'],anchor:0,incipit:'曲禮上'},
-    {title:'曲禮下',summary:'曲禮下，禮之儀文節度',concepts:['礼'],anchor:1,incipit:'曲禮下'},
-    {title:'檀弓上',summary:'檀弓上，禮之儀文節度',concepts:['礼'],anchor:2,incipit:'檀弓上'},
-    {title:'檀弓下',summary:'檀弓下，禮之儀文節度',concepts:['礼'],anchor:3,incipit:'檀弓下'},
-    {title:'王制',summary:'王制，禮之儀文節度',concepts:['礼'],anchor:4,incipit:'王制'},
-    {title:'月令',summary:'月令，禮之儀文節度',concepts:['礼'],anchor:5,incipit:'月令'},
-    {title:'曾子問',summary:'曾子問，禮之儀文節度',concepts:['礼'],anchor:6,incipit:'曾子問'},
-    {title:'文王世子',summary:'文王世子，禮之儀文節度',concepts:['礼'],anchor:7,incipit:'文王世子'},
-    {title:'禮運',summary:'大同小康、禮本於太一、大道之行天下為公',concepts:['大同', '小康', '天下为公', '礼', '大道', '大同'],anchor:8,incipit:'禮運'},
-    {title:'禮器',summary:'禮器，禮之儀文節度',concepts:['礼'],anchor:9,incipit:'禮器'},
-    {title:'郊特牲',summary:'郊特牲，禮之儀文節度',concepts:['礼'],anchor:10,incipit:'郊特牲'},
-    {title:'內則',summary:'內則，禮之儀文節度',concepts:['礼'],anchor:11,incipit:'內則'},
-    {title:'玉藻',summary:'玉藻，禮之儀文節度',concepts:['礼'],anchor:12,incipit:'玉藻'},
-    {title:'明堂位',summary:'明堂位，禮之儀文節度',concepts:['礼'],anchor:13,incipit:'明堂位'},
-    {title:'喪服小記',summary:'喪服小記，禮之儀文節度',concepts:['礼'],anchor:14,incipit:'喪服小記'},
-    {title:'大傳',summary:'大傳，禮之儀文節度',concepts:['礼'],anchor:15,incipit:'大傳'},
-    {title:'少儀',summary:'少儀，禮之儀文節度',concepts:['礼'],anchor:16,incipit:'少儀'},
-    {title:'學記',summary:'教學相長、大學之教、化民成俗',concepts:['教学相长', '学', '教化', '化民成俗', '学思结合'],anchor:17,incipit:'學記'},
-    {title:'樂記',summary:'樂本於心、禮樂之治、大樂與天地同和',concepts:['乐', '礼', '礼乐', '天人感应', '教化'],anchor:18,incipit:'樂記'},
-    {title:'雜記上',summary:'雜記上，禮之儀文節度',concepts:['礼'],anchor:19,incipit:'雜記上'},
-    {title:'雜記下',summary:'雜記下，禮之儀文節度',concepts:['礼'],anchor:20,incipit:'雜記下'},
-    {title:'喪大記',summary:'喪大記，禮之儀文節度',concepts:['礼'],anchor:21,incipit:'喪大記'},
-    {title:'祭法',summary:'祭法，禮之儀文節度',concepts:['礼'],anchor:22,incipit:'祭法'},
-    {title:'祭義',summary:'祭之本、齋戒以事鬼神、孝之至',concepts:['礼'],anchor:23,incipit:'祭義'},
-    {title:'祭統',summary:'祭統，禮之儀文節度',concepts:['礼'],anchor:24,incipit:'祭統'},
-    {title:'經解',summary:'六經之教、詩書禮樂易春秋',concepts:['礼'],anchor:25,incipit:'經解'},
-    {title:'哀公問',summary:'哀公問，禮之儀文節度',concepts:['礼'],anchor:26,incipit:'哀公問'},
-    {title:'仲尼燕居',summary:'仲尼燕居，禮之儀文節度',concepts:['礼'],anchor:27,incipit:'仲尼燕居'},
-    {title:'孔子閒居',summary:'孔子閒居，禮之儀文節度',concepts:['礼'],anchor:28,incipit:'孔子閒居'},
-    {title:'坊記',summary:'坊記，禮之儀文節度',concepts:['礼'],anchor:29,incipit:'坊記'},
-    {title:'中庸',summary:'天命之謂性、中和大本達道',concepts:['中庸', '中和', '诚', '性', '道', '慎独'],anchor:30,incipit:'中庸'},
-    {title:'表記',summary:'表記，禮之儀文節度',concepts:['礼'],anchor:31,incipit:'表記'},
-    {title:'緇衣',summary:'緇衣，禮之儀文節度',concepts:['礼'],anchor:32,incipit:'緇衣'},
-    {title:'奔喪',summary:'奔喪，禮之儀文節度',concepts:['礼'],anchor:33,incipit:'奔喪'},
-    {title:'問喪',summary:'問喪，禮之儀文節度',concepts:['礼'],anchor:34,incipit:'問喪'},
-    {title:'服問',summary:'服問，禮之儀文節度',concepts:['礼'],anchor:35,incipit:'服問'},
-    {title:'間傳',summary:'間傳，禮之儀文節度',concepts:['礼'],anchor:36,incipit:'間傳'},
-    {title:'三年問',summary:'三年問，禮之儀文節度',concepts:['礼'],anchor:37,incipit:'三年問'},
-    {title:'深衣',summary:'深衣，禮之儀文節度',concepts:['礼'],anchor:38,incipit:'深衣'},
-    {title:'投壺',summary:'投壺，禮之儀文節度',concepts:['礼'],anchor:39,incipit:'投壺'},
-    {title:'儒行',summary:'儒之行自立、容貌、備豫、剛毅等十五儒',concepts:['儒', '君子', '忠信', '刚毅', '自立'],anchor:40,incipit:'儒行'},
-    {title:'大學',summary:'三綱領八條目、修己治人之道',concepts:['明明德', '亲民', '止于至善', '格物致知', '修齐治平'],anchor:41,incipit:'大學'},
-    {title:'冠義',summary:'冠義，禮之儀文節度',concepts:['礼'],anchor:42,incipit:'冠義'},
-    {title:'昏義',summary:'昏義，禮之儀文節度',concepts:['礼'],anchor:43,incipit:'昏義'},
-    {title:'鄉飲酒義',summary:'鄉飲酒義，禮之儀文節度',concepts:['礼'],anchor:44,incipit:'鄉飲酒義'},
-    {title:'射義',summary:'射義，禮之儀文節度',concepts:['礼'],anchor:45,incipit:'射義'},
-    {title:'燕義',summary:'燕義，禮之儀文節度',concepts:['礼'],anchor:46,incipit:'燕義'},
-    {title:'聘義',summary:'聘義，禮之儀文節度',concepts:['礼'],anchor:47,incipit:'聘義'},
-    {title:'喪服四制',summary:'喪服四制，禮之儀文節度',concepts:['礼'],anchor:48,incipit:'喪服四制'}
-  ],
-  '礼经/周礼.txt': [
-    {title:'天官冢宰第一',summary:'掌邦治、帥其屬佐王均邦國，大宰為首',concepts:['周礼', '官制', '治国'],anchor:0,incipit:'天官冢宰第一'},
-    {title:'地官司徒第二',summary:'掌邦教、帥其屬佐王安擾邦國，施教養民',concepts:['周礼', '教化', '养民', '乡遂'],anchor:1,incipit:'地官司徒第二'},
-    {title:'春官宗伯第三',summary:'掌邦禮、帥其屬佐王和邦國，宗廟祭祀',concepts:['周礼', '礼', '祭', '礼乐'],anchor:2,incipit:'春官宗伯第三'},
-    {title:'夏官司馬第四',summary:'掌邦政、帥其屬佐王平邦國，軍政征伐',concepts:['周礼', '军政', '征伐'],anchor:3,incipit:'夏官司马第四'},
-    {title:'秋官司寇第五',summary:'掌邦禁、帥其屬佐王刑邦國，刑罰訴訟',concepts:['周礼', '五刑', '祥刑'],anchor:4,incipit:'秋官司寇第五'},
-    {title:'冬官考工記第六',summary:'百工之事、營國製器',concepts:['周礼', '百工', '匠人营国'],anchor:5,incipit:'冬官考工记第六'}
-  ],
-  '礼经/仪礼.txt': [
-    {title:'士冠禮第一',summary:'儀禮·士冠禮，禮之儀節',concepts:['礼', '仪礼', '冠礼'],anchor:0,incipit:'士冠禮第一'},
-    {title:'士昏禮第二',summary:'儀禮·士昏禮，禮之儀節',concepts:['礼', '仪礼', '婚礼'],anchor:1,incipit:'士昏禮第二'},
-    {title:'士相見禮第三',summary:'儀禮·士相見禮，禮之儀節',concepts:['礼', '仪礼', '士相见礼'],anchor:2,incipit:'士相見禮第三'},
-    {title:'鄉飲酒禮第四',summary:'儀禮·鄉飲酒禮，禮之儀節',concepts:['礼', '仪礼', '乡饮酒礼'],anchor:3,incipit:'鄉飲酒禮第四'},
-    {title:'鄉射禮第五',summary:'儀禮·鄉射禮，禮之儀節',concepts:['礼', '仪礼', '乡射礼'],anchor:4,incipit:'鄉射禮第五'},
-    {title:'燕禮第六',summary:'儀禮·燕禮，禮之儀節',concepts:['礼', '仪礼', '燕礼'],anchor:5,incipit:'燕禮第六'},
-    {title:'大射儀第七',summary:'儀禮·大射儀，禮之儀節',concepts:['礼', '仪礼', '大射礼'],anchor:6,incipit:'大射儀第七'},
-    {title:'聘禮第八',summary:'儀禮·聘禮，禮之儀節',concepts:['礼', '仪礼', '聘礼'],anchor:7,incipit:'聘禮第八'},
-    {title:'公食大夫禮第九',summary:'儀禮·公食大夫禮，禮之儀節',concepts:['礼', '仪礼', '公食大夫礼'],anchor:8,incipit:'公食大夫禮第九'},
-    {title:'覲禮第十',summary:'儀禮·覲禮，禮之儀節',concepts:['礼', '仪礼', '觐礼'],anchor:9,incipit:'覲禮第十'},
-    {title:'喪服第十一',summary:'儀禮·喪服，禮之儀節',concepts:['礼', '仪礼', '丧服'],anchor:10,incipit:'喪服第十一'},
-    {title:'士喪禮第十二',summary:'儀禮·士喪禮，禮之儀節',concepts:['礼', '仪礼', '士丧礼'],anchor:11,incipit:'士喪禮第十二'},
-    {title:'既夕禮第十三',summary:'儀禮·既夕禮，禮之儀節',concepts:['礼', '仪礼', '既夕礼'],anchor:12,incipit:'既夕禮第十三'},
-    {title:'士虞禮第十四',summary:'儀禮·士虞禮，禮之儀節',concepts:['礼', '仪礼', '士虞礼'],anchor:13,incipit:'士虞禮第十四'},
-    {title:'特牲饋食禮第十五',summary:'儀禮·特牲饋食禮，禮之儀節',concepts:['礼', '仪礼', '特牲馈食礼'],anchor:14,incipit:'特牲饋食禮第十五'},
-    {title:'少牢饋食禮第十六',summary:'儀禮·少牢饋食禮，禮之儀節',concepts:['礼', '仪礼', '少牢馈食礼'],anchor:15,incipit:'少牢饋食禮第十六'},
-    {title:'有司徹第十七',summary:'儀禮·有司徹，禮之儀節',concepts:['礼', '仪礼', '有司彻'],anchor:16,incipit:'有司徹第十七'}
-  ],
-  '春秋/春秋左传.txt': [
-    {title:'隱公',summary:'左傳·隱公，記隱公年間史事（元年～十一年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:0,incipit:'隱公（元年～十一年）'},
-    {title:'桓公',summary:'左傳·桓公，記桓公年間史事（元年～十八年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:1,incipit:'桓公（元年～十八年）'},
-    {title:'莊公',summary:'左傳·莊公，記莊公年間史事（元年～三十二年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:2,incipit:'庄公（元年～三十二年）'},
-    {title:'閔公',summary:'左傳·閔公，記閔公年間史事（元年～二年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:3,incipit:'闵公（元年～二年）'},
-    {title:'僖公',summary:'左傳·僖公，記僖公年間史事（元年～三十三年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:4,incipit:'僖公（元年～三十三年）'},
-    {title:'文公',summary:'左傳·文公，記文公年間史事（元年～十八年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:5,incipit:'文公（元年～十八年）'},
-    {title:'宣公',summary:'左傳·宣公，記宣公年間史事（元年～十八年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:6,incipit:'宣公（元年～十八年）'},
-    {title:'成公',summary:'左傳·成公，記成公年間史事（元年～十八年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:7,incipit:'成公（元年～十八年）'},
-    {title:'襄公',summary:'左傳·襄公，記襄公年間史事（元年～三十一年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:8,incipit:'襄公（元年～三十一年）'},
-    {title:'昭公',summary:'左傳·昭公，記昭公年間史事（元年～三十二年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:9,incipit:'昭公（元年～三十二年）'},
-    {title:'定公',summary:'左傳·定公，記定公年間史事（元年～十五年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:10,incipit:'定公（元年～十五年）'},
-    {title:'哀公',summary:'左傳·哀公，記哀公年間史事（元年～二十七年）',concepts:['春秋笔法', '礼', '义', '王道', '尊王攘夷'],anchor:11,incipit:'哀公（元年～二十七年）'}
-  ],
-  '春秋/春秋公羊传.txt': [
-    {title:'隱公',summary:'公羊傳·隱公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:0,incipit:'隱公（元年'},
-    {title:'桓公',summary:'公羊傳·桓公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:1,incipit:'桓公（元年'},
-    {title:'莊公',summary:'公羊傳·莊公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:2,incipit:'莊公（元年'},
-    {title:'閔公',summary:'公羊傳·閔公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:3,incipit:'閔公（元年'},
-    {title:'僖公',summary:'公羊傳·僖公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:4,incipit:'僖公（元年'},
-    {title:'文公',summary:'公羊傳·文公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:5,incipit:'文公（元年'},
-    {title:'宣公',summary:'公羊傳·宣公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:6,incipit:'宣公（元年'},
-    {title:'成公',summary:'公羊傳·成公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:7,incipit:'成公（元年'},
-    {title:'襄公',summary:'公羊傳·襄公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:8,incipit:'襄公（元年'},
-    {title:'昭公',summary:'公羊傳·昭公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:9,incipit:'昭公（元年'},
-    {title:'定公',summary:'公羊傳·定公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:10,incipit:'定公（元年'},
-    {title:'哀公',summary:'公羊傳·哀公，大義微言、大一張世',concepts:['大一统', '春秋笔法', '三世说', '尊王攘夷'],anchor:11,incipit:'哀公（元年'}
-  ],
-  '春秋/春秋谷梁传.txt': [
-    {title:'隱公',summary:'穀梁傳·隱公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:0,incipit:'隱公（元年'},
-    {title:'桓公',summary:'穀梁傳·桓公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:1,incipit:'桓公（元年'},
-    {title:'莊公',summary:'穀梁傳·莊公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:2,incipit:'莊公（元年'},
-    {title:'閔公',summary:'穀梁傳·閔公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:3,incipit:'閔公（元年'},
-    {title:'僖公',summary:'穀梁傳·僖公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:4,incipit:'僖公（元年'},
-    {title:'文公',summary:'穀梁傳·文公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:5,incipit:'文公（元年'},
-    {title:'宣公',summary:'穀梁傳·宣公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:6,incipit:'宣公（元年'},
-    {title:'成公',summary:'穀梁傳·成公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:7,incipit:'成公（元年'},
-    {title:'襄公',summary:'穀梁傳·襄公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:8,incipit:'襄公（元年'},
-    {title:'昭公',summary:'穀梁傳·昭公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:9,incipit:'昭公（元年'},
-    {title:'定公',summary:'穀梁傳·定公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:10,incipit:'定公（元年'},
-    {title:'哀公',summary:'穀梁傳·哀公，經義傳釋、善善惡惡',concepts:['春秋笔法', '尊王攘夷', '义'],anchor:11,incipit:'哀公（元年'}
-  ],
-  '语录/传习录.txt': [
-    {title:'傳習錄上',summary:'徐愛等錄，心即理、知行合一之教',concepts:['心即理', '知行合一', '良知', '格物', '大学问'],anchor:0,incipit:'卷上'},
-    {title:'傳習錄中',summary:'答顧東橋等八書，致良知、知行合一詳說',concepts:['致良知', '知行合一', '格物致知', '心即理'],anchor:1,incipit:'卷中'},
-    {title:'傳習錄下',summary:'陳九川等錄，四句教、大學問、萬物一體',concepts:['四句教', '致良知', '万物一体', '心即理', '大学问'],anchor:2,incipit:'卷下'}
-  ],
-  '语录/二程遗书.txt': [
-    {title:'卷一',summary:'二程遺書卷一',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:0,incipit:'卷一'},
-    {title:'卷二上',summary:'二程遺書卷二上',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:1,incipit:'卷二上'},
-    {title:'卷三下',summary:'二程遺書卷三下',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:2,incipit:'卷三下'},
-    {title:'卷四',summary:'二程遺書卷四',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:3,incipit:'卷四'},
-    {title:'卷五',summary:'二程遺書卷五',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:4,incipit:'卷五'},
-    {title:'卷六',summary:'二程遺書卷六',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:5,incipit:'卷六'},
-    {title:'卷七',summary:'二程遺書卷七',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:6,incipit:'卷七'},
-    {title:'卷八',summary:'二程遺書卷八',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:7,incipit:'卷八'},
-    {title:'卷九',summary:'二程遺書卷九',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:8,incipit:'卷九'},
-    {title:'卷十',summary:'二程遺書卷十',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:9,incipit:'卷十'},
-    {title:'卷十一',summary:'二程遺書卷十一',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:10,incipit:'卷十一'},
-    {title:'卷十二',summary:'二程遺書卷十二',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:11,incipit:'卷十二'},
-    {title:'卷十三',summary:'二程遺書卷十三',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:12,incipit:'卷十三'},
-    {title:'卷十四',summary:'二程遺書卷十四',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:13,incipit:'卷十四'},
-    {title:'卷十五',summary:'二程遺書卷十五',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:14,incipit:'卷十五'},
-    {title:'卷十六',summary:'二程遺書卷十六',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:15,incipit:'卷十六'},
-    {title:'卷十七',summary:'二程遺書卷十七',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:16,incipit:'卷十七'},
-    {title:'卷十八',summary:'二程遺書卷十八',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:17,incipit:'卷十八'},
-    {title:'卷十九',summary:'二程遺書卷十九',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:18,incipit:'卷十九'},
-    {title:'卷二十',summary:'二程遺書卷二十',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:19,incipit:'卷二十'},
-    {title:'卷二十一',summary:'二程遺書卷二十一',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:20,incipit:'卷二十一'},
-    {title:'卷二十二',summary:'二程遺書卷二十二',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:21,incipit:'卷二十二'},
-    {title:'卷二十三',summary:'二程遺書卷二十三',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:22,incipit:'卷二十三'},
-    {title:'卷二十四',summary:'二程遺書卷二十四',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:23,incipit:'卷二十四'},
-    {title:'卷二十五',summary:'二程遺書卷二十五',concepts:['理', '气', '性', '天理', '人欲', '格物', '敬', '主敬'],anchor:24,incipit:'卷二十五'}
-  ],
-  '修身治家/颜氏家训.txt': [
-    {title:'序致第一',summary:'顏氏家訓·序致篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:0,incipit:'《序致第一》'},
-    {title:'教子第二',summary:'顏氏家訓·教子篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:1,incipit:'《教子第二》'},
-    {title:'兄弟第三',summary:'顏氏家訓·兄弟篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:2,incipit:'《兄弟第三》'},
-    {title:'后娶第四',summary:'顏氏家訓·后娶篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:3,incipit:'《后娶第四》'},
-    {title:'治家第五',summary:'顏氏家訓·治家篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:4,incipit:'《治家第五》'},
-    {title:'风操第六',summary:'顏氏家訓·风操篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:5,incipit:'《风操第六》'},
-    {title:'慕贤第七',summary:'顏氏家訓·慕贤篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:6,incipit:'《慕贤第七》'},
-    {title:'勉学第八',summary:'顏氏家訓·勉学篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:7,incipit:'《勉学第八》'},
-    {title:'文章第九',summary:'顏氏家訓·文章篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:8,incipit:'《文章第九》'},
-    {title:'名实第十',summary:'顏氏家訓·名实篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:9,incipit:'《名实第十》'},
-    {title:'涉务第十一',summary:'顏氏家訓·涉务篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:10,incipit:'《涉务第十一》'},
-    {title:'省事第十二',summary:'顏氏家訓·省事篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:11,incipit:'《省事第十二》'},
-    {title:'止足第十三',summary:'顏氏家訓·止足篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:12,incipit:'《止足第十三》'},
-    {title:'诫兵第十四',summary:'顏氏家訓·诫兵篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:13,incipit:'《诫兵第十四》'},
-    {title:'养生第十五',summary:'顏氏家訓·养生篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:14,incipit:'《养生第十五》'},
-    {title:'归心第十六',summary:'顏氏家訓·归心篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:15,incipit:'《归心第十六》'},
-    {title:'书证第十七',summary:'顏氏家訓·书证篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:16,incipit:'《书证第十七》'},
-    {title:'音辞第十八',summary:'顏氏家訓·音辞篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:17,incipit:'《音辞第十八》'},
-    {title:'杂艺第十九',summary:'顏氏家訓·杂艺篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:18,incipit:'《杂艺第十九》'},
-    {title:'终制第二十',summary:'顏氏家訓·终制篇',concepts:['修身', '治家', '教', '学', '礼'],anchor:19,incipit:'《终制第二十》'}
-  ],
-  '语录/近思录.txt': [
-    {title:'卷一',summary:'道體',concepts:['道体', '太极', '理', '阴阳', '天理'],anchor:0,incipit:'卷一 '},
-    {title:'卷二',summary:'為學大要',concepts:['为学', '主敬', '圣人'],anchor:1,incipit:'卷二 '},
-    {title:'卷三',summary:'格物窮理',concepts:['格物穷理', '致知', '居敬穷理'],anchor:2,incipit:'卷三 '},
-    {title:'卷四',summary:'存養',concepts:['主敬', '涵养', '心性'],anchor:3,incipit:'卷四 '},
-    {title:'卷五',summary:'改過遷善',concepts:['省察克治', '克己复礼', '改过'],anchor:4,incipit:'卷五 '},
-    {title:'卷六',summary:'齊家之道',concepts:['齐家'],anchor:5,incipit:'卷六 '},
-    {title:'卷七',summary:'出處進退',concepts:['出处进退', '义'],anchor:6,incipit:'卷七 '},
-    {title:'卷八',summary:'治國平天下',concepts:['治国', '平天下', '体用'],anchor:7,incipit:'卷八 '},
-    {title:'卷九',summary:'制度',concepts:['制度', '礼治', '礼乐'],anchor:8,incipit:'卷九 '},
-    {title:'卷十',summary:'政事',concepts:['政事', '经世致用'],anchor:9,incipit:'卷十 '},
-    {title:'卷十一',summary:'教學',concepts:['教化', '教学相长'],anchor:10,incipit:'卷十一 '},
-    {title:'卷十二',summary:'警戒',concepts:['戒慎恐惧', '慎独'],anchor:11,incipit:'卷十二 '},
-    {title:'卷十三',summary:'辨異端',concepts:['辨异端'],anchor:12,incipit:'卷十三 '},
-    {title:'卷十四',summary:'聖賢',concepts:['圣人', '君子'],anchor:13,incipit:'卷十四 '}
-  ],
-  '诗经/诗集传.txt': [
-    {title:'國風·周南',summary:'詩經之始，正風之首，關雎至麟之趾十一篇，文王之化',concepts:['诗教', '教化', '王道', '夫妇'],anchor:0,incipit:'国风 周南 关雎'},
-    {title:'國風·召南',summary:'周南之繼，鵲巢至騶虞十四篇，南國被文王之化',concepts:['诗教', '教化'],anchor:1,incipit:'国风 召南 鹊巢'},
-    {title:'國風·邶風',summary:'邶地之風，柏舟至靜女十九篇',concepts:['诗教'],anchor:2,incipit:'国风 邶风 柏舟'},
-    {title:'國風·鄘風',summary:'鄘地之風，柏舟至載馳十篇',concepts:['诗教'],anchor:3,incipit:'国风 鄘风 柏舟'},
-    {title:'國風·衛風',summary:'衛地之風，淇奧至木瓜十篇',concepts:['诗教', '德'],anchor:4,incipit:'国风 卫风 淇奥'},
-    {title:'國風·王風',summary:'王畿之風，黍離至采葛十篇',concepts:['诗教'],anchor:5,incipit:'国风 王风 黍离'},
-    {title:'國風·鄭風',summary:'鄭地之風，緇衣至溱洧二十一篇',concepts:['诗教'],anchor:6,incipit:'国风 郑风 缁衣'},
-    {title:'國風·齊風',summary:'齊地之風，雞鳴至猗嗟十一篇',concepts:['诗教'],anchor:7,incipit:'国风 齐风 鸡鸣'},
-    {title:'國風·魏風',summary:'魏地之風，葛屨至碩鼠七篇',concepts:['诗教', '民本'],anchor:8,incipit:'国风 魏风 葛屦'},
-    {title:'國風·唐風',summary:'唐地之風，蟋蟀至采苓十二篇',concepts:['诗教'],anchor:9,incipit:'国风 唐风 蟋蟀'},
-    {title:'國風·秦風',summary:'秦地之風，車鄰至權輿十篇',concepts:['诗教'],anchor:10,incipit:'国风 秦风 车邻'},
-    {title:'國風·陳風',summary:'陳地之風，宛丘至澤陂十篇',concepts:['诗教'],anchor:11,incipit:'国风 陈风 宛丘'},
-    {title:'國風·檜風',summary:'檜地之風，羔裘至隰有萇楚四篇',concepts:['诗教'],anchor:12,incipit:'国风 桧风 羔裘'},
-    {title:'國風·曹風',summary:'曹地之風，蜉蝣至下泉四篇',concepts:['诗教'],anchor:13,incipit:'国风 曹风 蜉蝣'},
-    {title:'國風·豳風',summary:'豳地之風，七月至狼跋七篇，周公陳王業之艱',concepts:['诗教', '王业', '周公'],anchor:14,incipit:'国风 豳风 七月'},
-    {title:'小雅',summary:'小雅之始，鹿鳴至魚麗為正經，後為變雅，共七十四篇',concepts:['诗教', '礼乐', '王政'],anchor:15,incipit:'小雅 鹿鸣之什 鹿鸣'},
-    {title:'大雅',summary:'大雅之始，文王至卷阿為正大雅，後為正大雅、變大雅共三十一篇',concepts:['诗教', '天命', '文王', '武王'],anchor:16,incipit:'大雅 文王之什 文王'},
-    {title:'周頌',summary:'周室宗廟之樂，清廟至般三十一篇',concepts:['祭', '礼乐', '文王', '武王', '周公'],anchor:17,incipit:'周颂 清庙之什 清庙'},
-    {title:'魯頌',summary:'魯國宗廟之樂，駉至閟宮四篇',concepts:['祭', '礼乐', '周公'],anchor:18,incipit:'鲁颂 駉之什 駉'},
-    {title:'商頌',summary:'商代之遺，那至殷武五篇',concepts:['祭', '礼乐', '汤'],anchor:19,incipit:'商颂 那'}
-  ]
-};
-// 总计 394 章精校条目，覆盖 22 部核心典籍
-
-// 初始化
-document.addEventListener('DOMContentLoaded', function() {
-  initPage();
-  initZhangjuPage();
-});
-
-function initZhangjuPage() {
-  // 把数组格式转换为对象格式，并补全路径/大小
-  const BOOKS = BOOKS_DATA.map((item, idx) => {
-    const cat = item[0];
-    const name = item[1];
-    const charCount = item[2];
-    const sizeKB = Math.round(charCount / 512); // 中文1字≈2字节，1KB≈512字
-    return {
-      cat: cat,
-      name: name,
-      path: `${cat}/${name}.txt`,
-      size: sizeKB,
-      charCount: charCount
-    };
+function initTheme(){
+  const wrap=document.getElementById('themeDots');
+  const themes=[{k:'star',n:'星象',b:'#e6ca96'},{k:'paper',n:'宣纸',b:'#6a4218'},{k:'ink',n:'水墨',b:'#e0e5ee'},{k:'bamboo',n:'竹简',b:'#e8c888'}];
+  wrap.innerHTML=themes.map(t=>'<span class="theme-dot" data-theme="'+t.k+'" style="background:radial-gradient(circle,'+t.b+',#2a1e12)" title="'+t.n+'"></span>').join('');
+  const saved=localStorage.getItem('rz_theme')||'star';document.body.setAttribute('data-theme',saved);
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.theme===saved));
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.onclick=()=>{
+    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);localStorage.setItem('rz_theme',t);
+    wrap.querySelectorAll('.theme-dot').forEach(x=>x.classList.toggle('active',x===d));
   });
-  // 挂载到全局
-  window.BOOKS_OBJ = BOOKS;
-  
-  // 计算每个分类的数量
-  const catCount = {};
-  BOOKS.forEach(b => {
-    catCount[b.cat] = (catCount[b.cat] || 0) + 1;
-  });
-  
-  // 渲染分类标签
-  const tabsEl = document.getElementById('categoryTabs');
-  const allCount = BOOKS.length;
-  // 分类名称映射，统一显示
-  const CAT_LABELS = {
-    '四书': '四書',
-    '五经总义': '五經總義',
-    '诗经': '詩經',
-    '尚书': '尚書',
-    '礼经': '禮經',
-    '乐经': '樂經',
-    '春秋': '春秋',
-    '孝经': '孝經',
-    '语录': '語錄',
-    '小学': '小學',
-    '修身治家': '修身治家',
-    '启蒙蒙学': '啟蒙蒙學'
-  };
-  const catList = Object.keys(catCount).sort((a,b) => catCount[b] - catCount[b]);
-  tabsEl.innerHTML = `<div class="cat-tab active" data-cat="all">全部<span class="count">(${allCount})</span></div>` +
-    catList.map(cat => `<div class="cat-tab" data-cat="${cat}">${CAT_LABELS[cat] || cat}<span class="count">(${catCount[cat]})</span></div>`).join('');
-  
-  // 分类点击事件
-  tabsEl.querySelectorAll('.cat-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabsEl.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentCategory = tab.dataset.cat;
-      searchKeyword = '';
-      document.getElementById('searchInput').value = '';
-      resetAndRender();
+}
+initTheme();
+
+const BOOKS=['大学章句','中庸章句','论语集注','孟子集注','大学','中庸','论语','孟子',
+  '诗经','尚书','礼记','周礼','仪礼','春秋左传','春秋公羊传','春秋谷梁传',
+  '孝经','传习录','近思录','二程遗书','颜氏家训','诗集传'];
+document.getElementById('bookBar').innerHTML=BOOKS.map((b,i)=>
+  '<button class="btn btn-ghost '+(i===0?'active':'')+'" data-book="'+b+'" style="padding:4px 14px;font-size:12px">'+b+'</button>'
+).join('');
+
+function pathFor(b){
+  for(const x of BOOKS_DATA)if(x[1]===b)return x[0]+'/'+x[1]+'.txt';
+  const alias={'大学章句':'四书/大学章句.txt','中庸章句':'四书/中庸章句.txt','论语集注':'四书/论语集注.txt','孟子集注':'四书/孟子集注.txt',
+    '春秋左传':'春秋/春秋左传.txt','春秋公羊传':'春秋/春秋公羊传.txt','春秋谷梁传':'春秋/春秋谷梁传.txt',
+    '二程遗书':'语录/二程遗书.txt','颜氏家训':'修身治家/颜氏家训.txt','诗集传':'诗经/诗集传.txt'};
+  if(alias[b])return alias[b];
+  if(['诗经','尚书','礼记','周礼','仪礼'].includes(b)){const map={诗经:'诗经',尚书:'尚书',礼记:'礼经',周礼:'礼经',仪礼:'礼经'};return map[b]+'/'+b+'.txt'}
+  if(['大学','中庸','论语','孟子','孝经'].includes(b)){const map={大学:'四书',中庸:'四书',论语:'四书',孟子:'四书',孝经:'孝经'};return map[b]+'/'+b+'.txt'}
+  if(['传习录','近思录'].includes(b))return '语录/'+b+'.txt';
+  return '四书/'+b+'.txt';
+}
+
+function loadBook(b){
+  const idx='zhangju-index/'+b+'.json';
+  fetch(idx).then(r=>r.json()).then(data=>{
+    let html='<div class="card" style="margin-bottom:20px"><div style="font-size:20px;color:var(--gold-bright);letter-spacing:4px;margin-bottom:6px">'+b+'</div>';
+    if(data.desc)html+='<div style="font-size:13px;color:var(--ink-3);line-height:1.9">'+data.desc+'</div>';
+    html+='<div style="margin-top:10px;font-size:12px;color:var(--ink-dim)">共 '+data.chapters.length+' 章 · '+(data.source==='curated'?'<span style="color:var(--zhu)">精校</span>':'自动识别')+'</div>';
+    html+='</div>';
+    const path=pathFor(b);
+    data.chapters.forEach((c,i)=>{
+      const url='reader.html?b='+encodeURIComponent(path)+'&ch='+i+(c.incipit?'&find='+encodeURIComponent(c.incipit.slice(0,20)):'');
+      html+='<div class="dict-entry">';
+      html+='<div class="head"><span class="han" style="font-size:18px"><a href="'+url+'" style="color:var(--gold-bright)">'+(i+1)+'. '+(c.title||'第'+(i+1)+'章')+'</a></span></div>';
+      if(c.summary)html+='<div class="def">'+c.summary+'</div>';
+      else if(c.incipit)html+='<div class="def" style="color:var(--ink-3)">首句：'+c.incipit.slice(0,60)+'…</div>';
+      if(c.concepts&&c.concepts.length)html+='<div class="related">'+c.concepts.slice(0,8).map(k=>'<a href="dictionary.html#'+encodeURIComponent(k)+'">'+k+'</a>').join('')+'</div>';
+      html+='</div>';
     });
+    document.getElementById('chapterList').innerHTML=html;
+  }).catch(e=>{
+    document.getElementById('chapterList').innerHTML='<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">章句索引加载失败：'+b+'</div>';
   });
-  
-  // 搜索事件
-  const searchInput = document.getElementById('searchInput');
-  let searchTimer;
-  searchInput.addEventListener('input', () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      searchKeyword = searchInput.value.trim();
-      currentCategory = 'all';
-      tabsEl.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-      tabsEl.querySelector('[data-cat="all"]').classList.add('active');
-      resetAndRender();
-    }, 300);
-  });
-  
-  // 滚动加载
-  window.addEventListener('scroll', () => {
-    if (isLoading || renderedCount >= filteredBooks.length) return;
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-      renderNextBatch();
-    }
-  });
-  
-  resetAndRender();
 }
-
-function resetAndRender() {
-  // 过滤书目
-  filteredBooks = window.BOOKS_OBJ.filter(b => {
-    if (currentCategory !== 'all' && b.cat !== currentCategory) return false;
-    if (searchKeyword && !b.name.includes(searchKeyword) && !b.path.includes(searchKeyword)) return false;
-    return true;
-  });
-  
-  renderedCount = 0;
-  document.getElementById('booksGrid').innerHTML = '';
-  document.getElementById('emptyState').style.display = filteredBooks.length === 0 ? 'block' : 'none';
-  
-  if (filteredBooks.length > 0) {
-    renderNextBatch();
-  }
-}
-
-function renderNextBatch() {
-  if (renderedCount >= filteredBooks.length) return;
-  isLoading = true;
-  document.getElementById('loadProgress').style.display = 'block';
-  
-  const end = Math.min(renderedCount + BATCH_SIZE, filteredBooks.length);
-  const batch = filteredBooks.slice(renderedCount, end);
-  
-  const grid = document.getElementById('booksGrid');
-  batch.forEach(book => {
-    const card = document.createElement('div');
-    card.className = 'book-card';
-    card.dataset.path = book.path;
-    const sizeText = book.size > 1024 ? `${(book.size/1024).toFixed(1)}MB` : `${book.size}KB`;
-    const encPath = encodeURIComponent(book.path);
-    const CAT_LABELS = {
-      '四书': '四書',
-      '五经总义': '五經總義',
-      '诗经': '詩經',
-      '尚书': '尚書',
-      '礼经': '禮經',
-      '乐经': '樂經',
-      '春秋': '春秋',
-      '孝经': '孝經',
-      '语录': '語錄',
-      '小学': '小學',
-      '修身治家': '修身治家',
-      '启蒙蒙学': '啟蒙蒙學'
-    };
-    const isPrecise = !!PRECISE_ZHANGJU[book.path];
-    card.innerHTML = `
-      <div class="book-header">
-        <a href="reader.html?b=${encPath}" class="book-title" style="text-decoration:none;color:#d4af37;">${book.name}${isPrecise?'<span class="precise-badge">精校</span>':''}</a>
-        <span class="book-size">${sizeText}</span>
-      </div>
-      <div class="book-meta">
-        <span class="book-tag">${CAT_LABELS[book.cat] || book.cat}</span>
-        <span class="book-tag">${(book.charCount/10000).toFixed(1)}萬字</span>
-      </div>
-      <button class="toggle-chapters" data-path="${book.path.replace(/"/g,'&quot;')}">📑 展開章句</button>
-      <div class="chapters-container"></div>
-    `;
-    // 绑定按钮事件
-    card.querySelector('.toggle-chapters').addEventListener('click', function() {
-      toggleChapters(this, this.dataset.path);
-    });
-    grid.appendChild(card);
-  });
-  
-  renderedCount = end;
-  isLoading = false;
-  document.getElementById('loadProgress').style.display = renderedCount < filteredBooks.length ? 'block' : 'none';
-  
-  // 首屏自动补充加载：如果内容高度不足，自动加载下一批直到满屏
-  setTimeout(() => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500 && renderedCount < filteredBooks.length) {
-      renderNextBatch();
-    }
-  }, 100);
-}
-
-async function toggleChapters(btn, bookPath) {
-  const card = btn.closest('.book-card');
-  const container = card.querySelector('.chapters-container');
-  
-  // 如果已经加载过，切换显示/隐藏
-  if (container.classList.contains('loaded')) {
-    if (container.style.display === 'none') {
-      container.style.display = 'block';
-      btn.textContent = '📖 收起章句';
-    } else {
-      container.style.display = 'none';
-      btn.textContent = '📑 展開章句';
-    }
-    return;
-  }
-  
-  // 显示加载状态
-  btn.disabled = true;
-  container.innerHTML = '<div class="chapters-loading">正在加載章句結構…</div>';
-  container.style.display = 'block';
-  
-  try {
-    let chapters = await loadZhangjuForBook(bookPath);
-    
-    if (!chapters || chapters.length === 0) {
-      container.innerHTML = '<div class="chapters-loading">該典籍章句結構即將上線，點擊書名直接閱讀</div>';
-      btn.disabled = false;
-      btn.textContent = '📑 展開章句';
-      return;
-    }
-    
-    // 渲染章句列表，默认显示前12条
-    const initialCount = Math.min(12, chapters.length);
-    const renderList = (chapters, count) => {
-      return chapters.slice(0, count).map(ch => {
-        let href;
-        if (typeof ch.anchor === 'number' && ch.anchor < 1000) {
-          // 精校章：章节索引 + 首句锚点（双保险）
-          if (ch.incipit) {
-            href = `reader.html?b=${encodeURIComponent(bookPath)}&find=${encodeURIComponent(ch.incipit)}#ch-${ch.anchor}`;
-          } else {
-            href = `reader.html?b=${encodeURIComponent(bookPath)}#ch-${ch.anchor}`;
-          }
-        } else {
-          // 预生成索引/按卷切分：带anchor参数跳转
-          href = `reader.html?b=${encodeURIComponent(bookPath)}&anchor=${encodeURIComponent(ch.anchor)}`;
-        }
-        const conceptsHtml = (ch.concepts && ch.concepts.length)
-          ? `<span class="chapter-concepts">${ch.concepts.slice(0,5).map(c=>`<span class="concept-tag" data-c="${c}" title="點擊查看概念">${c}</span>`).join('')}</span>`
-          : '';
-        return `<div class="chapter-row">
-          <a href="${href}" class="chapter-item" target="_blank">${ch.title}${ch.summary ? `<span class="summary">${ch.summary}</span>` : ''}</a>
-          ${conceptsHtml}
-        </div>`;
-      }).join('');
-    };
-    
-    container.innerHTML = `<div class="chapters-list">${renderList(chapters, initialCount)}</div>`;
-    
-    // 如果有更多章节，显示展开按钮
-    if (chapters.length > initialCount) {
-      const showMore = document.createElement('div');
-      showMore.className = 'show-more';
-      showMore.textContent = `展開全部 ${chapters.length} 章`;
-      showMore.onclick = () => {
-        container.querySelector('.chapters-list').innerHTML = renderList(chapters, chapters.length);
-        showMore.remove();
-      };
-      container.appendChild(showMore);
-    }
-    
-    container.classList.add('loaded');
-    btn.disabled = false;
-    btn.textContent = '📖 收起章句';
-    
-  } catch (e) {
-    console.error(e);
-    container.innerHTML = '<div class="chapters-loading">章句加載失敗，點擊書名直接閱讀</div>';
-    btn.disabled = false;
-    btn.textContent = '📑 展開章句';
-  }
-}
-
-async function loadZhangjuForBook(bookPath) {
-  // 优先读缓存
-  if (zhangjuCache[bookPath]) {
-    return zhangjuCache[bookPath];
-  }
-  
-  let chapters = null;
-  
-  // 1. 优先用精校数据
-  if (PRECISE_ZHANGJU[bookPath]) {
-    chapters = PRECISE_ZHANGJU[bookPath];
-  } else {
-    // 2. 加载预生成的章句索引（910部典籍全覆盖）
-    try {
-      const idxUrl = `zhangju-index/${bookPath.replace('.txt','.json')}`;
-      const res = await fetch(idxUrl, {cache: 'force-cache'});
-      if (res.ok) {
-        const idx = await res.json();
-        if (idx.chapters && idx.chapters.length > 0) {
-          // 过滤掉明显不是章节标题的条目（包含句子标点的）
-          chapters = idx.chapters.filter(ch => {
-            const t = ch.title;
-            if (!t || t.length > 20) return false;
-            if (t.includes('。') || t.includes('，') || t.includes('？') || t.includes('！')) return false;
-            return true;
-          }).map((ch, i) => ({
-            title: ch.title,
-            anchor: ch.anchor,
-            summary: ch.summary || ''
-          }));
-        }
-      }
-    } catch (e) {
-      // 索引不存在，回退
-    }
-    
-    // 3. 兜底：大书加载切分索引
-    if (!chapters || chapters.length === 0) {
-      try {
-        const bookName = bookPath.split('/').pop().replace('.txt', '');
-        const catName = bookPath.split('/')[0];
-        const idxUrl = `books-split/${catName}/${encodeURIComponent(bookName)}/index.json`;
-        const res = await fetch(idxUrl, {cache: 'force-cache'});
-        if (res.ok) {
-          const idx = await res.json();
-          chapters = (idx.volumes || []).map((ch, i) => ({
-            title: ch.title || `卷${i+1}`,
-            anchor: 'vol-'+(i+1),
-            summary: `${ch.chars || 0}字`
-          }));
-        }
-      } catch (e) {}
-    }
-  }
-  
-  // 缓存结果
-  if (chapters) {
-    zhangjuCache[bookPath] = chapters;
-  }
-  return chapters;
-}
-
-// 概念标签点击跳词典
-document.addEventListener('click', function(e){
-  const tag = e.target.closest('.concept-tag');
-  if(tag){
-    const c = tag.dataset.c;
-    window.open('dictionary.html#'+encodeURIComponent(c), '_blank');
-  }
+loadBook(BOOKS[0]);
+document.querySelectorAll('button[data-book]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('button[data-book]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  loadBook(b.dataset.book);
 });
-
+if(location.hash.slice(1)){
+  const h=decodeURIComponent(location.hash.slice(1));
+  const btn=[...document.querySelectorAll('button[data-book]')].find(x=>x.dataset.book===h);
+  if(btn)btn.click();
+}
 </script>
 </body>
 </html>

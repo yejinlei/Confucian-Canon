@@ -1,138 +1,101 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>古籍全文库 · 儒藏本体论</title>
-  <link rel="stylesheet" href="style/common.css">
-  <link rel="preload" href="data/books.js" as="script">
-  <link rel="preload" href="data/common.js" as="script">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>典籍库 · 儒藏本体论</title>
 <link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style/common.css">
 </head>
-<body>
-  <div class="main-content">
-    <div class="library-header">
-      <h1 class="page-title">古籍全文库</h1>
-      <p class="page-subtitle">儒藏 908 部 · 总字数 1.34亿 字 · 按字数倒序排列 · 点击书名进入阅读</p>
+<body data-theme="star">
 
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="检索书名 / 分类（如：论语、朱熹、蒙学）…">
-      </div>
+<header class="topbar">
+  <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
+  <nav class="topbar-nav">
+    <a href="index.html">总纲</a>
+    <a href="ontology.html">本体</a>
+    <a href="graph.html">关系</a>
+    <a href="dictionary.html">词典</a>
+    <a href="zhangju.html">章句</a>
+    <a href="scholars.html">儒者</a>
+    <a href="schools.html">学派</a>
+    <a href="debate.html">论争</a>
+    <a href="library.html" class="active">典籍</a>
+    <a href="search.html">检索</a>
+    <a href="reader.html">阅读</a>
+    <a href="lineage.html">谱系</a>
+    <a href="timeline.html">年谱</a>
+  </nav>
+  <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
+</header>
 
-      <div class="category-tabs" id="categoryTabs">
-        <!-- 分类标签由JS生成 -->
-      </div>
-    </div>
-
-    <div class="book-list" id="bookList">
-      <!-- 典籍列表由JS生成 -->
-    </div>
-
-    <button class="load-more" id="loadMore">加载更多 ▾</button>
+<div class="layout">
+<div class="content">
+  <div class="section-head" style="margin-top:24px">
+    <div class="en">CONFUCIAN CANON LIBRARY</div>
+    <h2>儒 藏 典 籍 库</h2>
+    <div class="desc">908部儒家典籍 · 1.34亿字全文 · 12大类</div>
   </div>
+  <div class="search-box">
+    <input id="q" placeholder="按书名检索，如：论语、近思录、日知录…">
+    <button onclick="render()">检 索</button>
+  </div>
+  <div class="filter-bar" id="catBar"></div>
+  <div id="bookGrid" style="margin-top:20px"></div>
+</div>
+</div>
 
-  <script src="data/books.js"></script>
-  <script src="data/common.js"></script>
-  <script>
-    initPage('library.html');
-    renderFooter();
+<footer class="footer">儒藏本体论 · 典籍库 · 908部 1.34亿字</footer>
 
-    let currentCategory = 'all';
-    let currentPage = 0;
-    const pageSize = 100;
+<script src="data/common.js"></script>
+<script src="data/ontology-enhance.js"></script>
+<script>
+function initTheme(){
+  const wrap=document.getElementById('themeDots');
+  const themes=[{k:'star',n:'星象',b:'#e6ca96'},{k:'paper',n:'宣纸',b:'#6a4218'},{k:'ink',n:'水墨',b:'#e0e5ee'},{k:'bamboo',n:'竹简',b:'#e8c888'}];
+  wrap.innerHTML=themes.map(t=>'<span class="theme-dot" data-theme="'+t.k+'" style="background:radial-gradient(circle,'+t.b+',#2a1e12)" title="'+t.n+'"></span>').join('');
+  const saved=localStorage.getItem('rz_theme')||'star';document.body.setAttribute('data-theme',saved);
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.theme===saved));
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.onclick=()=>{
+    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);localStorage.setItem('rz_theme',t);
+    wrap.querySelectorAll('.theme-dot').forEach(x=>x.classList.toggle('active',x===d));
+  });
+}
+initTheme();
 
-    // ===== 真实典籍索引：908部，与仓库 books/ 目录一一对应 =====
-    // 每条格式 [分类目录, 书名, 字数]
+const catCounts={};BOOKS_DATA.forEach(b=>{catCounts[b[0]]=(catCounts[b[0]]||0)+1});
+const cats=['all',...new Set(BOOKS_DATA.map(b=>b[0]))];
+document.getElementById('catBar').innerHTML=cats.map((c,i)=>{
+  const n=c==='all'?'全部 ('+BOOKS_DATA.length+')':c+' ('+(catCounts[c]||0)+')';
+  return '<button class="btn btn-ghost '+(i===0?'active':'')+'" data-cat="'+c+'" style="padding:4px 12px;font-size:12px;margin:2px">'+n+'</button>';
+}).join('');
 
-    function charStr(n) {
-      if (n >= 10000) return (n / 10000).toFixed(1) + '万字';
-      return n + '字';
-    }
-
-    // 构建书单并按字数倒序
-    const allBooks = BOOKS_DATA
-      .map(b => ({ cat: b[0], name: b[1], chars: charStr(b[2]), num: b[2] }))
-      .sort((a, b) => b.num - a.num);
-
-    // 渲染分类标签
-    function renderCategories() {
-      const tabs = document.getElementById('categoryTabs');
-      tabs.innerHTML = CATEGORIES.map(cat => `
-        <button class="category-tab ${cat.id === currentCategory ? 'active' : ''}" data-cat="${cat.id}">
-          ${cat.name}（${cat.count}）
-        </button>
-      `).join('');
-
-      tabs.querySelectorAll('.category-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          currentCategory = tab.dataset.cat;
-          currentPage = 0;
-          document.getElementById('bookList').innerHTML = '';
-          renderCategories();
-          renderBooks();
-        });
-      });
-    }
-
-    // 渲染典籍列表
-    function renderBooks() {
-      const list = document.getElementById('bookList');
-      const search = document.getElementById('searchInput').value.trim().toLowerCase();
-
-      let filtered = allBooks;
-      if (currentCategory !== 'all') {
-        filtered = filtered.filter(b => b.cat === currentCategory);
-      }
-      if (search) {
-        filtered = filtered.filter(b =>
-          b.name.toLowerCase().includes(search) ||
-          b.cat.toLowerCase().includes(search)
-        );
-      }
-
-      const start = currentPage * pageSize;
-      const end = start + pageSize;
-      const pageBooks = filtered.slice(start, end);
-
-      pageBooks.forEach(book => {
-        const item = document.createElement('a');
-        item.className = 'book-item';
-        item.href = `reader.html?b=${encodeURIComponent(book.cat + '/' + book.name + '.txt')}`;
-        item.innerHTML = `
-          <span class="book-cat">${book.cat}</span>
-          <span class="book-name">${book.name}</span>
-          <span class="book-chars">${book.chars}</span>
-        `;
-        list.appendChild(item);
-      });
-
-      document.getElementById('loadMore').style.display =
-        end < filtered.length ? 'block' : 'none';
-    }
-
-    // 支持从其它页面带参进入：?cat=四书 / ?q=关键字
-    const urlParams = new URLSearchParams(location.search);
-    const catParam = urlParams.get('cat');
-    const qParam = urlParams.get('q');
-    if (catParam && CATEGORIES.some(c => c.id === catParam)) currentCategory = catParam;
-    if (qParam) document.getElementById('searchInput').value = qParam;
-
-    // 初始化
-    renderCategories();
-    renderBooks();
-
-    // 搜索
-    document.getElementById('searchInput').addEventListener('input', () => {
-      currentPage = 0;
-      document.getElementById('bookList').innerHTML = '';
-      renderBooks();
-    });
-
-    // 加载更多
-    document.getElementById('loadMore').addEventListener('click', () => {
-      currentPage++;
-      renderBooks();
-    });
-  </script>
+let curCat='all';
+function render(){
+  const q=document.getElementById('q').value.trim();
+  const list=BOOKS_DATA.filter(b=>{
+    if(curCat!=='all'&&b[0]!==curCat)return false;
+    if(q&&!b[1].includes(q))return false;
+    return true;
+  });
+  const grid=document.getElementById('bookGrid');
+  grid.className='grid-4';
+  grid.innerHTML=list.map(b=>{
+    const sz=b[2]>1000000?(b[2]/1000000).toFixed(1)+'MB':b[2]>1000?(b[2]/10000).toFixed(0)+'万字':Math.round(b[2]/1000)+'千字';
+    return '<a class="classic-card" href="reader.html?b='+encodeURIComponent(b[0]+'/'+b[1]+'.txt')+'" style="text-decoration:none;color:inherit;padding:16px 18px">'+
+      '<div class="era">'+b[0]+'</div>'+
+      '<div class="name" style="font-size:16px;letter-spacing:1px">'+b[1]+'</div>'+
+      '<div class="desc" style="font-size:12px;color:var(--ink-3);margin-top:6px">'+sz+' · 点击阅读</div>'+
+      '</a>';
+  }).join('');
+  document.getElementById('bookGrid').insertAdjacentHTML('beforebegin','');
+}
+render();
+document.getElementById('q').addEventListener('input',render);
+document.querySelectorAll('button[data-cat]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('button[data-cat]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  curCat=b.dataset.cat;render();
+});
+</script>
 </body>
 </html>

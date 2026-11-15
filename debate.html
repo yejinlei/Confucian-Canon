@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>学派论争 · 儒藏本体论</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style/common.css">
+</head>
+<body data-theme="star">
+
+<header class="topbar">
+  <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
+  <nav class="topbar-nav">
+    <a href="index.html">总纲</a>
+    <a href="ontology.html">本体</a>
+    <a href="graph.html">关系</a>
+    <a href="dictionary.html">词典</a>
+    <a href="zhangju.html">章句</a>
+    <a href="scholars.html">儒者</a>
+    <a href="schools.html">学派</a>
+    <a href="debate.html" class="active">论争</a>
+    <a href="library.html">典籍</a>
+    <a href="search.html">检索</a>
+    <a href="reader.html">阅读</a>
+    <a href="lineage.html">谱系</a>
+    <a href="timeline.html">年谱</a>
+  </nav>
+  <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
+</header>
+
+<div class="layout">
+<div class="content">
+
+  <div class="section-head" style="margin-top:24px">
+    <div class="en">DOCTRINAL DEBATES</div>
+    <h2>儒 家 学 派 论 争</h2>
+    <div class="desc">七场影响千年的思想论辩，双方观点对照呈现</div>
+  </div>
+
+  <div id="debateList"></div>
+
+  <div class="section">
+    <div class="section-head"><h3 style="color:var(--gold);letter-spacing:4px;font-size:20px">论 争 的 本 体 论 意 义</h3></div>
+    <div class="card" style="font-size:14px;color:var(--ink-2);line-height:2.2">
+      <p>儒家学术的发展从来不是单线传承，而是在反复论辩中推进：战国孟荀性善恶之辩、汉代今古文之争、唐宋道统之辨、南宋朱陆鹅湖之会、明代天泉证道四句教之辨、明末王学末流之辨、清代汉宋之争、晚清今文学复兴——每一次论争都把核心义理问题推向更深层次。</p>
+      <p style="margin-top:10px;color:var(--ink-3);font-size:13px">点击卡片内人物名可进入儒者词条，点击论争中涉及的概念名可跳转词典。</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer class="footer">儒藏本体论 · 学派论争 · 七场思想公案</footer>
+
+<script src="data/common.js"></script>
+<script src="data/ontology-enhance.js"></script>
+<script>
+function initTheme(){
+  const wrap=document.getElementById('themeDots');
+  const themes=[{k:'star',n:'星象',b:'#e6ca96'},{k:'paper',n:'宣纸',b:'#6a4218'},{k:'ink',n:'水墨',b:'#e0e5ee'},{k:'bamboo',n:'竹简',b:'#e8c888'}];
+  wrap.innerHTML=themes.map(t=>'<span class="theme-dot" data-theme="'+t.k+'" style="background:radial-gradient(circle,'+t.b+',#2a1e12)" title="'+t.n+'"></span>').join('');
+  const saved=localStorage.getItem('rz_theme')||'star';document.body.setAttribute('data-theme',saved);
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.theme===saved));
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.onclick=()=>{
+    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);localStorage.setItem('rz_theme',t);
+    wrap.querySelectorAll('.theme-dot').forEach(x=>x.classList.toggle('active',x===d));
+  });
+}
+initTheme();
+
+// 给文本里的人物/概念/典籍加链接
+function linkify(text){
+  const names=[...Object.keys(SCHOLARS),...Object.keys(CONCEPTS),...Object.keys(CLASSIC_ONTOLOGY)].sort((a,b)=>b.length-a.length);
+  names.forEach(n=>{
+    const re=new RegExp('('+n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','g');
+    let href='#';
+    if(SCHOLARS[n])href='scholars.html';
+    else if(CONCEPTS[n])href='dictionary.html';
+    else if(CLASSIC_ONTOLOGY[n])href='zhangju.html';
+    text=text.replace(re,'<a href="'+href+'" style="color:var(--zhu-soft);border-bottom:1px dashed var(--zhu);margin:0 1px">$1</a>');
+  });
+  return text;
+}
+
+document.getElementById('debateList').innerHTML=DEBATES.map(d=>`
+  <div class="debate-card">
+    <div class="when">${d.when}${d.place?' · 于 '+d.place:''}</div>
+    <div class="title">${d.title}</div>
+    <div class="who">${linkify(d.who)}</div>
+    <div class="body">${linkify(d.body)}</div>
+    <div class="sides">
+      ${d.sides.map((s,i)=>`<div class="debate-side${i===1?' right':''}">
+        <div class="side-name">${s.name}</div>
+        <div class="side-text">${linkify(s.text)}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

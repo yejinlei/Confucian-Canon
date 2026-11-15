@@ -1,351 +1,89 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>儒門道脈 | 儒藏本体論</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="style/common.css">
-  <style>
-    .lineage-container {
-      margin-left: 180px;
-      padding: 40px 24px;
-    }
-    .page-title {
-      text-align: center;
-      color: var(--accent-gold);
-      font-size: 32px;
-      font-weight: 300;
-      margin-bottom: 12px;
-      letter-spacing: 8px;
-    }
-    .page-subtitle {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 14px;
-      margin-bottom: 40px;
-      letter-spacing: 2px;
-    }
-    .lineage-tree {
-      display: flex;
-      flex-direction: column;
-      gap: 34px;
-      max-width: 1180px;
-      margin: 0 auto;
-    }
-    .generation {
-      position: relative;
-      padding-left: 14px;
-      border-left: 2px solid var(--border);
-    }
-    .gen-era {
-      color: var(--accent-gold);
-      font-size: 17px;
-      letter-spacing: 4px;
-      margin-bottom: 14px;
-    }
-    .gen-count {
-      font-size: 12px;
-      color: var(--text-muted);
-      letter-spacing: 1px;
-      margin-left: 6px;
-    }
-    .gen-cards {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 18px;
-    }
-    .scholar-card {
-      width: 132px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 15px 10px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .scholar-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--accent-gold);
-      box-shadow: 0 8px 24px rgba(212,175,55,0.15);
-    }
-    .scholar-card.zhou { border-color: #a78bfa; }
-    .scholar-card.han { border-color: #d4af37; }
-    .scholar-card.song { border-color: #4ade80; }
-    .scholar-card.yuan { border-color: #22d3ee; }
-    .scholar-card.ming { border-color: #60a5fa; }
-    .scholar-card.qing { border-color: #fb923c; }
-    .scholar-avatar {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      background: rgba(212,175,55,0.1);
-      border: 2px solid var(--accent-gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      color: var(--accent-gold);
-      margin: 0 auto 10px auto;
-    }
-    .scholar-name {
-      font-size: 17px;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
-    .scholar-title {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    .scholar-era {
-      font-size: 11px;
-      color: var(--accent-gold);
-      margin-top: 6px;
-      opacity: 0.8;
-    }
-    /* 详情弹窗 */
-    .scholar-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-    .scholar-modal.show {
-      display: flex;
-    }
-    .modal-content {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-      width: 480px;
-      max-width: 90vw;
-      max-height: 84vh;
-      overflow-y: auto;
-      position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 20px;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 24px;
-      cursor: pointer;
-    }
-    .modal-name {
-      font-size: 28px;
-      color: var(--accent-gold);
-      font-weight: 500;
-      margin-bottom: 8px;
-    }
-    .modal-title {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: 20px;
-    }
-    .modal-section {
-      margin-bottom: 16px;
-    }
-    .modal-label {
-      font-size: 13px;
-      color: var(--accent-gold);
-      margin-bottom: 4px;
-    }
-    .modal-text {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.8;
-    }
-    .modal-works {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .work-tag {
-      padding: 4px 12px;
-      border-radius: 16px;
-      background: rgba(212,175,55,0.1);
-      border: 1px solid var(--border);
-      font-size: 13px;
-      color: var(--text-primary);
-      cursor: pointer;
-    }
-    .work-tag:hover {
-      background: var(--accent-gold);
-      color: #1a1308;
-    }
-    @media (max-width: 768px) {
-      .lineage-container {
-        margin-left: 0;
-        padding: 20px;
-      }
-      .scholar-card {
-        width: 108px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>道统谱系 · 儒藏本体论</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style/common.css">
 </head>
-<body>
-  <div class="lineage-container">
-    <h1 class="page-title">儒門道脈</h1>
-    <p class="page-subtitle">堯舜禹湯文武周公孔子孟軻，以迄於今，聖聖相傳，道統不絕</p>
+<body data-theme="star">
 
-    <div class="lineage-tree" id="lineageTree"></div>
+<header class="topbar">
+  <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
+  <nav class="topbar-nav">
+    <a href="index.html">总纲</a>
+    <a href="ontology.html">本体</a>
+    <a href="graph.html">关系</a>
+    <a href="dictionary.html">词典</a>
+    <a href="zhangju.html">章句</a>
+    <a href="scholars.html">儒者</a>
+    <a href="schools.html">学派</a>
+    <a href="debate.html">论争</a>
+    <a href="library.html">典籍</a>
+    <a href="search.html">检索</a>
+    <a href="reader.html">阅读</a>
+    <a href="lineage.html" class="active">谱系</a>
+    <a href="timeline.html">年谱</a>
+  </nav>
+  <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
+</header>
+
+<div class="layout">
+<div class="content">
+  <div class="section-head" style="margin-top:24px">
+    <div class="en">CONFUCIAN LINEAGE</div>
+    <h2>儒 家 道 统 谱 系</h2>
+    <div class="desc">由孔子至清儒，按代际分八组呈现</div>
   </div>
+  <div id="gens"></div>
+</div>
+</div>
 
-  <!-- 详情弹窗 -->
-  <div class="scholar-modal" id="scholarModal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="document.getElementById('scholarModal').classList.remove('show')">&times;</button>
-      <div class="modal-name" id="modalName"></div>
-      <div class="modal-title" id="modalTitle"></div>
-      <div class="modal-section">
-        <div class="modal-label">所處年代</div>
-        <div class="modal-text" id="modalEra"></div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-label">所屬學派</div>
-        <div class="modal-text" id="modalSchool"></div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-label">核心思想</div>
-        <div class="modal-text" id="modalIdea"></div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-label">人物生平</div>
-        <div class="modal-text" id="modalBio"></div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-label">代表著作</div>
-        <div class="modal-works" id="modalWorks"></div>
-      </div>
+<footer class="footer">儒藏本体论 · 道统谱系</footer>
+
+<script src="data/common.js"></script>
+<script src="data/ontology-enhance.js"></script>
+<script>
+function initTheme(){
+  const wrap=document.getElementById('themeDots');
+  const themes=[{k:'star',n:'星象',b:'#e6ca96'},{k:'paper',n:'宣纸',b:'#6a4218'},{k:'ink',n:'水墨',b:'#e0e5ee'},{k:'bamboo',n:'竹简',b:'#e8c888'}];
+  wrap.innerHTML=themes.map(t=>'<span class="theme-dot" data-theme="'+t.k+'" style="background:radial-gradient(circle,'+t.b+',#2a1e12)" title="'+t.n+'"></span>').join('');
+  const saved=localStorage.getItem('rz_theme')||'star';document.body.setAttribute('data-theme',saved);
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.theme===saved));
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.onclick=()=>{
+    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);localStorage.setItem('rz_theme',t);
+    wrap.querySelectorAll('.theme-dot').forEach(x=>x.classList.toggle('active',x===d));
+  });
+}
+initTheme();
+
+// 代际
+const GENS=[
+  {era:'第一期 · 先秦',color:'var(--zhu)',names:['孔子','颜回','曾子','子思','孟子','荀子','子贡','子夏','子路','子游','闵子骞','冉雍','有若']},
+  {era:'第二期 · 汉唐',color:'var(--gold-deep)',names:['董仲舒','郑玄','何休','王弼','孔颖达','韩愈','李翱']},
+  {era:'第三期 · 北宋五子',color:'var(--copper)',names:['周敦颐','邵雍','张载','程颢','程颐']},
+  {era:'第四期 · 南宋朱陆',color:'var(--jade)',names:['杨时','罗从彦','李侗','朱熹','陆九渊','吕祖谦','张栻','蔡元定','黄榦','真德秀','蔡沉','陈亮','叶适']},
+  {era:'第五期 · 元代',color:'var(--ice)',names:['赵复','许衡','吴澄']},
+  {era:'第六期 · 明代',color:'var(--amber)',names:['陈献章','湛若水','王阳明','王畿','钱德洪','王艮','邹守益','罗洪先','罗汝芳','李贽','刘宗周','吕坤','罗钦顺']},
+  {era:'第七期 · 清初三大儒',color:'var(--violet)',names:['顾炎武','黄宗羲','王夫之','颜元','李塨']},
+  {era:'第八期 · 清代乾嘉以降',color:'var(--silver)',names:['惠栋','戴震','段玉裁','王念孙','焦循','阮元','章学诚','庄存与','刘逢禄','龚自珍','魏源','康有为','梁启超','谭嗣同','章炳麟']}
+];
+document.getElementById('gens').innerHTML=GENS.map(g=>`
+  <div class="section">
+    <div class="section-head">
+      <h3 style="color:${g.color};letter-spacing:4px;font-size:18px;padding-bottom:6px;border-bottom:2px solid ${g.color};display:inline-block">${g.era}</h3>
+    </div>
+    <div class="sage-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">
+      ${g.names.map(n=>{
+        const s=SCHOLARS[n];if(!s)return '';
+        return '<div class="sage-card"><div class="name" style="font-size:16px">'+n+'</div>'+
+          '<div class="zi">'+(s.title||'')+'</div>'+
+          '<div class="era">'+(s.era||'')+'</div></div>';
+      }).join('')}
     </div>
   </div>
-
-  <script src="data/common.js"></script>
-  <script>
-    initPage('timeline.html');
-
-    // 道脈譜系：按代際排列（覆蓋全體儒者）
-    const lineage = [
-      { era: '先秦', scholars: [
-        {id:'孔子', type:'zhou'}, {id:'颜回', type:'zhou'}, {id:'子贡', type:'zhou'}, {id:'子路', type:'zhou'},
-        {id:'曾子', type:'zhou'}, {id:'子思', type:'zhou'}, {id:'子夏', type:'zhou'}, {id:'子游', type:'zhou'},
-        {id:'有子', type:'zhou'}, {id:'左丘明', type:'zhou'}, {id:'公羊高', type:'zhou'}, {id:'谷梁赤', type:'zhou'},
-        {id:'孟子', type:'zhou'}, {id:'荀子', type:'zhou'}
-      ]},
-      { era: '漢唐魏晉', scholars: [
-        {id:'董仲舒', type:'han'}, {id:'贾谊', type:'han'}, {id:'扬雄', type:'han'}, {id:'王充', type:'han'},
-        {id:'郑玄', type:'han'}, {id:'何休', type:'han'}, {id:'赵岐', type:'han'}, {id:'王弼', type:'han'},
-        {id:'何晏', type:'han'}, {id:'孔颖达', type:'han'}, {id:'陆德明', type:'han'}, {id:'杜预', type:'han'},
-        {id:'范宁', type:'han'}, {id:'韩愈', type:'han'}, {id:'李翱', type:'han'}, {id:'柳宗元', type:'han'}
-      ]},
-      { era: '北宋', scholars: [
-        {id:'胡瑗', type:'song'}, {id:'孙复', type:'song'}, {id:'石介', type:'song'}, {id:'李觏', type:'song'},
-        {id:'周敦颐', type:'song'}, {id:'邵雍', type:'song'}, {id:'张载', type:'song'}, {id:'程颢', type:'song'},
-        {id:'程颐', type:'song'}, {id:'司马光', type:'song'}, {id:'王安石', type:'song'}
-      ]},
-      { era: '兩宋之際', scholars: [
-        {id:'杨时', type:'song'}, {id:'罗从彦', type:'song'}, {id:'李侗', type:'song'}
-      ]},
-      { era: '南宋', scholars: [
-        {id:'胡宏', type:'song'}, {id:'张栻', type:'song'}, {id:'吕祖谦', type:'song'}, {id:'朱熹', type:'song'},
-        {id:'陆九渊', type:'song'}, {id:'蔡元定', type:'song'}, {id:'真德秀', type:'song'}, {id:'魏了翁', type:'song'}
-      ]},
-      { era: '元代', scholars: [
-        {id:'许衡', type:'yuan'}, {id:'吴澄', type:'yuan'}
-      ]},
-      { era: '明代', scholars: [
-        {id:'薛瑄', type:'ming'}, {id:'吴与弼', type:'ming'}, {id:'胡居仁', type:'ming'}, {id:'陈献章', type:'ming'},
-        {id:'王阳明', type:'ming'}, {id:'湛若水', type:'ming'}, {id:'王艮', type:'ming'}, {id:'王畿', type:'ming'},
-        {id:'邹守益', type:'ming'}, {id:'罗洪先', type:'ming'}, {id:'罗汝芳', type:'ming'}, {id:'罗钦顺', type:'ming'},
-        {id:'王廷相', type:'ming'}, {id:'吕坤', type:'ming'}, {id:'刘宗周', type:'ming'}, {id:'李贽', type:'ming'}
-      ]},
-      { era: '明末清初', scholars: [
-        {id:'孙奇逢', type:'qing'}, {id:'方以智', type:'qing'}, {id:'张履祥', type:'qing'}, {id:'陆世仪', type:'qing'},
-        {id:'顾炎武', type:'qing'}, {id:'黄宗羲', type:'qing'}, {id:'王夫之', type:'qing'}, {id:'李颙', type:'qing'},
-        {id:'吕留良', type:'qing'}, {id:'颜元', type:'qing'}, {id:'李塨', type:'qing'}, {id:'惠栋', type:'qing'},
-        {id:'戴震', type:'qing'}, {id:'钱大昕', type:'qing'}, {id:'段玉裁', type:'qing'}, {id:'王念孙', type:'qing'},
-        {id:'王引之', type:'qing'}, {id:'章学诚', type:'qing'}, {id:'焦循', type:'qing'}, {id:'凌廷堪', type:'qing'},
-        {id:'阮元', type:'qing'}
-      ]}
-    ];
-
-    const tree = document.getElementById('lineageTree');
-    let total = 0;
-    lineage.forEach(gen => {
-      const genDiv = document.createElement('div');
-      genDiv.className = 'generation';
-      const title = document.createElement('div');
-      title.className = 'gen-era';
-      title.innerHTML = `${gen.era}<span class="gen-count">${gen.scholars.length}位</span>`;
-      genDiv.appendChild(title);
-
-      const cards = document.createElement('div');
-      cards.className = 'gen-cards';
-      gen.scholars.forEach(s => {
-        const data = SCHOLARS[s.id];
-        if (!data) return;
-        total++;
-        const card = document.createElement('div');
-        card.className = `scholar-card ${s.type}`;
-        card.innerHTML = `
-          <div class="scholar-avatar">${s.id[0]}</div>
-          <div class="scholar-name">${s.id}</div>
-          <div class="scholar-title">${data.title}</div>
-          <div class="scholar-era">${data.era}</div>
-        `;
-        card.onclick = () => showScholar(s.id);
-        cards.appendChild(card);
-      });
-      genDiv.appendChild(cards);
-      tree.appendChild(genDiv);
-    });
-
-    // 顯示人物詳情
-    function showScholar(name) {
-      const data = SCHOLARS[name];
-      if (!data) return;
-      document.getElementById('modalName').textContent = name;
-      document.getElementById('modalTitle').textContent = data.title;
-      document.getElementById('modalEra').textContent = data.era;
-      document.getElementById('modalSchool').textContent = data.school;
-      document.getElementById('modalIdea').textContent = data.idea;
-      document.getElementById('modalBio').textContent = data.bio;
-      const worksDiv = document.getElementById('modalWorks');
-      worksDiv.innerHTML = '';
-      (data.works || []).forEach(work => {
-        const hit = BOOKS_DATA.find(b => b[1] === work);
-        const tag = document.createElement('div');
-        tag.className = 'work-tag';
-        tag.textContent = work;
-        if (hit) {
-          tag.onclick = () => {
-            window.location.href = `reader.html?b=${encodeURIComponent(hit[0] + '/' + work + '.txt')}`;
-          };
-        }
-        worksDiv.appendChild(tag);
-      });
-      document.getElementById('scholarModal').classList.add('show');
-    }
-
-    document.getElementById('scholarModal').addEventListener('click', e => {
-      if (e.target.id === 'scholarModal') {
-        e.target.classList.remove('show');
-      }
-    });
-  </script>
+`).join('');
+</script>
 </body>
 </html>

@@ -1,683 +1,259 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>儒學本體圖譜 | 儒藏本体論</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="style/common.css">
-  <style>
-    body {
-      overflow: hidden;
-    }
-    .graph-container {
-      position: fixed;
-      top: 60px;
-      left: 180px;
-      right: 0;
-      bottom: 0;
-      overflow: hidden;
-    }
-    #graphCanvas {
-      width: 100%;
-      height: 100%;
-    }
-    /* 筛选面板 */
-    .graph-filter {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      z-index: 10;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    }
-    .filter-title {
-      color: var(--accent-gold);
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 12px;
-    }
-    .filter-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-      font-size: 13px;
-      color: var(--text-secondary);
-      cursor: pointer;
-    }
-    .filter-item:last-child { margin-bottom: 0; }
-    .filter-item input {
-      accent-color: var(--accent-gold);
-      cursor: pointer;
-    }
-    .filter-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-    .filter-dot.concept { background: #d4af37; }
-    .filter-dot.person { background: #a78bfa; }
-    .filter-dot.school { background: #4ade80; }
-    .filter-dot.book { background: #60a5fa; }
-    /* 详情面板 */
-    .graph-panel {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 320px;
-      max-height: calc(100vh - 100px);
-      overflow-y: auto;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      z-index: 10;
-    }
-    .graph-panel::-webkit-scrollbar {
-      width: 0;
-    }
-    .graph-panel h3 {
-      color: var(--accent-gold);
-      margin: 0 0 8px 0;
-      font-size: 20px;
-    }
-    .graph-panel .tag {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      margin-bottom: 12px;
-    }
-    .tag.concept { background: rgba(212,175,55,0.2); color: var(--accent-gold); }
-    .tag.person { background: rgba(150,100,200,0.2); color: #a78bfa; }
-    .tag.school { background: rgba(80,180,120,0.2); color: #4ade80; }
-    .tag.book { background: rgba(80,150,220,0.2); color: #60a5fa; }
-    .tag.shicheng { background: rgba(244,114,182,0.2); color: #f472b6; }
-    .tag.propose { background: rgba(251,146,60,0.2); color: #fb923c; }
-    .tag.source { background: rgba(96,165,250,0.2); color: #60a5fa; }
-    .graph-panel .def {
-      color: var(--text-secondary);
-      line-height: 1.8;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
-    .graph-panel .meta {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      line-height: 1.8;
-    }
-    .graph-panel .meta span {
-      color: var(--text-primary);
-    }
-    .graph-panel .jump-btn {
-      width: 100%;
-      padding: 10px;
-      background: var(--accent-gold);
-      color: #1a1308;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 8px;
-    }
-    .graph-panel .jump-btn:hover {
-      filter: brightness(1.1);
-    }
-    .graph-panel .related-title {
-      font-size: 14px;
-      color: var(--accent-gold);
-      margin: 12px 0 8px 0;
-    }
-    .graph-panel .related-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .related-item {
-      padding: 4px 10px;
-      border-radius: 16px;
-      background: rgba(212,175,55,0.1);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .related-item:hover {
-      background: var(--accent-gold);
-      color: #1a1308;
-    }
-    .graph-legend {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      z-index: 10;
-    }
-    .legend-title {
-      color: var(--accent-gold);
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 8px;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-    .legend-item:last-child { margin-bottom: 0; }
-    .legend-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-    .legend-line {
-      width: 20px;
-      height: 2px;
-    }
-    .legend-dot.concept { background: #d4af37; }
-    .legend-dot.person { background: #a78bfa; }
-    .legend-dot.school { background: #4ade80; }
-    .legend-dot.book { background: #60a5fa; }
-    .legend-line.shicheng { background: #f472b6; }
-    .legend-line.propose { background: #fb923c; }
-    .legend-line.source { background: #60a5fa; }
-    .graph-tip {
-      position: absolute;
-      top: 20px;
-      left: 200px;
-      color: var(--text-muted);
-      font-size: 13px;
-      z-index: 10;
-    }
-    @media (max-width: 768px) {
-      .graph-container {
-        left: 0;
-      }
-      .graph-filter {
-        display: none;
-      }
-      .graph-tip {
-        left: 20px;
-        top: 80px;
-      }
-      .graph-panel {
-        width: calc(100% - 40px);
-        right: 20px;
-        bottom: 20px;
-        top: auto;
-        max-height: 40vh;
-      }
-      .graph-legend {
-        display: none;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>义理关系图 · 儒藏本体论</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style/common.css">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 </head>
-<body>
-  <div class="graph-container">
-    <canvas id="graphCanvas"></canvas>
-    <div class="graph-tip">拖拽節點移動 · 滾輪縮放 · 點擊節點查看詳情</div>
-    <!-- 筛选面板 -->
-    <div class="graph-filter">
-      <div class="filter-title">節點篩選</div>
-      <label class="filter-item"><input type="checkbox" value="concept" checked><span class="filter-dot concept"></span>核心概念</label>
-      <label class="filter-item"><input type="checkbox" value="person" checked><span class="filter-dot person"></span>儒者人物</label>
-      <label class="filter-item"><input type="checkbox" value="school" checked><span class="filter-dot school"></span>学派流派</label>
-      <label class="filter-item"><input type="checkbox" value="book" checked><span class="filter-dot book"></span>典籍著作</label>
-      <div class="filter-title" style="margin-top: 12px;">關係類型</div>
-      <label class="filter-item"><input type="checkbox" value="shicheng" checked><span class="legend-line shicheng"></span>师承傳承</label>
-      <label class="filter-item"><input type="checkbox" value="propose" checked><span class="legend-line propose"></span>思想提出</label>
-      <label class="filter-item"><input type="checkbox" value="source" checked><span class="legend-line source"></span>典籍出處</label>
-    </div>
-    <!-- 图例 -->
-    <div class="graph-legend">
-      <div class="legend-title">圖例說明</div>
-      <div class="legend-item"><div class="legend-dot concept"></div>核心概念</div>
-      <div class="legend-item"><div class="legend-dot person"></div>儒者人物</div>
-      <div class="legend-item"><div class="legend-dot school"></div>学派流派</div>
-      <div class="legend-item"><div class="legend-dot book"></div>典籍著作</div>
-    </div>
-    <!-- 详情面板 -->
-    <div class="graph-panel" id="graphPanel" style="display: none;">
-      <h3 id="panelTitle"></h3>
-      <span class="tag" id="panelTag"></span>
-      <div class="def" id="panelDef"></div>
-      <div class="meta" id="panelMeta"></div>
-      <button class="jump-btn" id="jumpBtn" style="display: none;">跳轉到相關典籍</button>
-      <div class="related-title" id="relatedTitle" style="display: none;">關聯節點</div>
-      <div class="related-list" id="relatedList"></div>
+<body data-theme="star">
+
+<header class="topbar">
+  <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
+  <nav class="topbar-nav">
+    <a href="index.html">总纲</a>
+    <a href="ontology.html">本体</a>
+    <a href="graph.html" class="active">关系</a>
+    <a href="dictionary.html">词典</a>
+    <a href="zhangju.html">章句</a>
+    <a href="scholars.html">儒者</a>
+    <a href="schools.html">学派</a>
+    <a href="debate.html">论争</a>
+    <a href="library.html">典籍</a>
+    <a href="search.html">检索</a>
+    <a href="reader.html">阅读</a>
+    <a href="lineage.html">谱系</a>
+    <a href="timeline.html">年谱</a>
+  </nav>
+  <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
+</header>
+
+<div class="layout">
+<div class="content">
+
+  <div class="section-head" style="margin-top:24px">
+    <div class="en">ONTOLOGY GRAPH</div>
+    <h2>义 理 关 系 网 络</h2>
+    <div class="desc">儒者·概念·学派·典籍 四类实体的力导向关系图</div>
+  </div>
+
+  <!-- 筛选 -->
+  <div class="filter-bar" id="filterBar">
+    <label><input type="checkbox" data-type="scholar" checked>儒者（<span id="sc">0</span>）</label>
+    <label><input type="checkbox" data-type="concept" checked>概念（<span id="cc">0</span>）</label>
+    <label><input type="checkbox" data-type="school" checked>学派（<span id="skc">0</span>）</label>
+    <label><input type="checkbox" data-type="classic" checked>典籍（<span id="bc">0</span>）</label>
+    <span style="flex:1"></span>
+    <label><input type="checkbox" data-rel="teacher_of" checked>师承</label>
+    <label><input type="checkbox" data-rel="derived_from" checked>衍生</label>
+    <label><input type="checkbox" data-rel="opposed_to" checked>对立</label>
+    <label><input type="checkbox" data-rel="criticize">批判</label>
+    <label><input type="checkbox" data-rel="inherited_from" checked>继承</label>
+    <label><input type="checkbox" data-rel="annotates" checked>注解</label>
+    <label><input type="checkbox" data-rel="proposed" checked>提出</label>
+    <label><input type="checkbox" data-rel="belongs_to" checked>归属</label>
+    <label><input type="checkbox" data-rel="appears_in" checked>出自</label>
+    <label><input type="checkbox" data-rel="implies" checked>蕴含</label>
+  </div>
+
+  <!-- 关系图容器 -->
+  <div class="graph-wrap" id="graph"></div>
+
+  <!-- 详情卡 -->
+  <div class="section" id="detailSection" style="display:none">
+    <div class="section-head"><h3 style="color:var(--gold);letter-spacing:4px;font-size:20px" id="detailTitle">节点详情</h3></div>
+    <div class="card" id="detailBody"></div>
+  </div>
+
+  <!-- 说明 -->
+  <div class="section">
+    <div class="card" style="font-size:13px;color:var(--ink-3);line-height:2">
+      <strong style="color:var(--gold);letter-spacing:2px">操作说明：</strong>
+      鼠标滚轮缩放，拖动节点移动位置，单击节点查看详情与邻居；
+      <span style="color:var(--zhu)">●</span> 朱砂=儒者、
+      <span style="color:var(--gold-bright)">●</span> 金=概念、
+      <span style="color:var(--jade)">●</span> 玉青=学派、
+      <span style="color:var(--ice)">●</span> 冰蓝=典籍。
+      线颜色对应关系谓词，虚线为"对立/批判"，实线为"师承/衍生/注解"等。
     </div>
   </div>
 
-  <script src="data/common.js"></script>
-  <script>
-    initPage('graph.html');
-    // ========== 力导向图实现 ==========
-    const canvas = document.getElementById('graphCanvas');
-    const ctx = canvas.getContext('2d');
-    let allNodes = [], allLinks = [], visibleNodes = [], visibleLinks = [], selectedNode = null;
-    let width = canvas.offsetWidth, height = canvas.offsetHeight;
-    const nodeColors = {
-      concept: '#d4af37',
-      person: '#a78bfa',
-      school: '#4ade80',
-      book: '#60a5fa'
-    };
-    const linkColors = {
-      shicheng: '#f472b6',
-      propose: '#fb923c',
-      source: '#60a5fa',
-      default: 'rgba(212,175,55,0.15)'
-    };
-    let activeFilters = {
-      node: new Set(['concept', 'person', 'school', 'book']),
-      link: new Set(['shicheng', 'propose', 'source'])
-    };
+</div>
+</div>
 
-    // 构建图谱节点与边
-    function buildGraph() {
-      allNodes = []; allLinks = [];
-      const nodeMap = new Map();
+<footer class="footer">
+  儒藏本体论 · CONFUCIAN CANON ONTOLOGY · 义理关系图
+</footer>
 
-      // 添加概念节点
-      Object.entries(CONCEPTS).forEach(([name, data]) => {
-        const node = {
-          id: 'concept_' + name,
-          name,
-          type: 'concept',
-          data,
-          x: width/2 + (Math.random()-0.5)*300,
-          y: height/2 + (Math.random()-0.5)*300,
-          vx: 0, vy: 0,
-          r: name.length <= 2 ? 28 : 22
-        };
-        allNodes.push(node);
-        nodeMap.set(node.id, node);
-      });
+<script src="data/common.js"></script>
+<script src="data/ontology-enhance.js"></script>
+<script>
+// 主题
+function initTheme(){
+  const wrap=document.getElementById('themeDots');
+  const themes=[{k:'star',n:'星象',b:'#e6ca96'},{k:'paper',n:'宣纸',b:'#6a4218'},{k:'ink',n:'水墨',b:'#e0e5ee'},{k:'bamboo',n:'竹简',b:'#e8c888'}];
+  wrap.innerHTML=themes.map(t=>`<span class="theme-dot" data-theme="${t.k}" style="background:radial-gradient(circle,${t.b},#2a1e12)" title="${t.n}"></span>`).join('');
+  const saved=localStorage.getItem('rz_theme')||'star';
+  document.body.setAttribute('data-theme',saved);
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.theme===saved));
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.onclick=()=>{
+    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);localStorage.setItem('rz_theme',t);
+    wrap.querySelectorAll('.theme-dot').forEach(x=>x.classList.toggle('active',x===d));
+  });
+}
+initTheme();
 
-      // 添加人物节点
-      Object.entries(SCHOLARS).forEach(([name, data]) => {
-        const node = {
-          id: 'person_' + name,
-          name,
-          type: 'person',
-          data,
-          x: width/2 + (Math.random()-0.5)*400,
-          y: height/2 + (Math.random()-0.5)*400,
-          vx: 0, vy: 0,
-          r: 30
-        };
-        allNodes.push(node);
-        nodeMap.set(node.id, node);
-      });
+// 节点颜色
+const TYPE_COLOR={scholar:'#c8422e',concept:'#e6ca96',school:'#5e9680',classic:'#7aa8d4'};
+const REL_COLOR={
+  teacher_of:'#c8a05c',inherited_from:'#7bbfa6',classmate_of:'#c8c0ae',
+  derived_from:'#b8834a',opposed_to:'#996a8e',implies:'#d49258',
+  equivalent_to:'#e6ca96',proposed:'#e87b72',belongs_to:'#7aa8d4',
+  appears_in:'#c8c0ae',annotates:'#5e9680',criticize:'#c8422e'
+};
+const REL_DASHED={opposed_to:[5,5],criticize:[5,5]};
 
-      // 添加学派节点
-      Object.entries(SCHOOLS).forEach(([name, data]) => {
-        const node = {
-          id: 'school_' + name,
-          name,
-          type: 'school',
-          data,
-          x: width/2 + (Math.random()-0.5)*450,
-          y: height/2 + (Math.random()-0.5)*450,
-          vx: 0, vy: 0,
-          r: name.length <= 4 ? 34 : 28
-        };
-        allNodes.push(node);
-        nodeMap.set(node.id, node);
-        // 关联创始人
-        if (data.founder) {
-          const founders = data.founder.split('、');
-          founders.forEach(f => {
-            const founderId = 'person_' + f;
-            if (nodeMap.has(founderId)) {
-              allLinks.push({source: node.id, target: founderId, type: 'shicheng'});
-            }
-          });
-        }
-      });
+// 构建节点
+const nodes=[];const nodeMap={};
+function addNode(name,type){
+  if(nodeMap[name])return;
+  nodeMap[name]={name,type,symbolSize:type==='concept'?28:type==='scholar'?30:type==='school'?38:26,
+    itemStyle:{color:TYPE_COLOR[type]},
+    label:{show:true,color:'#e8edf5',fontSize:11,fontFamily:'Songti SC,STSong,serif'}
+  };
+  nodes.push(nodeMap[name]);
+}
+// 加入CONCEPTS前40个（避免图过密）+核心儒者+学派+核心典籍
+Object.keys(CONCEPTS).slice(0,40).forEach(k=>addNode(k,'concept'));
+['孔子','颜回','曾子','子思','孟子','荀子','董仲舒','郑玄','孔颖达','韩愈',
+ '周敦颐','邵雍','张载','程颢','程颐','朱熹','陆九渊','王阳明','王畿','王艮','李贽',
+ '顾炎武','黄宗羲','王夫之','颜元','戴震','惠栋','康有为','梁启超','章炳麟']
+ .forEach(k=>{if(SCHOLARS[k])addNode(k,'scholar')});
+Object.keys(SCHOOLS).forEach(k=>addNode(k,'school'));
+Object.keys(CLASSIC_ONTOLOGY).forEach(k=>addNode(k,'classic'));
 
-      // 添加典籍节点
-      Object.entries(CLASSIC_ONTOLOGY).forEach(([name, data]) => {
-        const node = {
-          id: 'book_' + name,
-          name,
-          type: 'book',
-          data,
-          x: width/2 + (Math.random()-0.5)*500,
-          y: height/2 + (Math.random()-0.5)*500,
-          vx: 0, vy: 0,
-          r: name.length <= 2 ? 28 : 24
-        };
-        allNodes.push(node);
-        nodeMap.set(node.id, node);
-        // 关联作者
-        if (data.author) {
-          const authors = data.author.split('、');
-          authors.forEach(a => {
-            a = a.replace(/（.*?）/g, '').split('及')[0].trim();
-            const authorId = 'person_' + a;
-            if (nodeMap.has(authorId)) {
-              allLinks.push({source: node.id, target: authorId, type: 'propose'});
-            }
-          });
-        }
-      });
+// 统计
+document.getElementById('sc').textContent=nodes.filter(n=>n.type==='scholar').length;
+document.getElementById('cc').textContent=nodes.filter(n=>n.type==='concept').length;
+document.getElementById('skc').textContent=nodes.filter(n=>n.type==='school').length;
+document.getElementById('bc').textContent=nodes.filter(n=>n.type==='classic').length;
 
-      // 添加师承关系
-      ONTOLOGY_RELATIONS.shicheng.forEach(([from, to, type]) => {
-        const sourceId = 'person_' + from;
-        const targetId = 'person_' + to;
-        if (nodeMap.has(sourceId) && nodeMap.has(targetId)) {
-          allLinks.push({source: sourceId, target: targetId, type: 'shicheng'});
-        }
-      });
+// 构建边
+const nodeSet=new Set(nodes.map(n=>n.name));
+const edges=[];
+const edgeKey=new Set();
+RELATIONS_EXPANDED.forEach(r=>{
+  const[s,p,t]=r;
+  if(!nodeSet.has(s)||!nodeSet.has(t))return;
+  const k=s+'|'+p+'|'+t;if(edgeKey.has(k))return;edgeKey.add(k);
+  edges.push({
+    source:s,target:t,
+    lineStyle:{color:REL_COLOR[p]||'#888',width: p==='teacher_of'||p==='annotates'?1.8:1.2,
+      type:REL_DASHED[p]?'dashed':'solid',curveness:0.12,opacity:0.7},
+    _pred:p,_note:r[3]||''
+  });
+});
+// 也合并ONTOLOGY_RELATIONS原有54条（同师/提出/出处）
+Object.entries(ONTOLOGY_RELATIONS).forEach(([src,arr])=>{
+  arr.forEach(r=>{
+    const tgt=r.target||r[0];const pred=r.rel||r.pred||r[1]||'appears_in';
+    if(!nodeSet.has(src)||!nodeSet.has(tgt))return;
+    const k=src+'|'+pred+'|'+tgt;if(edgeKey.has(k))return;edgeKey.add(k);
+    edges.push({source:src,target:tgt,
+      lineStyle:{color:REL_COLOR[pred]||'#888',width:1,type:REL_DASHED[pred]?'dashed':'solid',opacity:0.6},
+      _pred:pred,_note:r.note||''});
+  });
+});
 
-      // 添加提出概念关系
-      ONTOLOGY_RELATIONS.propose.forEach(([person, concept, type]) => {
-        const sourceId = 'person_' + person;
-        const targetId = 'concept_' + concept;
-        if (nodeMap.has(sourceId) && nodeMap.has(targetId)) {
-          allLinks.push({source: sourceId, target: targetId, type: 'propose'});
-        }
-      });
-
-      // 添加出处典籍关系
-      ONTOLOGY_RELATIONS.source.forEach(([concept, book, type]) => {
-        const sourceId = 'concept_' + concept;
-        const targetId = 'book_' + book;
-        if (nodeMap.has(sourceId) && nodeMap.has(targetId)) {
-          allLinks.push({source: sourceId, target: targetId, type: 'source'});
-        }
-      });
-
-      // 人物关联学派
-      Object.entries(SCHOLARS).forEach(([name, data]) => {
-        if (data.school) {
-          const sourceId = 'person_' + name;
-          const targetId = 'school_' + data.school;
-          if (nodeMap.has(sourceId) && nodeMap.has(targetId)) {
-            allLinks.push({source: sourceId, target: targetId, type: 'shicheng'});
-          }
-        }
-      });
-
-      // 把边转为节点引用
-      allLinks.forEach(l => {
-        l.source = nodeMap.get(l.source);
-        l.target = nodeMap.get(l.target);
-      });
-
-      updateFilters();
-    }
-
-    // 更新筛选
-    function updateFilters() {
-      visibleNodes = allNodes.filter(n => activeFilters.node.has(n.type));
-      const visibleIds = new Set(visibleNodes.map(n => n.id));
-      visibleLinks = allLinks.filter(l => activeFilters.link.has(l.type) && visibleIds.has(l.source.id) && visibleIds.has(l.target.id));
-    }
-
-    // 力导向模拟
-    function simulate() {
-      // 斥力
-      for (let i = 0; i < visibleNodes.length; i++) {
-        for (let j = i+1; j < visibleNodes.length; j++) {
-          const a = visibleNodes[i], b = visibleNodes[j];
-          let dx = b.x - a.x, dy = b.y - a.y;
-          let dist = Math.sqrt(dx*dx + dy*dy) || 1;
-          let force = 8000 / (dist * dist);
-          let fx = dx/dist * force;
-          let fy = dy/dist * force;
-          a.vx -= fx; a.vy -= fy;
-          b.vx += fx; b.vy += fy;
+// 初始化图
+const chart=echarts.init(document.getElementById('graph'));
+function render(){
+  const activeTypes=new Set();
+  document.querySelectorAll('#filterBar input[data-type]').forEach(cb=>{if(cb.checked)activeTypes.add(cb.dataset.type)});
+  const activeRels=new Set();
+  document.querySelectorAll('#filterBar input[data-rel]').forEach(cb=>{if(cb.checked)activeRels.add(cb.dataset.rel)});
+  const activeNodes=nodes.filter(n=>activeTypes.has(n.type));
+  const activeSet=new Set(activeNodes.map(n=>n.name));
+  const activeEdges=edges.filter(e=>activeRels.has(e._pred)&&activeSet.has(e.source)&&activeSet.has(e.target));
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{
+      backgroundColor:'rgba(10,8,6,.95)',borderColor:'#c8a05c',textStyle:{color:'#f0e4cf'},
+      formatter:p=>{
+        if(p.dataType==='node'){
+          const d=p.data;let desc='';
+          if(d.type==='concept'&&CONCEPTS[d.name])desc=CONCEPTS[d.name].def.slice(0,80)+'…';
+          else if(d.type==='scholar'&&SCHOLARS[d.name])desc=SCHOLARS[d.name].dynasty+'·'+SCHOLARS[d.name].school;
+          else if(d.type==='school'&&SCHOOLS[d.name])desc=SCHOOLS[d.name].desc.slice(0,80)+'…';
+          else if(d.type==='classic'&&CLASSIC_ONTOLOGY[d.name])desc=CLASSIC_ONTOLOGY[d.name].desc.slice(0,80)+'…';
+          return `<b style="color:${TYPE_COLOR[d.type]}">${d.name}</b><br><span style="color:#9a876a;font-size:12px">${{scholar:'儒者',concept:'概念',school:'学派',classic:'典籍'}[d.type]}</span><br><span style="font-size:12px">${desc}</span>`;
+        }else{
+          const pred=RELATION_PREDICATES[p.data._pred];
+          return `<b>${p.data.source} → ${p.data.target}</b><br><span style="color:${REL_COLOR[p.data._pred]}">${pred?p.data._pred+'·'+pred.name:p.data._pred}</span><br><span style="font-size:12px;color:#9a876a">${p.data._note}</span>`;
         }
       }
-      // 引力（边）
-      visibleLinks.forEach(l => {
-        let dx = l.target.x - l.source.x, dy = l.target.y - l.source.y;
-        let dist = Math.sqrt(dx*dx + dy*dy) || 1;
-        let force = (dist - 120) * 0.02;
-        let fx = dx/dist * force;
-        let fy = dy/dist * force;
-        l.source.vx += fx; l.source.vy += fy;
-        l.target.vx -= fx; l.target.vy -= fy;
-      });
-      // 中心引力
-      visibleNodes.forEach(n => {
-        n.vx += (width/2 - n.x) * 0.001;
-        n.vy += (height/2 - n.y) * 0.001;
-        // 阻尼
-        n.vx *= 0.9;
-        n.vy *= 0.9;
-        n.x += n.vx;
-        n.y += n.vy;
-        // 边界
-        n.x = Math.max(n.r, Math.min(width - n.r, n.x));
-        n.y = Math.max(n.r, Math.min(height - n.r, n.y));
-        // 选中节点固定
-        if (n === selectedNode) {
-          n.x = dragPos.x;
-          n.y = dragPos.y;
-        }
-      });
+    },
+    series:[{
+      type:'graph',layout:'force',roam:true,
+      data:activeNodes,links:activeEdges,
+      categories:[
+        {name:'儒者',itemStyle:{color:TYPE_COLOR.scholar}},
+        {name:'概念',itemStyle:{color:TYPE_COLOR.concept}},
+        {name:'学派',itemStyle:{color:TYPE_COLOR.school}},
+        {name:'典籍',itemStyle:{color:TYPE_COLOR.classic}}
+      ],
+      label:{show:true,position:'right',color:'#e8edf5',fontSize:11},
+      force:{repulsion:320,edgeLength:[60,140],gravity:0.08},
+      emphasis:{focus:'adjacency',lineStyle:{width:3}},
+      lineStyle:{curveness:0.12}
+    }]
+  },true);
+}
+render();
+document.querySelectorAll('#filterBar input').forEach(cb=>cb.onchange=render);
+window.addEventListener('resize',()=>chart.resize());
+
+// 点击显示详情
+chart.on('click',p=>{
+  if(p.dataType!=='node')return;
+  const n=p.data.name;const t=p.data.type;
+  document.getElementById('detailSection').style.display='block';
+  document.getElementById('detailTitle').textContent=n+' · '+(t==='scholar'?'儒者':t==='concept'?'概念':t==='school'?'学派':'典籍');
+  let html='';
+  if(t==='concept'&&CONCEPTS[n]){
+    const c=CONCEPTS[n];
+    html=`<div style="font-size:15px;color:var(--ink-2);line-height:2;margin-bottom:12px">${c.def}</div>`;
+    html+=`<div style="font-size:13px;color:var(--ink-3);margin-bottom:12px">${c.source}</div>`;
+    if(CONCEPT_EVOLUTIONS[n]){
+      html+=`<h4 style="color:var(--gold);letter-spacing:2px;margin:12px 0 8px;font-size:14px">历代诠释</h4>`;
+      html+=CONCEPT_EVOLUTIONS[n].map(e=>`<div style="padding:8px 0;border-top:1px dashed var(--line-soft);font-size:13px;color:var(--ink-2);line-height:1.9"><span style="color:var(--zhu);font-size:11px;letter-spacing:2px;margin-right:8px">${e.era}</span>${e.text}</div>`).join('');
     }
-
-    // 渲染
-    function render() {
-      ctx.clearRect(0, 0, width, height);
-      // 计算关联高亮
-      const relatedNodeIds = new Set();
-      const relatedLinkIds = new Set();
-      if (selectedNode) {
-        relatedNodeIds.add(selectedNode.id);
-        visibleLinks.forEach((l, idx) => {
-          if (l.source.id === selectedNode.id || l.target.id === selectedNode.id) {
-            relatedNodeIds.add(l.source.id);
-            relatedNodeIds.add(l.target.id);
-            relatedLinkIds.add(idx);
-          }
-        });
-      }
-
-      // 画边
-      visibleLinks.forEach((l, idx) => {
-        ctx.beginPath();
-        ctx.moveTo(l.source.x, l.source.y);
-        ctx.lineTo(l.target.x, l.target.y);
-        let alpha = 0.15;
-        if (selectedNode) {
-          alpha = relatedLinkIds.has(idx) ? 0.6 : 0.05;
-        }
-        ctx.strokeStyle = linkColors[l.type] ? linkColors[l.type] + Math.floor(alpha*255).toString(16).padStart(2, '0') : linkColors.default;
-        ctx.lineWidth = relatedLinkIds.has(idx) ? 2 : 1;
-        ctx.stroke();
-      });
-
-      // 画节点
-      visibleNodes.forEach(n => {
-        let alpha = 1;
-        if (selectedNode) {
-          alpha = relatedNodeIds.has(n.id) ? 1 : 0.2;
-        }
-        ctx.globalAlpha = alpha;
-        // 节点光晕
-        if (n === selectedNode) {
-          ctx.beginPath();
-          ctx.arc(n.x, n.y, n.r + 8, 0, Math.PI*2);
-          ctx.fillStyle = nodeColors[n.type] + '40';
-          ctx.fill();
-        }
-        // 节点圆
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
-        ctx.fillStyle = nodeColors[n.type];
-        ctx.fill();
-        // 节点文字
-        ctx.fillStyle = '#1a1308';
-        ctx.font = n.type === 'school' ? '12px system-ui' : '13px system-ui';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(n.name, n.x, n.y);
-        ctx.globalAlpha = 1;
-      });
-      simulate();
-      requestAnimationFrame(render);
-    }
-
-    // ========== 交互 ==========
-    let dragNode = null, dragPos = {x:0, y:0}, scale = 1, offset = {x:0, y:0};
-    function resize() {
-      const dpr = window.devicePixelRatio || 1;
-      width = canvas.offsetWidth;
-      height = canvas.offsetHeight;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      ctx.scale(dpr, dpr);
-    }
-    window.addEventListener('resize', resize);
-    resize();
-    buildGraph();
-    render();
-
-    // 筛选监听
-    document.querySelectorAll('.graph-filter input').forEach(input => {
-      input.addEventListener('change', () => {
-        if (input.parentElement.parentElement.querySelector('.filter-title').textContent.includes('節點')) {
-          if (input.checked) activeFilters.node.add(input.value);
-          else activeFilters.node.delete(input.value);
-        } else {
-          if (input.checked) activeFilters.link.add(input.value);
-          else activeFilters.link.delete(input.value);
-        }
-        updateFilters();
-      });
-    });
-
-    // 坐标转换
-    function getPos(e) {
-      const rect = canvas.getBoundingClientRect();
-      return {
-        x: (e.clientX - rect.left - offset.x) / scale,
-        y: (e.clientY - rect.top - offset.y) / scale
-      };
-    }
-
-    canvas.addEventListener('mousedown', e => {
-      const pos = getPos(e);
-      dragNode = visibleNodes.find(n => {
-        const dx = n.x - pos.x, dy = n.y - pos.y;
-        return dx*dx + dy*dy < n.r*n.r;
-      });
-      if (dragNode) {
-        selectedNode = dragNode;
-        showPanel(dragNode);
-      } else {
-        selectedNode = null;
-        document.getElementById('graphPanel').style.display = 'none';
-      }
-    });
-    canvas.addEventListener('mousemove', e => {
-      if (dragNode) {
-        dragPos = getPos(e);
-      }
-    });
-    canvas.addEventListener('mouseup', () => {
-      dragNode = null;
-    });
-    canvas.addEventListener('wheel', e => {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      scale *= delta;
-      scale = Math.max(0.5, Math.min(2, scale));
-      ctx.setTransform(scale, 0, 0, scale, offset.x, offset.y);
-    }, {passive: false});
-
-    // 显示详情面板
-    function showPanel(node) {
-      const panel = document.getElementById('graphPanel');
-      panel.style.display = 'block';
-      document.getElementById('panelTitle').textContent = node.name;
-      const tag = document.getElementById('panelTag');
-      tag.className = 'tag ' + node.type;
-      const typeNames = {concept:'核心概念', person:'儒者人物', school:'学派流派', book:'典籍著作'};
-      tag.textContent = typeNames[node.type];
-
-      const def = document.getElementById('panelDef');
-      const meta = document.getElementById('panelMeta');
-      const jumpBtn = document.getElementById('jumpBtn');
-      const relatedList = document.getElementById('relatedList');
-      const relatedTitle = document.getElementById('relatedTitle');
-      relatedList.innerHTML = '';
-      relatedTitle.style.display = 'none';
-      jumpBtn.style.display = 'none';
-
-      let metaHTML = '';
-      if (node.type === 'concept') {
-        def.textContent = node.data.def;
-        metaHTML += `<div>核心出處：<span>${node.data.source}</span></div>`;
-        jumpBtn.style.display = 'block';
-        jumpBtn.textContent = `查看概念相關原文`;
-        jumpBtn.onclick = () => {
-          window.location.href = 'dictionary.html?q=' + encodeURIComponent(node.name);
-        };
-      } else if (node.type === 'person') {
-        def.textContent = node.data.bio;
-        metaHTML += `<div>年代：<span>${node.data.era}</span></div>`;
-        metaHTML += `<div>頭銜：<span>${node.data.title}</span></div>`;
-        metaHTML += `<div>所屬學派：<span>${node.data.school}</span></div>`;
-        if (node.data.works) {
-          metaHTML += `<div>代表著作：<span>${node.data.works.join('、')}</span></div>`;
-        }
-      } else if (node.type === 'school') {
-        def.textContent = node.data.idea;
-        metaHTML += `<div>創始人：<span>${node.data.founder}</span></div>`;
-        metaHTML += `<div>流行年代：<span>${node.data.era}</span></div>`;
-        if (node.data.books) {
-          metaHTML += `<div>核心典籍：<span>${node.data.books.join('、')}</span></div>`;
-        }
-      } else if (node.type === 'book') {
-        def.textContent = node.data.idea;
-        metaHTML += `<div>作者：<span>${node.data.author}</span></div>`;
-        metaHTML += `<div>年代：<span>${node.data.era}</span></div>`;
-        metaHTML += `<div>分類：<span>${node.data.cat}</span></div>`;
-        metaHTML += `<div>章節數：<span>${node.data.chapters}章/卷</span></div>`;
-        jumpBtn.style.display = 'block';
-        jumpBtn.textContent = `打開 ${node.name}`;
-        jumpBtn.onclick = () => {
-          window.location.href = `reader.html?b=${encodeURIComponent(node.data.cat + '/' + node.name + '.txt')}`;
-        };
-      }
-      meta.innerHTML = metaHTML;
-
-      // 关联节点
-      const relatedNodes = visibleLinks.filter(l => l.source.id === node.id || l.target.id === node.id).map(l => l.source.id === node.id ? l.target : l.source).filter(n => n.id !== node.id);
-      relatedNodes.forEach(n => {
-        const item = document.createElement('div');
-        item.className = 'related-item';
-        item.textContent = n.name;
-        item.onclick = () => {
-          selectedNode = n; showPanel(n);
-        };
-        relatedList.appendChild(item);
-      });
-      if (relatedNodes.length > 0) relatedTitle.style.display = 'block';
-    }
-  </script>
+  }else if(t==='scholar'&&SCHOLARS[n]){
+    const s=SCHOLARS[n];
+    html=`<div style="font-size:15px;color:var(--ink-2);line-height:2">${s.desc||s.dynasty}</div>`;
+  }else if(t==='school'&&SCHOOLS[n]){
+    html=`<div style="font-size:15px;color:var(--ink-2);line-height:2">${SCHOOLS[n].desc}</div>`;
+  }else if(t==='classic'&&CLASSIC_ONTOLOGY[n]){
+    html=`<div style="font-size:15px;color:var(--ink-2);line-height:2">${CLASSIC_ONTOLOGY[n].desc}</div>`;
+  }
+  // 邻居
+  const neighbors=new Set();
+  edges.forEach(e=>{
+    if(e.source===n&&nodeSet.has(e.target))neighbors.add(e.target);
+    if(e.target===n&&nodeSet.has(e.source))neighbors.add(e.source);
+  });
+  if(neighbors.size){
+    html+=`<h4 style="color:var(--gold);letter-spacing:2px;margin:16px 0 8px;font-size:14px">关联节点（${neighbors.size}）</h4>`;
+    html+=`<div style="display:flex;flex-wrap:wrap;gap:6px">${[...neighbors].map(nn=>{
+      const nm=nodeMap[nn];if(!nm)return '';
+      return `<a href="javascript:;" onclick="focusNode('${nn}')" style="font-size:12px;padding:4px 10px;background:var(--chip-bg);color:${TYPE_COLOR[nm.type]};border-radius:3px;letter-spacing:1px">${nn}</a>`;
+    }).join('')}</div>`;
+  }
+  document.getElementById('detailBody').innerHTML=html;
+});
+function focusNode(n){chart.dispatchAction({type:'focusNodeAdjacency',seriesIndex:0,name:n});chart.dispatchAction({type:'highlight',seriesIndex:0,name:n})}
+</script>
 </body>
 </html>

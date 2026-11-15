@@ -1,125 +1,209 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>儒学词典 · 儒藏本体论</title>
-  <link rel="stylesheet" href="style/common.css">
-  <link rel="preload" href="data/common.js" as="script">
-  <style>
-    .dict-item { scroll-margin-top: 100px; transition: background 0.6s; }
-    .dict-item.highlight {
-      background: var(--accent-light);
-      border-left: 3px solid var(--accent-color);
-      padding-left: calc(var(--padding, 16px) - 3px);
-    }
-    .dict-search {
-      margin-bottom: 20px;
-    }
-    .dict-search input {
-      width: 100%;
-      padding: 10px 14px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      color: var(--text-primary);
-      font-size: 15px;
-      outline: none;
-      box-sizing: border-box;
-    }
-    .dict-search input:focus { border-color: var(--accent-color); }
-    .dict-search .hit {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 6px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>概念词典 · 儒藏本体论</title>
 <link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style/common.css">
 </head>
-<body>
-  <div class="main-content">
-    <h1 class="page-title">儒学词典</h1>
-    <p class="page-subtitle">儒家核心概念释义 · 附经典原文出处</p>
+<body data-theme="star">
 
-    <div class="dict-search">
-      <input type="text" id="dictSearch" placeholder="检索词条（如 仁、理、知行合一）…">
-      <div class="hit" id="dictHit"></div>
-    </div>
+<header class="topbar">
+  <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
+  <nav class="topbar-nav">
+    <a href="index.html">总纲</a>
+    <a href="ontology.html">本体</a>
+    <a href="graph.html">关系</a>
+    <a href="dictionary.html" class="active">词典</a>
+    <a href="zhangju.html">章句</a>
+    <a href="scholars.html">儒者</a>
+    <a href="schools.html">学派</a>
+    <a href="debate.html">论争</a>
+    <a href="library.html">典籍</a>
+    <a href="search.html">检索</a>
+    <a href="reader.html">阅读</a>
+    <a href="lineage.html">谱系</a>
+    <a href="timeline.html">年谱</a>
+  </nav>
+  <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
+</header>
 
-    <div class="dict-list" id="dictList">
-      <!-- 词典条目由JS生成 -->
-    </div>
+<div class="layout">
+<div class="content">
+
+  <div class="section-head" style="margin-top:24px">
+    <div class="en">CONCEPT DICTIONARY</div>
+    <h2>儒 家 义 理 概 念 词 典</h2>
+    <div class="desc">115个核心概念详解 · 含历代诠释与关联概念</div>
   </div>
 
-  <script src="data/common.js"></script>
-  <script>
-    initPage('dictionary.html');
-    renderFooter();
+  <!-- 检索框 -->
+  <div class="search-box">
+    <input id="q" placeholder="输入概念名检索，如：仁、理、心、格物、良知…">
+    <button id="searchBtn">检 索</button>
+  </div>
 
-    const dictList = document.getElementById('dictList');
-    const searchInput = document.getElementById('dictSearch');
-    const hitInfo = document.getElementById('dictHit');
-    const allTerms = Object.keys(CONCEPTS);
+  <!-- 按本体层筛选 -->
+  <div class="filter-bar" id="layerBar">
+    <span style="font-size:13px;color:var(--gold);letter-spacing:2px;margin-right:8px">按本体层：</span>
+  </div>
 
-    // 渲染词典条目
-    function renderDict(filter = '') {
-      dictList.innerHTML = '';
-      const kw = filter.trim().toLowerCase();
-      const terms = kw ? allTerms.filter(t => t.toLowerCase().includes(kw)) : allTerms;
-      hitInfo.textContent = kw ? `匹配 ${terms.length} / ${allTerms.length} 条` : `共 ${allTerms.length} 条`;
-      terms.forEach(term => {
-        const data = CONCEPTS[term];
-        const anchor = encodeURIComponent(term);
-        const item = document.createElement('div');
-        item.className = 'dict-item';
-        item.id = anchor;
-        item.dataset.term = term;
-        item.innerHTML = `
-          <div class="dict-term">${term}</div>
-          <div class="dict-def">${data.def}</div>
-          <div class="dict-source">${data.source}</div>
-        `;
-        dictList.appendChild(item);
-      });
-      // 渲染后处理hash定位
-      handleHash();
+  <!-- 按拼音首字快速跳转 -->
+  <div class="filter-bar" id="pinyinBar" style="flex-wrap:wrap"></div>
+
+  <!-- 词条列表 -->
+  <div id="dictList"></div>
+
+</div>
+</div>
+
+<footer class="footer">儒藏本体论 · 概念词典 · 115 义理范畴</footer>
+
+<script src="data/common.js"></script>
+<script src="data/ontology-enhance.js"></script>
+<script>
+function initTheme(){
+  const wrap=document.getElementById('themeDots');
+  const themes=[{k:'star',n:'星象',b:'#e6ca96'},{k:'paper',n:'宣纸',b:'#6a4218'},{k:'ink',n:'水墨',b:'#e0e5ee'},{k:'bamboo',n:'竹简',b:'#e8c888'}];
+  wrap.innerHTML=themes.map(t=>`<span class="theme-dot" data-theme="${t.k}" style="background:radial-gradient(circle,${t.b},#2a1e12)" title="${t.n}"></span>`).join('');
+  const saved=localStorage.getItem('rz_theme')||'star';document.body.setAttribute('data-theme',saved);
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.theme===saved));
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.onclick=()=>{
+    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);localStorage.setItem('rz_theme',t);
+    wrap.querySelectorAll('.theme-dot').forEach(x=>x.classList.toggle('active',x===d));
+  });
+}
+initTheme();
+
+// 按本体层筛选按钮
+document.getElementById('layerBar').innerHTML+='<button class="btn btn-ghost active" data-layer="all" style="padding:4px 12px;font-size:12px">全部</button>'+
+  ONTOLOGY_LAYERS.map(l=>'<button class="btn btn-ghost" data-layer="'+l.id+'" style="padding:4px 12px;font-size:12px">'+l.name+'</button>').join('');
+
+// 构建概念->层映射
+const conceptLayer={};
+ONTOLOGY_LAYERS.forEach(l=>l.tags.forEach(t=>{if(CONCEPTS[t])conceptLayer[t]=l.id}));
+
+// 拼音首字母（简化：用 Unicode 硬编码常用）
+const pinyinMap={'仁':'R','义':'Y','礼':'L','智':'Z','信':'X','道':'D','德':'D','理':'L','气':'Q','心':'X',
+  '性':'X','格':'G','致':'Z','诚':'C','中':'Z','和':'H','孝':'X','悌':'T','忠':'Z','恕':'S',
+  '廉':'L','耻':'C','勇':'Y','知':'Z','行':'X','天':'T','命':'M','阴':'Y','阳':'Y','太':'T',
+  '极':'J','五':'W','四':'S','善':'S','恶':'E','良知':'L','经':'J','权':'Q','王':'W','霸':'B',
+  '仁政':'R','民本':'M','王道':'W','静':'J','敬':'J','慎':'S','存':'C','天理':'T','人欲':'R',
+  '格物':'G','致知':'Z','诚意':'C','正心':'Z','修身':'X','齐家':'Q','治国':'Z','平天下':'P',
+  '明明德':'M','亲民':'Q','止于至善':'Z','中庸':'Z','三纲':'S','八目':'B','学':'X','思':'S',
+  '君子':'J','小人':'X','圣人':'S','教化':'J','礼乐':'L','正名':'Z','井田':'J','封建':'F',
+  '道统':'D','十六字心传':'S','民胞物与':'M','太虚即气':'T','心即理':'X','性即理':'X','知行合一':'Z',
+  '致良知':'Z','存天理灭人欲':'C','主敬':'Z','静坐':'J','慎独':'S','体用':'T','已发':'Y',
+  '未发':'W','四端':'S','浩然之气':'H','大丈夫':'D','良心':'L','本心':'B','气质之性':'Q',
+  '义理之性':'Y'};
+function getInitial(c){
+  const first=c[0];
+  if(pinyinMap[c])return pinyinMap[c];
+  if('德道'.includes(first))return 'D';
+  if('学性信心行孝修下先虚'.includes(first))return 'X';
+  if('仁义人'.includes(first))return 'R';
+  if('礼良理乐良廉立'.includes(first))return 'L';
+  if('知致忠正治主中'.includes(first))return 'Z';
+  if('气齐'.includes(first))return 'Q';
+  if('诚存耻恻'.includes(first))return 'C';
+  if('五王'.includes(first))return 'W';
+  if('太'.includes(first))return 'T';
+  if('和乎浩然'.includes(first))return 'H';
+  if('格'.includes(first))return 'G';
+  if('命民明'.includes(first))return 'M';
+  if('善慎圣人恕四'.includes(first))return 'S';
+  if('阴'.includes(first))return 'Y';
+  if('敬静'.includes(first))return 'J';
+  if('平'.includes(first))return 'P';
+  if('八'.includes(first))return 'B';
+  if('悌'.includes(first))return 'T';
+  if('恩'.includes(first))return 'E';
+  return first.toUpperCase();
+}
+
+// 拼音栏
+const initials=[...new Set(Object.keys(CONCEPTS).map(getInitial))].sort();
+document.getElementById('pinyinBar').innerHTML='<span style="font-size:13px;color:var(--gold);letter-spacing:2px;margin-right:8px">快速跳转：</span>'+
+  ['全',...initials].map(i=>`<button class="btn btn-ghost" data-initial="${i==='全'?'all':i}" style="padding:4px 10px;font-size:12px;min-width:30px">${i}</button>`).join('');
+
+// 找关联概念
+function relatedConcepts(name){
+  const rel=new Set();
+  RELATIONS_EXPANDED.forEach(r=>{
+    if(r[0]===name&&CONCEPTS[r[2]])rel.add(r[2]);
+    if(r[2]===name&&CONCEPTS[r[0]])rel.add(r[0]);
+  });
+  return [...rel].slice(0,12);
+}
+function relatedScholars(name){
+  const rel=[];
+  RELATIONS_EXPANDED.forEach(r=>{
+    if(r[1]==='proposed'&&r[2]===name&&SCHOLARS[r[0]])rel.push(r[0]);
+  });
+  return rel.slice(0,6);
+}
+function relatedClassics(name){
+  const rel=[];
+  RELATIONS_EXPANDED.forEach(r=>{
+    if(r[1]==='appears_in'&&r[0]===name&&CLASSIC_ONTOLOGY[r[2]])rel.push(r[2]);
+  });
+  return rel.slice(0,6);
+}
+
+let currentLayer='all',currentInitial='all',currentQ='';
+
+function render(){
+  const list=document.getElementById('dictList');
+  const keys=Object.keys(CONCEPTS).filter(k=>{
+    if(currentQ&&!k.includes(currentQ))return false;
+    if(currentLayer!=='all'){
+      if(conceptLayer[k]!==currentLayer)return false;
     }
-
-    // 根据hash跳转到对应词条
-    function handleHash() {
-      document.querySelectorAll('.dict-item.highlight').forEach(el => el.classList.remove('highlight'));
-      const hash = decodeURIComponent(location.hash.replace(/^#/, ''));
-      if (!hash) return;
-      const el = document.getElementById(encodeURIComponent(hash));
-      if (el) {
-        setTimeout(() => {
-          el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-          el.classList.add('highlight');
-          setTimeout(() => el.classList.remove('highlight'), 2500);
-        }, 80);
-      } else {
-        // 词条不在当前筛选结果里，清掉筛选再找
-        searchInput.value = '';
-        renderDict('');
-        const el2 = document.getElementById(encodeURIComponent(hash));
-        if (el2) {
-          setTimeout(() => {
-            el2.scrollIntoView({ block: 'center', behavior: 'smooth' });
-            el2.classList.add('highlight');
-            setTimeout(() => el2.classList.remove('highlight'), 2500);
-          }, 80);
-        }
-      }
+    if(currentInitial!=='all'){
+      if(getInitial(k)!==currentInitial)return false;
     }
+    return true;
+  });
+  list.innerHTML=keys.length?keys.map(k=>{
+    const c=CONCEPTS[k];
+    const evos=CONCEPT_EVOLUTIONS[k]||[];
+    const rels=relatedConcepts(k);
+    const schs=relatedScholars(k);
+    const cls=relatedClassics(k);
+    return `<div class="dict-entry">
+      <div class="head">
+        <span class="han">${k}</span>
+        ${conceptLayer[k]?`<span style="font-size:11px;color:var(--ink-3);letter-spacing:2px">· ${ONTOLOGY_LAYERS.find(l=>l.id===conceptLayer[k]).name}</span>`:''}
+      </div>
+      <div class="def">${c.def}</div>
+      <div class="source">${c.source}</div>
+      ${schs.length?`<div style="font-size:12px;color:var(--ink-3);margin-top:6px">
+        <span style="color:var(--zhu);margin-right:6px">提出/阐发：</span>${schs.map(s=>`<a href="scholars.html" style="margin-right:8px">${s}</a>`).join('')}
+      </div>`:''}
+      ${cls.length?`<div style="font-size:12px;color:var(--ink-3);margin-top:4px">
+        <span style="color:var(--jade);margin-right:6px">主要出处：</span>${cls.map(b=>`<a href="reader.html?b=${encodeURIComponent(b)}" style="margin-right:8px">${b}</a>`).join('')}
+      </div>`:''}
+      ${evos.length?`<div class="evolutions">
+        <div style="font-size:12px;color:var(--gold);letter-spacing:2px;margin:10px 0 6px">历 代 诠 释（${evos.length}）</div>
+        ${evos.map(e=>`<div class="evo"><span class="era">${e.era}</span>${e.text}</div>`).join('')}
+      </div>`:''}
+      ${rels.length?`<div class="related"><span style="font-size:11px;color:var(--ink-3);margin-right:6px">关联概念：</span>${rels.map(r=>`<a href="javascript:;" onclick="document.getElementById('q').value='${r}';currentQ='${r}';render()">${r}</a>`).join('')}</div>`:''}
+    </div>`;
+  }).join(''):`<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">未检索到匹配概念</div>`;
+}
+render();
 
-    searchInput.addEventListener('input', (e) => {
-      renderDict(e.target.value);
-    });
-
-    window.addEventListener('hashchange', handleHash);
-
-    // 初始渲染
-    renderDict('');
-  </script>
+document.getElementById('q').addEventListener('input',e=>{currentQ=e.target.value.trim();render()});
+document.getElementById('searchBtn').onclick=()=>{currentQ=document.getElementById('q').value.trim();render()};
+document.querySelectorAll('button[data-layer]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('button[data-layer]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  currentLayer=b.dataset.layer;render();
+});
+document.querySelectorAll('button[data-initial]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('button[data-initial]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  currentInitial=b.dataset.initial;render();
+});
+</script>
 </body>
 </html>

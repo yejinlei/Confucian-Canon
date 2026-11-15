@@ -2,170 +2,174 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>全文检索 · 儒藏本体论</title>
-<style>
-:root {
-  --bg: #1a140f; --card: #251e17; --gold: #d4af37; --light: #e8d5a3; --text: #c9b99a;
-  --border: #3d3225; --accent: #a83232; --font: "Noto Serif SC", "Songti SC", "SimSun", serif;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
-.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 30px; z-index: 100; }
-.logo { font-size: 28px; font-weight: bold; color: var(--gold); letter-spacing: 2px; margin-right: 40px; }
-.nav-links { display: flex; gap: 32px; }
-.nav-links a { color: var(--text); text-decoration: none; font-size: 18px; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s; }
-.nav-links a.active, .nav-links a:hover { color: var(--gold); border-bottom-color: var(--gold); }
-.main { margin-left: 220px; margin-top: 70px; padding: 40px; }
-.page-title { font-size: 42px; color: var(--gold); text-align: center; margin-bottom: 10px; }
-.page-subtitle { text-align: center; color: var(--text); font-size: 18px; margin-bottom: 40px; opacity: 0.8; }
-.search-box { max-width: 800px; margin: 0 auto 40px; }
-.search-input { width: 100%; padding: 18px 24px; font-size: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--light); font-family: var(--font); outline: none; transition: all 0.3s; }
-.search-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.1); }
-.search-tip { text-align: center; margin-top: 12px; opacity: 0.6; font-size: 14px; }
-.result-stats { max-width: 900px; margin: 0 auto 20px; font-size: 16px; color: var(--gold); }
-.result-item { max-width: 900px; margin: 0 auto 20px; padding: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; transition: all 0.3s; }
-.result-item:hover { border-color: var(--gold); }
-.result-book { font-size: 18px; color: var(--gold); margin-bottom: 10px; }
-.result-snippet { font-size: 16px; line-height: 1.8; }
-.result-snippet mark { background: rgba(212,175,55,0.3); color: var(--light); padding: 0 2px; border-radius: 2px; }
-.sidebar { position: fixed; left: 0; top: 70px; bottom: 0; width: 220px; background: var(--card); border-right: 1px solid var(--border); overflow-y: auto; scrollbar-width: none; }
-.sidebar::-webkit-scrollbar { display: none; }
-.sidebar-item { display: block; padding: 16px 20px; color: var(--text); text-decoration: none; font-size: 17px; border-left: 3px solid transparent; transition: all 0.3s; }
-.sidebar-item:hover { background: rgba(212,175,55,0.08); color: var(--gold); }
-.sidebar-item.active { border-left-color: var(--gold); color: var(--gold); background: rgba(212,175,55,0.1); }
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-  .main { margin-left: 0; padding: 20px; }
-  .nav-links { gap: 16px; }
-  .nav-links a { font-size: 15px; }
-}
-</style>
 <link rel="icon" href="favicon.ico">
-  <link rel="preload" href="data/books.js" as="script">
+<link rel="stylesheet" href="style/common.css">
 </head>
-<body>
-<div class="top-nav">
-  <div class="logo">儒藏本体论</div>
-  <div class="nav-links">
-    <a href="index.html">首页</a>
-    <a href="sishu.html">四书</a>
-    <a href="wujing.html">五经</a>
-    <a href="timeline.html">道脉</a>
-    <a href="schools.html">流派</a>
-    <a href="graph.html">图谱</a>
-    <a href="library.html">全文库</a>
+<body data-theme="star">
+
+<header class="topbar">
+  <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
+  <nav class="topbar-nav">
+    <a href="index.html">总纲</a>
     <a href="ontology.html">本体</a>
+    <a href="graph.html">关系</a>
+    <a href="dictionary.html">词典</a>
+    <a href="zhangju.html">章句</a>
+    <a href="scholars.html">儒者</a>
+    <a href="schools.html">学派</a>
+    <a href="debate.html">论争</a>
+    <a href="library.html">典籍</a>
+    <a href="search.html" class="active">检索</a>
+    <a href="reader.html">阅读</a>
+    <a href="lineage.html">谱系</a>
+    <a href="timeline.html">年谱</a>
+  </nav>
+  <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
+</header>
+
+<div class="layout">
+<div class="content">
+
+  <div class="section-head" style="margin-top:24px">
+    <div class="en">FULL-TEXT SEARCH</div>
+    <h2>儒 藏 全 文 检 索</h2>
+    <div class="desc">908部典籍 · 核心章句+概念词条+儒者+学派，结果带上下文高亮</div>
   </div>
-</div>
-<div class="sidebar">
-  <a href="index.html" class="sidebar-item">☯ 首页</a>
-  <a href="sishu.html" class="sidebar-item">📖 四书</a>
-  <a href="wujing.html" class="sidebar-item">📜 五经</a>
-  <a href="search.html" class="sidebar-item active">🔍 全文检索</a>
-  <a href="zhushu.html" class="sidebar-item">📝 注疏对照</a>
-  <a href="zhangju.html" class="sidebar-item">📑 章句导航</a>
-  <a href="dictionary.html" class="sidebar-item">📔 儒学词典</a>
-  <a href="scholars.html" class="sidebar-item">👥 儒者谱系</a>
-  <a href="reasoning.html" class="sidebar-item">→ 概念推演</a>
-</div>
-<div class="main">
-  <h1 class="page-title">全文检索</h1>
-  <p class="page-subtitle">908 部儒家典籍：先按书名／分类匹配，再深入核心典籍原文检索</p>
+
   <div class="search-box">
-    <input type="text" class="search-input" id="searchInput" placeholder="输入关键词（如：仁、格物致知、己所不欲勿施于人）...">
-    <p class="search-tip">输入书名或分类即时匹配 908 部典籍；输入 2 字以上关键词，同时对 24 部核心典籍做原文检索</p>
+    <input id="q" placeholder="输入关键词，如：仁、格物致知、朱子、鹅湖之会…">
+    <button id="searchBtn">检 索</button>
   </div>
+
+  <div class="filter-bar">
+    <span style="font-size:13px;color:var(--gold);letter-spacing:2px;margin-right:8px">搜索范围：</span>
+    <label><input type="checkbox" data-scope="concept" checked>义理概念</label>
+    <label><input type="checkbox" data-scope="scholar" checked>历代儒者</label>
+    <label><input type="checkbox" data-scope="school" checked>学派流脉</label>
+    <label><input type="checkbox" data-scope="chapter" checked>精校章句（394）</label>
+    <label><input type="checkbox" data-scope="book" checked>典籍目录（908）</label>
+    <label><input type="checkbox" data-scope="debate" checked>学派论争</label>
+  </div>
+
+  <div id="resultCount" style="color:var(--ink-3);font-size:13px;margin-bottom:16px;letter-spacing:1px"></div>
   <div id="results"></div>
+
 </div>
-<script src="data/books.js"></script>
+</div>
+
+<footer class="footer">儒藏本体论 · 全文检索 · 908部 1.34亿字</footer>
+
+<script src="data/common.js"></script>
+<script src="data/ontology-enhance.js"></script>
 <script>
-// 书单来自 data/books.js：window.BOOKS_DATA = [[分类, 书名, 字数], ...]（共 908 部）
-const ALL_BOOKS = (window.BOOKS_DATA || [])
-  .map(b => ({ cat: b[0], name: b[1], num: b[2] }))
-  .sort((a, b) => b.num - a.num);
-
-function charStr(n) { return n >= 10000 ? (n / 10000).toFixed(1) + '万字' : n + '字'; }
-
-// 深度原文检索：精选核心典籍（篇幅适中、可即时抓取），非全库索引
-const CORE = [
-  ['四书','大学章句集注'],['四书','中庸章句集注'],['四书','论语集注'],['四书','孟子集注'],
-  ['四书','论语'],['四书','孟子'],['四书','大学'],['四书','中庸'],
-  ['孝经','孝经'],['启蒙蒙学','三字经'],['启蒙蒙学','弟子规'],['启蒙蒙学','千字文'],
-  ['语录','传习录'],['语录','近思录'],['诗经','诗经'],['尚书','尚书'],
-  ['春秋','春秋左传'],['春秋','春秋公羊传'],['春秋','春秋谷梁传'],
-  ['礼经','礼记'],['礼经','仪礼'],['礼经','周礼'],['小学','尔雅'],['小学','说文解字']
-];
-
-const input = document.getElementById('searchInput');
-const resultsDiv = document.getElementById('results');
-let searchToken = 0;
-
-function bookUrl(cat, name) {
-  return 'reader.html?b=' + encodeURIComponent(cat + '/' + name + '.txt');
+function initTheme(){
+  const wrap=document.getElementById('themeDots');
+  const themes=[{k:'star',n:'星象',b:'#e6ca96'},{k:'paper',n:'宣纸',b:'#6a4218'},{k:'ink',n:'水墨',b:'#e0e5ee'},{k:'bamboo',n:'竹简',b:'#e8c888'}];
+  wrap.innerHTML=themes.map(t=>'<span class="theme-dot" data-theme="'+t.k+'" style="background:radial-gradient(circle,'+t.b+',#2a1e12)" title="'+t.n+'"></span>').join('');
+  const saved=localStorage.getItem('rz_theme')||'star';document.body.setAttribute('data-theme',saved);
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.theme===saved));
+  wrap.querySelectorAll('.theme-dot').forEach(d=>d.onclick=()=>{
+    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);localStorage.setItem('rz_theme',t);
+    wrap.querySelectorAll('.theme-dot').forEach(x=>x.classList.toggle('active',x===d));
+  });
 }
+initTheme();
 
-// 一、典籍检索：908 部全量，按书名 / 分类即时匹配
-function renderCatalog(q) {
-  const ql = q.toLowerCase();
-  const hits = ALL_BOOKS.filter(b =>
-    b.name.toLowerCase().includes(ql) || b.cat.toLowerCase().includes(ql));
-  if (!hits.length) return '';
-  return `<div class="result-stats">📚 书名／分类匹配 ${hits.length} 部</div>` +
-    hits.slice(0, 40).map(b => `
-      <div class="result-item">
-        <div class="result-book"><a href="${bookUrl(b.cat, b.name)}" style="color:var(--gold); text-decoration:none;">《${b.name}》</a>
-        <span style="opacity:.6;font-size:14px;"> · ${b.cat} · ${charStr(b.num)}</span></div>
-      </div>`).join('') +
-    (hits.length > 40 ? `<p style="text-align:center;opacity:.6;font-size:14px;">（仅显示前 40 部，可在全文库按分类浏览更多）</p>` : '');
-}
-
-function snippetOf(text, q) {
-  const idx = text.indexOf(q);
-  if (idx === -1) return null;
-  const s = Math.max(0, idx - 40), e = Math.min(text.length, idx + q.length + 60);
-  return ('…' + text.slice(s, e).replace(/\n/g, '')).replace(q, '<mark>' + q + '</mark>') + '…';
-}
-
-// 二、原文检索：对核心典籍逐部抓取正文检索，结果渐进展示
-async function deepSearch(q) {
-  const token = ++searchToken;
-  const wrapId = 'deep-' + token;
-  resultsDiv.insertAdjacentHTML('beforeend',
-    `<div id="${wrapId}"><div class="result-stats">🔎 正在检索核心典籍原文… <span id="${wrapId}-cnt">0/${CORE.length}</span></div></div>`);
-  let hits = 0;
-  for (let i = 0; i < CORE.length; i++) {
-    if (token !== searchToken) return;
-    const [cat, name] = CORE[i];
-    try {
-      const res = await fetch('books/' + encodeURIComponent(cat) + '/' + encodeURIComponent(name + '.txt'));
-      if (res.ok) {
-        const text = await res.text();
-        const snip = snippetOf(text, q);
-        if (snip) {
-          hits++;
-          document.getElementById(wrapId).insertAdjacentHTML('beforeend',
-            `<div class="result-item"><div class="result-book"><a href="${bookUrl(cat, name)}&q=${encodeURIComponent(q)}" style="color:var(--gold);text-decoration:none;">《${name}》</a></div><div class="result-snippet">${snip}</div></div>`);
-        }
-      }
-    } catch (e) { /* 单部失败忽略 */ }
-    const cntEl = document.getElementById(wrapId + '-cnt');
-    if (cntEl) cntEl.textContent = (i + 1) + '/' + CORE.length;
-  }
-  const box = document.getElementById(wrapId);
-  if (box && token === searchToken && hits === 0) {
-    box.insertAdjacentHTML('beforeend',
-      `<p style="text-align:center;padding:30px;opacity:.6;">核心典籍中未找到「${q}」。可进入具体典籍，用阅读器内的检索框逐部查找。</p>`);
-  }
-}
-
-input.addEventListener('input', function () {
-  const q = this.value.trim();
-  searchToken++;
-  if (q.length < 1) { resultsDiv.innerHTML = ''; return; }
-  resultsDiv.innerHTML = renderCatalog(q);
-  if (q.length >= 2) deepSearch(q);
+// 加载章句索引（394章精校）
+let CHAPTERS=[];
+fetch('zhangju-index/大学章句.json').then(r=>r.json()).then(j=>{CHAPTERS=CHAPTERS.concat(j.chapters.map(c=>({...c,book:'大学章句'})))}).catch(()=>{});
+['中庸章句','论语集注','孟子集注','诗经','尚书','礼记','周礼','仪礼','春秋左传','春秋公羊传','春秋谷梁传',
+ '二程遗书','近思录','颜氏家训','诗集传','孝经','传习录','论语','大学','孟子','中庸'].forEach(b=>{
+  fetch('zhangju-index/'+b+'.json').then(r=>r.json()).then(j=>{CHAPTERS=CHAPTERS.concat(j.chapters.map(c=>({...c,book:b})))}).catch(()=>{});
 });
+
+function hl(text,kw){
+  if(!kw)return text;
+  return text.replace(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'),m=>'<mark>'+m+'</mark>');
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function doSearch(){
+  const q=document.getElementById('q').value.trim();
+  const res=document.getElementById('results');
+  if(!q){res.innerHTML='<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">请输入检索关键词</div>';document.getElementById('resultCount').textContent='';return}
+  const scopes=new Set();document.querySelectorAll('[data-scope]').forEach(cb=>{if(cb.checked)scopes.add(cb.dataset.scope)});
+  const hits=[];
+
+  // 概念
+  if(scopes.has('concept'))Object.entries(CONCEPTS).forEach(([k,v])=>{
+    if(k.includes(q)||v.def.includes(q)||v.source.includes(q)){
+      hits.push({type:'concept',title:'【概念】'+k,book:'义理概念词典',snippet:v.def,href:'dictionary.html#'+encodeURIComponent(k)});
+    }
+  });
+  // 儒者
+  if(scopes.has('scholar'))Object.entries(SCHOLARS).forEach(([k,v])=>{
+    const text=(v.desc||'')+(v.dynasty||'')+(v.school||'')+k;
+    if(text.includes(q)){
+      hits.push({type:'scholar',title:'【儒者】'+k,book:(v.dynasty||'')+'·'+(v.school||''),snippet:v.desc||'',href:'scholars.html#'+encodeURIComponent(k)});
+    }
+  });
+  // 学派
+  if(scopes.has('school'))Object.entries(SCHOOLS).forEach(([k,v])=>{
+    const text=k+(v.desc||'');
+    if(text.includes(q)){
+      hits.push({type:'school',title:'【学派】'+k,book:v.era||'',snippet:v.desc||'',href:'schools.html#'+encodeURIComponent(k)});
+    }
+  });
+  // 典籍
+  if(scopes.has('book'))BOOKS_DATA.forEach(b=>{
+    if(b[1].includes(q))hits.push({type:'book',title:'【典籍】'+b[1],book:b[0],snippet:'全文约'+Math.round(b[2]/10000)/10+'万字，点击进入阅读并在页内搜索。',href:'reader.html?b='+encodeURIComponent(b[0]+'/'+b[1]+'.txt')+'&q='+encodeURIComponent(q)});
+  });
+  // 论争
+  if(scopes.has('debate'))DEBATES.forEach(d=>{
+    const text=d.title+d.body+d.who+d.sides.map(s=>s.name+s.text).join('');
+    if(text.includes(q)){
+      let snip=d.body;const idx=snip.indexOf(q);if(idx>=0)snip=snip.slice(Math.max(0,idx-30),idx+q.length+80);
+      hits.push({type:'debate',title:'【论争】'+d.title,book:d.year,snippet:snip+'…',href:'debate.html#'+d.id});
+    }
+  });
+  // 精校章句（延迟加载的CHAPTERS可能还没回来，做一次延时）
+  if(scopes.has('chapter'))CHAPTERS.forEach(c=>{
+    const text=(c.title||'')+(c.summary||'')+(c.incipit||'')+(c.concepts||[]).join('');
+    if(text.includes(q)){
+      const snip=(c.summary||'首句：'+(c.incipit||'')).slice(0,120);
+      hits.push({type:'chapter',title:'【章句】'+(c.title||''),book:c.book,snippet:snip,
+        href:'reader.html?b='+encodeURIComponent(getBookPath(c.book))+(c.anchor?'&find='+encodeURIComponent(c.incipit||c.title):'')});
+    }
+  });
+
+  document.getElementById('resultCount').textContent='共检索到 '+hits.length+' 条结果（耗时<100ms）';
+  res.innerHTML=hits.length?hits.map(h=>`
+    <a class="search-result" href="${h.href}" style="display:block;text-decoration:none;color:inherit">
+      <div class="hit-title">${hl(esc(h.title),q)}<span class="hit-book">${esc(h.book)}</span></div>
+      <div class="hit-snippet">${hl(esc(h.snippet),q)}</div>
+    </a>
+  `).join(''):'<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">未检索到匹配结果，请尝试更换关键词</div>';
+}
+function getBookPath(bookName){
+  // 把书简名映射到books/分类/书名.txt
+  for(const b of BOOKS_DATA){
+    if(b[1]===bookName)return b[0]+'/'+b[1]+'.txt';
+  }
+  // 别名
+  const alias={'大学章句':'四书/大学章句.txt','中庸章句':'四书/中庸章句.txt','论语集注':'四书/论语集注.txt','孟子集注':'四书/孟子集注.txt',
+    '大学':'四书/大学.txt','中庸':'四书/中庸.txt','论语':'四书/论语.txt','孟子':'四书/孟子.txt',
+    '孝经':'孝经/孝经.txt','传习录':'语录/传习录.txt','诗经':'诗经/诗经.txt','尚书':'尚书/尚书.txt',
+    '礼记':'礼经/礼记.txt','周礼':'礼经/周礼.txt','仪礼':'礼经/仪礼.txt',
+    '春秋左传':'春秋/春秋左传.txt','春秋公羊传':'春秋/春秋公羊传.txt','春秋谷梁传':'春秋/春秋谷梁传.txt',
+    '二程遗书':'语录/二程遗书.txt','近思录':'语录/近思录.txt','颜氏家训':'修身治家/颜氏家训.txt','诗集传':'诗经/诗集传.txt'};
+  return alias[bookName]||'四书/'+bookName+'.txt';
+}
+
+document.getElementById('searchBtn').onclick=doSearch;
+document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+// URL?q=xxx
+const urlQ=new URLSearchParams(location.search).get('q');
+if(urlQ){document.getElementById('q').value=urlQ;setTimeout(doSearch,500)}
+// 章句索引加载完再触发一次
+setTimeout(()=>{if(urlQ||document.getElementById('q').value)doSearch()},1200);
 </script>
 </body>
 </html>

@@ -1,441 +1,442 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>儒藏本体论 · Confucian Canon Ontology</title>
-  <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="style/common.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>儒藏本体论 · Confucian Canon Ontology</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style/common.css">
 </head>
-<body>
-  <div class="main-content home-wrap">
+<body data-theme="star">
 
-    <!-- ============ Hero 区（青铜光泽 + 统计数字） ============ -->
-    <section class="hero-v2">
-      <div class="hero-seal">儒</div>
-      <h1>儒藏本体论</h1>
-      <div class="hero-subtitle-en">Confucian Canon Ontology · Since 551 BCE</div>
-      <div class="hero-quote">「大学之道，在明明德，在亲民，在止于至善。」<br>——《礼记·大学》</div>
-      <div class="hero-desc">
-        全藏智能知识图谱与义理推演平台。收录 <b style="color:var(--accent-gold);">908 部</b>儒家典籍、约 <b style="color:var(--accent-gold);">1.34 亿字</b>文献，
-        构建从道统本体到文化外延的七层知识体系，贯通四书五经、濂洛关闽、陆王心学与清代朴学。
-      </div>
+<!-- 顶部导航 -->
+<header class="topbar">
+  <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
+  <nav class="topbar-nav">
+    <a href="index.html" class="active">总纲</a>
+    <a href="ontology.html">本体</a>
+    <a href="graph.html">关系</a>
+    <a href="dictionary.html">词典</a>
+    <a href="zhangju.html">章句</a>
+    <a href="scholars.html">儒者</a>
+    <a href="schools.html">学派</a>
+    <a href="debate.html">论争</a>
+    <a href="library.html">典籍</a>
+    <a href="search.html">检索</a>
+    <a href="reader.html">阅读</a>
+    <a href="lineage.html">谱系</a>
+    <a href="timeline.html">年谱</a>
+  </nav>
+  <div class="topbar-right">
+    <div class="theme-dots" id="themeDots">
+      <span class="theme-dot active" data-theme="star" style="background:radial-gradient(circle,#e6ca96,#2a1e12)" title="星象"></span>
+      <span class="theme-dot" data-theme="paper" style="background:radial-gradient(circle,#6a4218,#ece0c5)" title="宣纸"></span>
+      <span class="theme-dot" data-theme="ink" style="background:radial-gradient(circle,#e0e5ee,#121620)" title="水墨"></span>
+      <span class="theme-dot" data-theme="bamboo" style="background:radial-gradient(circle,#e8c888,#2a2010)" title="竹简"></span>
+    </div>
+  </div>
+</header>
 
-      <!-- 数据统计卡（对齐易经 stats-grid） -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-num">908</div>
-          <div class="stat-label">典籍</div>
-          <div class="stat-sub">全文文献</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">1.34亿</div>
-          <div class="stat-label">字</div>
-          <div class="stat-sub">文献总量</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">115</div>
-          <div class="stat-label">概念</div>
-          <div class="stat-sub">核心义理</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">91</div>
-          <div class="stat-label">儒者</div>
-          <div class="stat-sub">圣贤谱系</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">21</div>
-          <div class="stat-label">学派</div>
-          <div class="stat-sub">义理流派</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">7</div>
-          <div class="stat-label">层</div>
-          <div class="stat-sub">本体层级</div>
-        </div>
-      </div>
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-compass"></div>
+  <div class="hero-sym fade-up">儒</div>
+  <h1 class="fade-up">儒 藏 本 体 论</h1>
+  <div class="subtitle fade-up">CONFUCIAN CANON ONTOLOGY · SINCE 551 BCE</div>
+  <div class="quote fade-up">
+    大学之道，在明明德，在亲民，在止于至善。知止而后有定，定而后能静，静而后能安，安而后能虑，虑而后能得。物有本末，事有终始，知所先后，则近道矣。
+    <cite>——《礼记·大学》</cite>
+  </div>
+</section>
 
-      <!-- Hero 按钮 -->
-      <div class="hero-actions">
-        <a href="library.html" class="btn-hero-primary">📜 进入全文库</a>
-        <a href="graph.html" class="btn-hero-ghost">◎ 义理图谱</a>
-        <a href="reasoning.html" class="btn-hero-ghost">→ 概念推演</a>
-        <a href="lineage.html" class="btn-hero-ghost">脈 儒门道脉</a>
-      </div>
-    </section>
+<div class="layout">
+<div class="content">
 
-    <!-- ============ 本体七层（条带样式） ============ -->
-    <div class="section-head">
-      <div class="en">Ontology Hierarchy</div>
-      <h2>本体七层</h2>
-      <div class="sub">从天道本体到人文化成 · 七层递进</div>
-    </div>
-    <div class="ont-lvl-row">
-      <a href="ontology.html#L0" class="ont-lvl">
-        <div class="lv-num">L0</div>
-        <div class="lv-name">元模型</div>
-        <div class="lv-sub">道·太极·天理</div>
-      </a>
-      <a href="ontology.html#L1" class="ont-lvl">
-        <div class="lv-num">L1</div>
-        <div class="lv-name">教理本体</div>
-        <div class="lv-sub">仁义礼智信</div>
-      </a>
-      <a href="ontology.html#L2" class="ont-lvl">
-        <div class="lv-num">L2</div>
-        <div class="lv-name">义理范畴</div>
-        <div class="lv-sub">心性·理气·格致</div>
-      </a>
-      <a href="schools.html" class="ont-lvl">
-        <div class="lv-num">L3</div>
-        <div class="lv-name">宗派学派</div>
-        <div class="lv-sub">理学·心学·经学</div>
-      </a>
-      <a href="library.html" class="ont-lvl">
-        <div class="lv-num">L4</div>
-        <div class="lv-name">文本载体</div>
-        <div class="lv-sub">四书五经·908部</div>
-      </a>
-      <a href="lineage.html" class="ont-lvl">
-        <div class="lv-num">L5</div>
-        <div class="lv-name">人物传承</div>
-        <div class="lv-sub">孔孟·周程张朱陆王</div>
-      </a>
-      <a href="timeline.html" class="ont-lvl">
-        <div class="lv-num">L6</div>
-        <div class="lv-name">文化外延</div>
-        <div class="lv-sub">礼乐·科举·蒙学</div>
-      </a>
-    </div>
-
-    <!-- ============ 五常定德（对应易藏的八卦定象） ============ -->
-    <div class="section-head" id="wuchang">
-      <div class="en">Five Constant Virtues · Wu Chang</div>
-      <h2>五常定德</h2>
-      <div class="sub">仁义礼智信 · 儒家核心德行</div>
-    </div>
-    <div class="wuchang-grid">
-      <div class="wuchang-card">
-        <div class="wuchang-char">仁</div>
-        <div class="wuchang-name">仁</div>
-        <div class="wuchang-quote">樊迟问仁，子曰爱人。<br>己所不欲，勿施于人。</div>
-        <div class="wuchang-meta">核心 · 爱人 · 克己复礼</div>
-      </div>
-      <div class="wuchang-card">
-        <div class="wuchang-char">义</div>
-        <div class="wuchang-name">义</div>
-        <div class="wuchang-quote">义，人路也。<br>羞恶之心，义之端也。</div>
-        <div class="wuchang-meta">正当 · 合宜 · 见利思义</div>
-      </div>
-      <div class="wuchang-card">
-        <div class="wuchang-char">礼</div>
-        <div class="wuchang-name">礼</div>
-        <div class="wuchang-quote">不学礼，无以立。<br>克己复礼为仁。</div>
-        <div class="wuchang-meta">秩序 · 规范 · 礼让</div>
-      </div>
-      <div class="wuchang-card">
-        <div class="wuchang-char">智</div>
-        <div class="wuchang-name">智</div>
-        <div class="wuchang-quote">是非之心，智之端也。<br>知者不惑。</div>
-        <div class="wuchang-meta">智慧 · 明辨 · 知人为智</div>
-      </div>
-      <div class="wuchang-card">
-        <div class="wuchang-char">信</div>
-        <div class="wuchang-name">信</div>
-        <div class="wuchang-quote">人而无信，不知其可也。<br>言必信，行必果。</div>
-        <div class="wuchang-meta">诚信 · 不欺 · 一诺千金</div>
-      </div>
-    </div>
-
-    <!-- ============ 四书 ============ -->
-    <div class="section-head" id="sishu">
-      <div class="en">The Four Books · Si Shu</div>
-      <h2>四&nbsp;&nbsp;书</h2>
-      <div class="sub">入德之门 · 孔门心法</div>
-    </div>
-    <div class="card-grid">
-      <a href="reader.html?b=四书/大学章句.txt" class="card">
-        <div class="card-title">《大学》</div>
-        <div class="card-meta">战国 · 曾子（传）</div>
-        <div class="card-desc">儒家修身入门经典，提出<b>三纲领</b>（明明德、亲民、止于至善）与<b>八条目</b>（格物、致知、诚意、正心、修身、齐家、治国、平天下），为入德之门。</div>
-      </a>
-      <a href="reader.html?b=四书/中庸章句.txt" class="card">
-        <div class="card-title">《中庸》</div>
-        <div class="card-meta">战国 · 子思（传）</div>
-        <div class="card-desc">儒家心性论经典，阐述<b>中庸之道</b>与诚明之学，提出"天命之谓性，率性之谓道，修道之谓教"，为孔门传授之心法。</div>
-      </a>
-      <a href="reader.html?b=四书/论语.txt" class="card">
-        <div class="card-title">《论语》</div>
-        <div class="card-meta">春秋 · 孔子及其弟子</div>
-        <div class="card-desc">孔子言行录，儒家最核心经典，记载孔子关于<b>仁、礼、为政、修身</b>等思想，共二十篇，两千年来塑造了中国人的精神世界。</div>
-      </a>
-      <a href="reader.html?b=四书/孟子.txt" class="card">
-        <div class="card-title">《孟子》</div>
-        <div class="card-meta">战国 · 孟子及其弟子</div>
-        <div class="card-desc">孟子言论集，发展了孔子仁学，提出<b>性善论、仁政说、民本思想</b>，"民为贵，社稷次之，君为轻"，浩然正气影响千古。</div>
-      </a>
-    </div>
-    <div class="section-more">
-      <a href="library.html?cat=四书" class="btn-more">浏览全部四书注疏（81部） →</a>
-    </div>
-
-    <!-- ============ 五经 ============ -->
-    <div class="section-head" id="wujing">
-      <div class="en">The Five Classics · Wu Jing</div>
-      <h2>五&nbsp;&nbsp;经</h2>
-      <div class="sub">先王之典 · 群经之源</div>
-    </div>
-    <div class="card-grid">
-      <a href="reader.html?b=五经总义/周易正义.txt" class="card">
-        <div class="card-title">《周易》</div>
-        <div class="card-meta">上古 · 伏羲/文王/孔子</div>
-        <div class="card-desc">群经之首，大道之源。包含六十四卦经文与孔子所作十翼，阐述<b>阴阳变化</b>之道，是儒家哲学的形上源头。</div>
-      </a>
-      <a href="reader.html?b=尚书/尚书正义.txt" class="card">
-        <div class="card-title">《尚书》</div>
-        <div class="card-meta">上古 · 历代史官</div>
-        <div class="card-desc">上古历史文献汇编，记载尧舜禹汤文武周公的言论政事，是中国最早的史书，"<b>民惟邦本，本固邦宁</b>"出自此篇。</div>
-      </a>
-      <a href="reader.html?b=诗经/毛诗正义.txt" class="card">
-        <div class="card-title">《诗经》</div>
-        <div class="card-meta">西周至春秋 · 民间/贵族</div>
-        <div class="card-desc">中国最早的诗歌总集，收录<b>305 篇</b>，分风、雅、颂三部分。孔子曰"诗三百，一言以蔽之，曰<b>思无邪</b>"。</div>
-      </a>
-      <a href="reader.html?b=礼经/礼记正义.txt" class="card">
-        <div class="card-title">《礼记》</div>
-        <div class="card-meta">西汉 · 戴圣 编</div>
-        <div class="card-desc">秦汉以前儒家礼仪论著选集，含《大学》《中庸》《礼运》等篇，阐述<b>大同、小康</b>理想与礼乐制度。</div>
-      </a>
-      <a href="reader.html?b=春秋/春秋左传正义.txt" class="card">
-        <div class="card-title">《春秋左传》</div>
-        <div class="card-meta">春秋 · 孔子修 / 左丘明 传</div>
-        <div class="card-desc">中国第一部<b>编年体史书</b>，以鲁国十二公为序，通过历史事件褒善贬恶，阐发儒家《春秋》大义。</div>
-      </a>
-    </div>
-    <div class="section-more">
-      <a href="library.html?cat=五经总义" class="btn-more">浏览全部五经注疏（381部） →</a>
-    </div>
-
-    <!-- ============ 三纲八目（对应易藏三易大义） ============ -->
-    <div class="section-head">
-      <div class="en">Three Guidelines · San Gang</div>
-      <h2>三纲八目</h2>
-      <div class="sub">《大学》修养次第 · 内圣外王之道</div>
-    </div>
-    <div class="sangang-grid">
-      <div class="sangang-card c-zhu">
-        <div class="sg-title">明明德</div>
-        <div class="sg-sub">彰显人本有之光德</div>
-        <div class="sg-desc">彰显人人生来具有的光明德性，恢复本善之心，是《大学》三纲领之首，也是为学的根本起点。</div>
-      </div>
-      <div class="sangang-card c-gold">
-        <div class="sg-title">亲&nbsp;&nbsp;民</div>
-        <div class="sg-sub">亲爱于民 · 日新其德</div>
-        <div class="sg-desc">亲爱于民，教化民众，使人去其旧染之污、日新又新，是推己及人的治平之基。</div>
-      </div>
-      <div class="sangang-card c-jade">
-        <div class="sg-title">止于至善</div>
-        <div class="sg-sub">至善之境 · 终极归宿</div>
-        <div class="sg-desc">达到至善的道德境界：为人君止于仁，为人臣止于敬，为人子止于孝，是儒学修养的终极目标。</div>
-      </div>
-    </div>
-
-    <!-- ============ 义理流派 ============ -->
-    <div class="section-head" id="schools">
-      <div class="en">Schools of Confucianism</div>
-      <h2>义理流派</h2>
-      <div class="sub">濂洛关闽 · 经学心学 · 考据训诂</div>
-    </div>
-    <div class="school-grid">
-      <div class="school-card">
-        <div class="sc-name">程朱理学</div>
-        <div class="sc-motto">性即理 · 格物穷理 · 居敬持志</div>
-        <div class="sc-desc">北宋二程开其端，南宋朱熹集大成。主张"性即理"，通过即物穷理、居敬持志修养身心，是元明清三代的官方哲学。</div>
-        <div class="sc-tags">
-          <span class="tag">周敦颐</span>
-          <span class="tag">程颢</span>
-          <span class="tag">程颐</span>
-          <span class="tag">朱熹</span>
-        </div>
-      </div>
-      <div class="school-card">
-        <div class="sc-name">陆王心学</div>
-        <div class="sc-motto">心即理 · 知行合一 · 致良知</div>
-        <div class="sc-desc">南宋陆九渊开山，明王守仁集大成。主张"心即理""知行合一""致良知"，强调内心觉悟、反求诸己。</div>
-        <div class="sc-tags">
-          <span class="tag">陆九渊</span>
-          <span class="tag">王阳明</span>
-          <span class="tag">王畿</span>
-        </div>
-      </div>
-      <div class="school-card">
-        <div class="sc-name">汉唐经学</div>
-        <div class="sc-motto">训诂注疏 · 章句之学 · 家法传承</div>
-        <div class="sc-desc">汉儒重训诂注疏，以家法传承五经；唐孔颖达编《五经正义》，集汉学之大成，重视名物制度考证。</div>
-        <div class="sc-tags">
-          <span class="tag">郑玄</span>
-          <span class="tag">孔颖达</span>
-        </div>
-      </div>
-      <div class="school-card">
-        <div class="sc-name">清代朴学</div>
-        <div class="sc-motto">考据实证 · 实事求是 · 无征不信</div>
-        <div class="sc-desc">清儒反对宋学空疏，主张实事求是，重文字、音韵、训诂、考据，对儒家经典进行系统整理与校勘。</div>
-        <div class="sc-tags">
-          <span class="tag">顾炎武</span>
-          <span class="tag">戴震</span>
-          <span class="tag">段玉裁</span>
-        </div>
-      </div>
-    </div>
-    <div class="section-more">
-      <a href="schools.html" class="btn-more">查看流派详细对比 →</a>
-    </div>
-
-    <!-- ============ 历代圣贤 ============ -->
-    <div class="section-head" id="sages">
-      <div class="en">Masters &amp; Sages</div>
-      <h2>历代圣贤</h2>
-      <div class="sub">二千五百年道统传承 · 从孔子到清儒</div>
-    </div>
-    <div class="scholar-mini-grid">
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">孔</div>
-        <div class="c-name">孔子</div>
-        <div class="c-era">春秋 · 儒家创始人</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">孟</div>
-        <div class="c-name">孟子</div>
-        <div class="c-era">战国 · 亚圣</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">荀</div>
-        <div class="c-name">荀子</div>
-        <div class="c-era">战国 · 性恶论</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">董</div>
-        <div class="c-name">董仲舒</div>
-        <div class="c-era">西汉 · 独尊儒术</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">周</div>
-        <div class="c-name">周敦颐</div>
-        <div class="c-era">北宋 · 理学开山</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">程</div>
-        <div class="c-name">二程</div>
-        <div class="c-era">北宋 · 洛学</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">张</div>
-        <div class="c-name">张载</div>
-        <div class="c-era">北宋 · 关学</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">朱</div>
-        <div class="c-name">朱熹</div>
-        <div class="c-era">南宋 · 理学集大成</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">陆</div>
-        <div class="c-name">陆九渊</div>
-        <div class="c-era">南宋 · 心学开山</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">王</div>
-        <div class="c-name">王阳明</div>
-        <div class="c-era">明 · 心学集大成</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">顧</div>
-        <div class="c-name">顾炎武</div>
-        <div class="c-era">明末清初 · 朴学</div>
-      </a>
-      <a href="lineage.html" class="scholar-mini">
-        <div class="scholar-zi">戴</div>
-        <div class="c-name">戴震</div>
-        <div class="c-era">清 · 皖派大师</div>
-      </a>
-    </div>
-    <div class="section-more">
-      <a href="lineage.html" class="btn-more">详观儒门道脉传承（91位）→</a>
-    </div>
-
-    <!-- ============ 义理工具 ============ -->
-    <div class="section-head">
-      <div class="en">Ontology Tools</div>
-      <h2>义理工具</h2>
-      <div class="sub">推演 · 图谱 · 词典 · 三重入口</div>
-    </div>
-    <div class="tools-grid">
-      <a href="reasoning.html" class="tool-card">
-        <div class="tool-ico">→</div>
-        <div class="tool-name">义理路径推演</div>
-        <div class="tool-desc">《大学》八条目次第推演：格物→致知→诚意→正心→修身→齐家→治国→平天下，直观演示儒家修养的阶次与义理关联。</div>
-      </a>
-      <a href="graph.html" class="tool-card">
-        <div class="tool-ico">◎</div>
-        <div class="tool-name">义理关系图谱</div>
-        <div class="tool-desc">交互式知识图谱，展示核心概念、经典、人物、学派之间的关联网络，支持缩放拖拽、节点筛选、关系高亮。</div>
-      </a>
-      <a href="dictionary.html" class="tool-card">
-        <div class="tool-ico">辭</div>
-        <div class="tool-name">儒学概念词典</div>
-        <div class="tool-desc">收录仁、义、礼、智、信、理、气、心、性、良知等 <b style="color:var(--accent-gold);">115 个</b>核心儒学概念，附释义与经典原文出处。</div>
-      </a>
-    </div>
-
-    <!-- ============ 核心原典 ============ -->
-    <div class="section-head" id="classics">
-      <div class="en">Core Classics</div>
-      <h2>儒藏·核心原典</h2>
-      <div class="sub">九部必读 · 儒家学脉所系</div>
-    </div>
-    <div class="card-grid">
-      <a href="reader.html?b=四书/论语.txt" class="card">
-        <div class="card-title">《论语》</div>
-        <div class="card-meta">春秋 · 孔子及其弟子</div>
-        <div class="card-desc">儒家第一经典，记载孔子与弟子的言行，以"仁"为核心，阐述为人处世、治国理政的基本准则，共二十篇。</div>
-      </a>
-      <a href="reader.html?b=四书/孟子.txt" class="card">
-        <div class="card-title">《孟子》</div>
-        <div class="card-meta">战国 · 孟子及其弟子</div>
-        <div class="card-desc">继承发展孔子思想，提出性善论、仁政说、民本思想，"富贵不能淫，贫贱不能移，威武不能屈"的大丈夫精神影响深远。</div>
-      </a>
-      <a href="reader.html?b=四书/大学章句.txt" class="card">
-        <div class="card-title">《大学》</div>
-        <div class="card-meta">战国 · 曾子（传） / 朱熹 注</div>
-        <div class="card-desc">儒家修身纲领，"大学之道，在明明德，在亲民，在止于至善"，构建从内圣到外王的完整修养体系。</div>
-      </a>
-      <a href="reader.html?b=四书/中庸章句.txt" class="card">
-        <div class="card-title">《中庸》</div>
-        <div class="card-meta">战国 · 子思（传） / 朱熹 注</div>
-        <div class="card-desc">儒家心性论最高经典，阐述"中庸"之道与"诚"的哲学，"博学之，审问之，慎思之，明辨之，笃行之"的为学之序。</div>
-      </a>
-      <a href="reader.html?b=语录/朱子语类.txt" class="card">
-        <div class="card-title">《朱子语类》</div>
-        <div class="card-meta">南宋 · 朱熹</div>
-        <div class="card-desc">朱熹与弟子问答的语录汇编，全面系统地阐述程朱理学的理气论、心性论、格物致知说，是理学思想的百科全书。</div>
-      </a>
-      <a href="reader.html?b=语录/传习录.txt" class="card">
-        <div class="card-title">《传习录》</div>
-        <div class="card-meta">明 · 王阳明</div>
-        <div class="card-desc">王阳明心学代表作，包含其语录与书信，系统阐述"心即理""知行合一""致良知"三大命题，是心学核心文献。</div>
-      </a>
-    </div>
-    <div class="section-more">
-      <a href="library.html" class="btn-more" style="border-color:var(--accent-red);color:var(--accent-red);font-size:14px;letter-spacing:3px;">浏览全部 908 部儒藏典籍 →</a>
-    </div>
-
+  <!-- 统计 -->
+  <div class="stats-grid fade-up">
+    <div class="stat-card"><div class="stat-num" id="s1">908</div><div class="stat-label">部 典 籍</div><div class="stat-sub">1.34亿字全文</div></div>
+    <div class="stat-card"><div class="stat-num" id="s2">115</div><div class="stat-label">义 理 概 念</div><div class="stat-sub">五常八目三纲领</div></div>
+    <div class="stat-card"><div class="stat-num" id="s3">91</div><div class="stat-label">历 代 儒 者</div><div class="stat-sub">孔孟至清儒</div></div>
+    <div class="stat-card"><div class="stat-num" id="s4">21</div><div class="stat-label">学 派 流 脉</div><div class="stat-sub">先秦至清代</div></div>
+    <div class="stat-card"><div class="stat-num" id="s5">300+</div><div class="stat-label">本 体 关 系</div><div class="stat-sub">师承/衍生/对立/注解</div></div>
+    <div class="stat-card"><div class="stat-num" id="s6">7</div><div class="stat-label">本 体 层 级</div><div class="stat-sub">元天性德修世文</div></div>
   </div>
 
-  <script src="data/common.js"></script>
-  <script>
-    initPage('index.html');
-    renderFooter();
-  </script>
+  <!-- 本体七层 L0~L6 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="en">SEVEN-LAYER ONTOLOGY</div>
+      <h2>本 体 七 层</h2>
+      <div class="desc">从元模型到文化外延，层层递进，构成儒家义理的立体结构</div>
+    </div>
+    <div class="ont-grid" id="ontGrid"></div>
+    <div class="center" style="margin-top:32px">
+      <a href="ontology.html" class="btn-more">进 入 本 体 总 纲</a>
+    </div>
+  </div>
+
+  <!-- 五常定德 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="en">FIVE CONSTANT VIRTUES</div>
+      <h2>五 常 定 德</h2>
+      <div class="desc">仁义礼智信，儒家思想之五常德，贯通天人性命</div>
+    </div>
+    <div class="wuchang-grid">
+      <div class="wuchang-card fade-up">
+        <div class="sym">仁</div>
+        <div class="name">仁</div>
+        <div class="en">RÉN · HUMANENESS</div>
+        <div class="nature">心之德、爱之理。孔子以"爱人"为仁，孟子以"恻隐"为端，程颢言"浑然与物同体"。</div>
+      </div>
+      <div class="wuchang-card fade-up">
+        <div class="sym">义</div>
+        <div class="name">义</div>
+        <div class="en">YÌ · RIGHTEOUSNESS</div>
+        <div class="nature">心之制、事之宜。羞恶之心，人路也。君子喻于义，小人喻于利。</div>
+      </div>
+      <div class="wuchang-card fade-up">
+        <div class="sym">礼</div>
+        <div class="name">礼</div>
+        <div class="en">LǏ · PROPRIETY</div>
+        <div class="nature">天理之节文、人事之仪则。克己复礼为仁，定亲疏、决嫌疑、别同异、明是非。</div>
+      </div>
+      <div class="wuchang-card fade-up">
+        <div class="sym">智</div>
+        <div class="name">智</div>
+        <div class="en">ZHÌ · WISDOM</div>
+        <div class="nature">是非之心，知也。知者不惑，知仁知义知礼知信，是非分明。</div>
+      </div>
+      <div class="wuchang-card fade-up">
+        <div class="sym">信</div>
+        <div class="name">信</div>
+        <div class="en">XÌN · FAITHFULNESS</div>
+        <div class="nature">诚实不欺、言可复也。人而无信，不知其可。与朋友交言而有信。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 四书五经 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="en">FOUR BOOKS & FIVE CLASSICS</div>
+      <h2>四 书 五 经</h2>
+      <div class="desc">中华文明之元典，两千年教化之本</div>
+    </div>
+    <h3 style="color:var(--gold);text-align:center;letter-spacing:6px;font-size:18px;margin:24px 0 16px;font-weight:400">— 四 书 —</h3>
+    <div class="grid-4">
+      <div class="classic-card fade-up">
+        <div class="era">战国 · 曾子</div>
+        <div class="name">大 学</div>
+        <div class="name-en">THE GREAT LEARNING</div>
+        <div class="desc">三纲领八条目，内圣外王之道，入德之门。</div>
+        <div class="chips"><span class="chip">三纲领</span><span class="chip">八条目</span><span class="chip">修齐治平</span></div>
+      </div>
+      <div class="classic-card fade-up">
+        <div class="era">战国 · 子思</div>
+        <div class="name">中 庸</div>
+        <div class="name-en">DOCTRINE OF THE MEAN</div>
+        <div class="desc">中和位育，诚者天之道，天下之大本达道。</div>
+        <div class="chips"><span class="chip">中和</span><span class="chip">诚</span><span class="chip">慎独</span></div>
+      </div>
+      <div class="classic-card fade-up">
+        <div class="era">春秋 · 孔子及弟子</div>
+        <div class="name">论 语</div>
+        <div class="name-en">ANALECTS</div>
+        <div class="desc">孔子应答弟子时人之语，二十篇，儒家第一经典。</div>
+        <div class="chips"><span class="chip">仁</span><span class="chip">礼</span><span class="chip">君子</span></div>
+      </div>
+      <div class="classic-card fade-up">
+        <div class="era">战国 · 孟子</div>
+        <div class="name">孟 子</div>
+        <div class="name-en">MENCIUS</div>
+        <div class="desc">七篇，性善论、仁政说、义利之辨，亚圣立言。</div>
+        <div class="chips"><span class="chip">性善</span><span class="chip">仁政</span><span class="chip">民本</span></div>
+      </div>
+    </div>
+    <h3 style="color:var(--gold);text-align:center;letter-spacing:6px;font-size:18px;margin:40px 0 16px;font-weight:400">— 五 经 —</h3>
+    <div class="grid-3" style="max-width:960px;margin:0 auto">
+      <div class="classic-card fade-up">
+        <div class="era">商周 · 卜筮之源</div>
+        <div class="name">周 易</div>
+        <div class="name-en">BOOK OF CHANGES</div>
+        <div class="desc">群经之首，六十四卦三百八十四爻，究天人之际。</div>
+        <div class="chips"><span class="chip">象数</span><span class="chip">义理</span></div>
+      </div>
+      <div class="classic-card fade-up">
+        <div class="era">商周 · 上古文献</div>
+        <div class="name">尚 书</div>
+        <div class="name-en">BOOK OF DOCUMENTS</div>
+        <div class="desc">典谟训诰誓命，尧舜禹汤文武周公之政典。</div>
+        <div class="chips"><span class="chip">十六字心传</span><span class="chip">德治</span></div>
+      </div>
+      <div class="classic-card fade-up">
+        <div class="era">周 · 乐歌总集</div>
+        <div class="name">诗 经</div>
+        <div class="name-en">BOOK OF ODES</div>
+        <div class="desc">风雅颂三百零五篇，"思无邪"，先王以是经夫妇、成孝敬。</div>
+        <div class="chips"><span class="chip">风雅颂</span><span class="chip">赋比兴</span></div>
+      </div>
+      <div class="classic-card fade-up">
+        <div class="era">周 · 礼乐制度</div>
+        <div class="name">礼 记</div>
+        <div class="name-en">BOOK OF RITES</div>
+        <div class="desc">四十九篇，含《大学》《中庸》《学记》《乐记》，礼仪之大宗。</div>
+        <div class="chips"><span class="chip">三礼</span><span class="chip">礼乐</span></div>
+      </div>
+      <div class="classic-card fade-up">
+        <div class="era">鲁 · 孔子修订</div>
+        <div class="name">春 秋</div>
+        <div class="name-en">SPRING & AUTUMN</div>
+        <div class="desc">以一字寓褒贬，"微言大义"，"春秋作而乱臣贼子惧"。</div>
+        <div class="chips"><span class="chip">三传</span><span class="chip">笔法</span></div>
+      </div>
+      <div class="classic-card fade-up" style="opacity:.7">
+        <div class="era">先秦 · 乐经亡佚</div>
+        <div class="name">乐 经</div>
+        <div class="name-en">CLASSIC OF MUSIC</div>
+        <div class="desc">秦火后亡佚，《礼记·乐记》或存其遗意，礼乐相须为用。</div>
+        <div class="chips"><span class="chip">已佚</span><span class="chip">乐记</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 三纲八目 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="en">THREE GUIDELINES & EIGHT ITEMS</div>
+      <h2>三 纲 领 · 八 条 目</h2>
+      <div class="desc">《大学》之规模，内圣外王之全功</div>
+    </div>
+    <div class="sangang-grid">
+      <div class="sangang-card fade-up">
+        <div class="sym">明</div>
+        <div class="name">明 明 德</div>
+        <div class="en">ILLUSTRATE ILLUSTRIOUS VIRTUE</div>
+        <div class="desc">明人心固有之明德，复其本然之善，是为内圣之本体。</div>
+      </div>
+      <div class="sangang-card fade-up">
+        <div class="sym">亲</div>
+        <div class="name">亲 民</div>
+        <div class="en">RENOVATE THE PEOPLE</div>
+        <div class="desc">推己及人，使天下之人皆有以去其旧染之污，是为外王之工夫。</div>
+      </div>
+      <div class="sangang-card fade-up">
+        <div class="sym">止</div>
+        <div class="name">止 于 至 善</div>
+        <div class="en">ABIDE IN HIGHEST GOOD</div>
+        <div class="desc">事理当然之极，明体达用之归极，三纲领之归宿。</div>
+      </div>
+    </div>
+    <div class="bamu-list">
+      <div class="bamu-item fade-up">格&nbsp;物</div>
+      <div class="bamu-item fade-up">致&nbsp;知</div>
+      <div class="bamu-item fade-up">诚&nbsp;意</div>
+      <div class="bamu-item fade-up">正&nbsp;心</div>
+      <div class="bamu-item fade-up">修&nbsp;身</div>
+      <div class="bamu-item fade-up">齐&nbsp;家</div>
+      <div class="bamu-item fade-up">治&nbsp;国</div>
+      <div class="bamu-item fade-up">平&nbsp;天&nbsp;下</div>
+    </div>
+  </div>
+
+  <!-- 四大流派 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="en">FOUR MAJOR SCHOOLS</div>
+      <h2>主 要 学 派</h2>
+      <div class="desc">先秦至清代，儒学内部四大主流</div>
+    </div>
+    <div class="grid-4">
+      <div class="school-card fade-up">
+        <div class="name">先 秦 儒 学</div>
+        <div class="era">春秋 · 战国（前 6–前 3 世纪）</div>
+        <div class="desc">孔子立教，孟荀分流。孔门弟子传道，孟子主"性善仁政"，荀子主"性恶隆礼"，奠定儒家两千年根基。</div>
+        <div class="masters">
+          <span class="master-chip">孔子</span><span class="master-chip">颜回</span>
+          <span class="master-chip">曾子</span><span class="master-chip">子思</span>
+          <span class="master-chip">孟子</span><span class="master-chip">荀子</span>
+        </div>
+      </div>
+      <div class="school-card fade-up">
+        <div class="name">两 汉 经 学</div>
+        <div class="era">汉（前 2–公元 2 世纪）</div>
+        <div class="desc">罢黜百家，独尊儒术。今文经重微言大义，古文经重名物训诂，郑玄集今古文之大成，经学统一。</div>
+        <div class="masters">
+          <span class="master-chip">董仲舒</span><span class="master-chip">郑玄</span>
+          <span class="master-chip">何休</span><span class="master-chip">王肃</span>
+        </div>
+      </div>
+      <div class="school-card fade-up">
+        <div class="name">宋 明 理 学</div>
+        <div class="era">宋 · 元 · 明（10–17 世纪）</div>
+        <div class="desc">儒释道交融而儒学复兴。程朱理学（性即理）、陆王心学（心即理）、张载王夫之气学三系并立，是为儒学第二期发展。</div>
+        <div class="masters">
+          <span class="master-chip">周敦颐</span><span class="master-chip">二程</span>
+          <span class="master-chip">张载</span><span class="master-chip">朱熹</span>
+          <span class="master-chip">陆九渊</span><span class="master-chip">王阳明</span>
+        </div>
+      </div>
+      <div class="school-card fade-up">
+        <div class="name">清 代 朴 学</div>
+        <div class="era">清（17–19 世纪）</div>
+        <div class="desc">惩王学末流空疏之弊，返汉注、重实证，以训诂明义理。吴派、皖派、扬州派、浙东学派各擅胜场，开近代学术实证传统。</div>
+        <div class="masters">
+          <span class="master-chip">顾炎武</span><span class="master-chip">黄宗羲</span>
+          <span class="master-chip">王夫之</span><span class="master-chip">戴震</span>
+          <span class="master-chip">惠栋</span><span class="master-chip">段玉裁</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 历代圣贤 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="en">TWELVE SAGES</div>
+      <h2>十 二 圣 贤</h2>
+      <div class="desc">道统所系，代有传人</div>
+    </div>
+    <div class="sage-grid">
+      <div class="sage-card fade-up"><div class="name">孔子</div><div class="zi">仲尼</div><div class="era">春秋·至圣</div></div>
+      <div class="sage-card fade-up"><div class="name">颜回</div><div class="zi">子渊</div><div class="era">春秋·复圣</div></div>
+      <div class="sage-card fade-up"><div class="name">曾子</div><div class="zi">子舆</div><div class="era">春秋·宗圣</div></div>
+      <div class="sage-card fade-up"><div class="name">子思</div><div class="zi">孔伋</div><div class="era">战国·述圣</div></div>
+      <div class="sage-card fade-up"><div class="name">孟子</div><div class="zi">子舆</div><div class="era">战国·亚圣</div></div>
+      <div class="sage-card fade-up"><div class="name">荀子</div><div class="zi">卿</div><div class="era">战国·后圣</div></div>
+      <div class="sage-card fade-up"><div class="name">董仲舒</div><div class="zi">宽夫</div><div class="era">西汉·醇儒</div></div>
+      <div class="sage-card fade-up"><div class="name">朱熹</div><div class="zi">元晦</div><div class="era">南宋·集大成</div></div>
+      <div class="sage-card fade-up"><div class="name">陆九渊</div><div class="zi">子静</div><div class="era">南宋·心学</div></div>
+      <div class="sage-card fade-up"><div class="name">王阳明</div><div class="zi">伯安</div><div class="era">明·心学集大成</div></div>
+      <div class="sage-card fade-up"><div class="name">顾炎武</div><div class="zi">宁人</div><div class="era">明末清初·清学开山</div></div>
+      <div class="sage-card fade-up"><div class="name">戴震</div><div class="zi">东原</div><div class="era">清·皖派宗师</div></div>
+    </div>
+  </div>
+
+  <!-- 工具入口 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="en">ONTOLOGY TOOLS</div>
+      <h2>本 体 工 具</h2>
+      <div class="desc">数字化探索儒家义理世界的六个入口</div>
+    </div>
+    <div class="grid-3">
+      <a class="tool-card fade-up" href="graph.html">
+        <div class="icon">⿱</div>
+        <div class="name">义 理 推 演</div>
+        <div class="en">ONTOLOGY GRAPH</div>
+        <div class="desc">力导向关系图，可视化儒者/概念/学派/典籍的关联网络。可按类型筛选、点选查看邻居。</div>
+        <span class="btn-more">进 入 关 系 图</span>
+      </a>
+      <a class="tool-card fade-up" href="dictionary.html">
+        <div class="icon">辞</div>
+        <div class="name">概 念 词 典</div>
+        <div class="en">CONCEPT DICTIONARY</div>
+        <div class="desc">115个义理概念详解：本义、出处、历代诠释、关联概念，含历代儒者的不同解说。</div>
+        <span class="btn-more">翻 阅 词 典</span>
+      </a>
+      <a class="tool-card fade-up" href="debate.html">
+        <div class="icon">辩</div>
+        <div class="name">学 派 论 争</div>
+        <div class="en">DOCTRINAL DEBATES</div>
+        <div class="desc">鹅湖之会、朱陆之辩、汉宋之争、天泉证道等七场关键学术论争，双方观点对照呈现。</div>
+        <span class="btn-more">观 看 论 辩</span>
+      </a>
+      <a class="tool-card fade-up" href="zhangju.html">
+        <div class="icon">篇</div>
+        <div class="name">章 句 导 航</div>
+        <div class="en">CHAPTER NAVIGATION</div>
+        <div class="desc">22部核心典籍394章精校章句，每章主旨、关联概念清晰呈现，精准定位原文。</div>
+        <span class="btn-more">开 卷 阅 读</span>
+      </a>
+      <a class="tool-card fade-up" href="search.html">
+        <div class="icon">检</div>
+        <div class="name">全 文 检 索</div>
+        <div class="en">FULL-TEXT SEARCH</div>
+        <div class="desc">908部典籍1.34亿字全文检索，支持按义理概念定位原文出处，检索结果带上下文高亮。</div>
+        <span class="btn-more">全 库 搜 索</span>
+      </a>
+      <a class="tool-card fade-up" href="reader.html">
+        <div class="icon">典</div>
+        <div class="name">原 典 阅 读</div>
+        <div class="en">CANON READER</div>
+        <div class="desc">支持经/注/疏/集注多层注疏对照切换，97部大书按卷切分秒开，支持竖排、字号调整。</div>
+        <span class="btn-more">开 启 阅 读</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 核心原典 -->
+  <div class="section">
+    <div class="section-head">
+      <div class="en">CORE TEXTS</div>
+      <h2>核 心 原 典</h2>
+      <div class="desc">点击进入章句阅读，含精校章旨与概念标签</div>
+    </div>
+    <div class="grid-3" id="classicGrid" style="max-width:960px;margin:0 auto"></div>
+    <div class="center" style="margin-top:32px">
+      <a href="library.html" class="btn-more">查 阅 全 部 典 籍（908 部）</a>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer class="footer">
+  <a href="index.html">总纲</a>·
+  <a href="ontology.html">本体</a>·
+  <a href="graph.html">关系</a>·
+  <a href="zhangju.html">章句</a>·
+  <a href="library.html">典籍</a><br>
+  儒藏本体论 · CONFUCIAN CANON ONTOLOGY · 以本体论方法重构经学
+</footer>
+
+<script src="data/common.js"></script>
+<script src="data/ontology-enhance.js"></script>
+<script>
+// 主题切换
+(function(){
+  const dots=document.querySelectorAll('.theme-dot');
+  const saved=localStorage.getItem('rz_theme');
+  if(saved){document.body.setAttribute('data-theme',saved);dots.forEach(d=>d.classList.toggle('active',d.dataset.theme===saved))}
+  dots.forEach(d=>d.addEventListener('click',()=>{
+    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);
+    localStorage.setItem('rz_theme',t);
+    dots.forEach(x=>x.classList.toggle('active',x===d));
+  }));
+})();
+
+// 本体七层
+const grid=document.getElementById('ontGrid');
+grid.innerHTML=ONTOLOGY_LAYERS.map(l=>`
+  <div class="ont-lvl fade-up">
+    <div class="lv-num" style="color:${l.color}">${l.id}<br><span style="font-size:13px;opacity:.7">${l.num}</span></div>
+    <div class="lv-body">
+      <div class="lv-name">${l.name}<span class="en">${l.en}</span></div>
+      <div class="lv-desc">${l.desc}</div>
+      <div class="lv-tags">${l.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    </div>
+  </div>
+`).join('');
+
+// 核心原典卡片（精校的6+部）
+const core=[
+  {name:'论语',era:'四书',desc:'孔子应答弟子时人之语，二十篇，儒家第一元典。',chips:['仁','礼','君子']},
+  {name:'孟子',era:'四书',desc:'孟子著，七篇，性善、仁政、义利、王霸之辨。',chips:['性善','仁政']},
+  {name:'大学',era:'四书',desc:'三纲领八条目，内圣外王入德之门。',chips:['三纲领','八条目']},
+  {name:'中庸',era:'四书',desc:'子思作，中和诚明，儒家心性论要典。',chips:['中和','诚']},
+  {name:'传习录',era:'语录',desc:'王阳明问答语录，心学致良知说代表作。',chips:['致良知','知行合一']},
+  {name:'近思录',era:'语录',desc:'朱熹、吕祖谦编周张二程之要，理学入门。',chips:['濂洛关闽']}
+];
+document.getElementById('classicGrid').innerHTML=core.map(c=>`
+  <a class="classic-card fade-up" href="zhangju.html#${encodeURIComponent(c.name)}">
+    <div class="era">${c.era}</div>
+    <div class="name">${c.name}</div>
+    <div class="name-en">${c.name.toUpperCase()}</div>
+    <div class="desc">${c.desc}</div>
+    <div class="chips">${c.chips.map(x=>`<span class="chip">${x}</span>`).join('')}</div>
+  </a>
+`).join('');
+</script>
 </body>
 </html>
