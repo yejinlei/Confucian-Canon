@@ -3,9 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>原典阅读 · 儒藏本体论</title>
+<title>原典深度阅读 · 儒藏本体论</title>
 <link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="style/common.css">
+<style>
+/* ===== 深度阅读器专用样式 ===== */
+.reader-deep{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;margin-top:12px}
+.reader-deep.single{grid-template-columns:minmax(0,1fr)}
+.reader-deep .pane{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px 22px;min-height:400px;position:relative}
+.reader-deep .pane h2.pane-title{font-size:14px;letter-spacing:4px;color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:8px;margin:0 0 14px 0;display:flex;align-items:center;gap:8px}
+.reader-deep .pane h2.pane-title .sym{font-size:16px}
+.reader-deep .pane .pane-sub{font-size:12px;color:var(--ink-3);margin-left:auto;letter-spacing:1px}
+
+/* 章 */
+.deep-chapter{margin-bottom:30px}
+.deep-chapter .ch-head{display:flex;align-items:baseline;gap:12px;margin:18px 0 14px;border-left:3px solid var(--gold);padding-left:10px}
+.deep-chapter .ch-title{font-size:20px;color:var(--gold);letter-spacing:3px;font-weight:500}
+.deep-chapter .ch-juan{font-size:12px;color:var(--ink-3);letter-spacing:2px}
+.deep-chapter .ch-summary{font-size:13px;color:var(--ink-3);margin-top:2px}
+
+/* 节（pericope） */
+.deep-pericope{margin:14px 0;padding:10px 0;border-bottom:1px dashed var(--line)}
+.deep-pericope:last-child{border-bottom:none}
+.deep-pericope .per-text{font-size:var(--reader-fs,18px);line-height:2;color:var(--ink);letter-spacing:1px}
+.deep-pericope .per-text .term{color:var(--cinnabar);border-bottom:1px dotted var(--cinnabar);cursor:help;padding:0 1px;transition:background .2s}
+.deep-pericope .per-text .term:hover{background:rgba(192,57,43,.08)}
+.deep-pericope .per-text .term.active{background:rgba(212,168,83,.18);border-bottom-color:var(--gold)}
+.deep-pericope .per-label{font-size:12px;color:var(--ink-3);letter-spacing:2px;margin-bottom:4px}
+
+/* 注疏卡 */
+.cmt-list{margin-top:8px}
+.cmt-card{background:rgba(212,168,83,.05);border-left:2px solid var(--gold);padding:10px 14px;margin:8px 0;border-radius:0 4px 4px 0;position:relative}
+.cmt-card.cmt-layer-注{border-left-color:#a78b5a}
+.cmt-card.cmt-layer-疏{border-left-color:#c0392b}
+.cmt-card.cmt-layer-笺,.cmt-card.cmt-layer-郑笺{border-left-color:#6b8e8e}
+.cmt-card.cmt-layer-集注,.cmt-card.cmt-layer-集传{border-left-color:#7a9e7e}
+.cmt-card.cmt-layer-御注{border-left-color:#b8860b;background:rgba(184,134,11,.08)}
+.cmt-card.cmt-layer-评,.cmt-card.cmt-layer-眉批,.cmt-card.cmt-layer-总评{border-left-color:#9b59b6}
+.cmt-card .cmt-meta{font-size:12px;color:var(--ink-3);display:flex;gap:10px;align-items:center;margin-bottom:4px;letter-spacing:1px}
+.cmt-card .cmt-meta .layer{background:var(--line);color:var(--ink-2);padding:1px 8px;border-radius:10px;font-size:11px}
+.cmt-card .cmt-meta .author{color:var(--gold);font-weight:500}
+.cmt-card .cmt-text{font-size:14px;color:var(--ink-2);line-height:1.8}
+.cmt-empty{color:var(--ink-3);font-size:13px;padding:10px 0;font-style:italic;letter-spacing:1px}
+
+/* 右栏：术语面板 */
+.term-panel{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto;padding-right:6px}
+.term-panel .term-current{background:rgba(212,168,83,.08);border:1px solid var(--gold);border-radius:6px;padding:14px;margin-bottom:14px}
+.term-panel .term-current .t-name{font-size:18px;color:var(--gold);letter-spacing:3px;margin-bottom:4px}
+.term-panel .term-current .t-short{font-size:12px;color:var(--cinnabar);letter-spacing:2px;margin-bottom:8px}
+.term-panel .term-current .t-explain{font-size:13px;line-height:1.8;color:var(--ink-2)}
+.term-panel .term-current .t-related{margin-top:8px;font-size:12px;color:var(--ink-3)}
+.term-panel .term-current .t-related span{display:inline-block;background:var(--line);padding:2px 8px;margin:2px 4px 2px 0;border-radius:10px;cursor:pointer}
+.term-panel .term-current .t-related span:hover{background:var(--gold);color:#fff}
+.term-panel .term-hint{color:var(--ink-3);font-size:13px;text-align:center;padding:30px 10px;letter-spacing:2px}
+
+/* 章节论争/总评卡 */
+.crit-card{background:rgba(192,57,43,.05);border:1px solid rgba(192,57,43,.2);border-radius:6px;padding:12px 14px;margin:14px 0}
+.crit-card .crit-title{font-size:13px;color:var(--cinnabar);letter-spacing:2px;margin-bottom:6px}
+.crit-card .crit-body{font-size:13px;line-height:1.8;color:var(--ink-2)}
+
+/* 典籍切换顶栏 */
+.book-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.book-switch .bs-label{font-size:12px;color:var(--ink-3);letter-spacing:2px}
+.book-switch select{background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:6px 10px;border-radius:4px;font-size:14px;letter-spacing:2px}
+.book-switch .bs-meta{font-size:12px;color:var(--ink-3);margin-left:auto;letter-spacing:1px}
+.book-switch .bs-meta b{color:var(--gold);font-weight:500;margin:0 4px}
+
+/* 注疏层切换 */
+.layer-toggle{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.layer-toggle label{font-size:12px;color:var(--ink-2);background:var(--line);padding:3px 10px;border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:4px;letter-spacing:1px;user-select:none}
+.layer-toggle label.on{background:var(--gold);color:#fff}
+.layer-toggle label input{display:none}
+
+/* 阅读器工具栏 */
+.reader-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line);margin-bottom:14px}
+.reader-toolbar .fs-group,.reader-toolbar .pd-group{display:flex;gap:4px}
+.reader-toolbar button{background:var(--line);color:var(--ink-2);border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:13px;letter-spacing:2px}
+.reader-toolbar button.on{background:var(--gold);color:#fff}
+.reader-toolbar .spacer{flex:1}
+.reader-toolbar .book-name{font-size:14px;color:var(--gold);letter-spacing:4px}
+
+/* 响应式 */
+@media(max-width:1100px){
+  .reader-deep{grid-template-columns:1fr}
+  .term-panel{position:static;max-height:none}
+}
+
+/* 竖排模式 */
+.reader-deep.vertical .deep-chapter .per-text{writing-mode:vertical-rl;letter-spacing:3px;line-height:2.2;max-height:600px;overflow-x:auto;padding:10px 0}
+
+/* 滚动条美化 */
+.term-panel::-webkit-scrollbar{width:4px}
+.term-panel::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
+.term-panel::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+</style>
 </head>
 <body>
 
@@ -33,325 +124,360 @@
   <aside class="sidebar global-sidebar" id="globalSidebar"></aside>
   <aside class="sidebar book-sidebar" id="bookSidebar"></aside>
   <div class="main">
-    <div class="reader-controls">
-      <button id="btnSmall">小</button>
-      <button id="btnMed" class="active">中</button>
-      <button id="btnLarge">大</button>
-      <button id="btnVertical">竖排</button>
-      <button id="btnHorizontal" class="active">横排</button>
-      <span style="flex:1"></span>
-      <span id="bookTitle" style="font-size:14px;color:var(--gold);letter-spacing:2px"></span>
+
+    <!-- 典籍切换 -->
+    <div class="book-switch">
+      <span class="bs-label">典籍</span>
+      <select id="bookSelect"><option value="">-- 选择典籍 --</option></select>
+      <span class="bs-meta" id="bookMeta"></span>
     </div>
 
-    <!-- 注疏/批注切换 -->
-    <div class="pingdian-toolbar">
-      <div class="commentary-tabs" id="commentaryTabs"></div>
-      <label class="pd-toggle"><input type="checkbox" id="pdToggle" checked> 显示名家批注</label>
+    <!-- 工具栏 -->
+    <div class="reader-toolbar">
+      <div class="fs-group">
+        <button data-fs="16">小</button>
+        <button data-fs="18" class="on">中</button>
+        <button data-fs="22">大</button>
+      </div>
+      <div class="pd-group">
+        <button id="btnH" class="on">横排</button>
+        <button id="btnV">竖排</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="book-name" id="bookName"></span>
     </div>
-    <!-- 章末总评容器 -->
-    <div class="chapter-pingdian-area" id="chapterPingdian"></div>
 
-    <!-- 章节目录（小侧边） -->
-    <div class="chapter-sidebar" id="chapterSidebar" style="position:fixed;right:0;top:64px;width:0;padding:0;border:none;transition:width .3s;z-index:5"></div>
-    <button id="toggleToc" class="btn btn-ghost" style="margin-bottom:12px;display:none">显 示 章 节 目 录</button>
+    <!-- 注疏层筛选 -->
+    <div class="layer-toggle" id="layerToggle"></div>
 
-    <!-- 正文 -->
-    <div class="reader-content" id="content" style="font-size:18px">
-      <div style="text-align:center;color:var(--ink-3);padding:80px 0;font-size:14px;letter-spacing:2px">
-        请从左侧或典籍库选择典籍阅读
+    <!-- 双栏阅读 -->
+    <div class="reader-deep" id="readerDeep">
+      <div class="pane" id="paneText">
+        <h2 class="pane-title"><span class="sym">經</span>原典正文<span class="pane-sub" id="textCount"></span></h2>
+        <div id="textBody">
+          <div style="text-align:center;color:var(--ink-3);padding:80px 0;font-size:14px;letter-spacing:2px">请从左侧典籍库选择一部典籍开始阅读</div>
+        </div>
+      </div>
+      <div class="pane" id="paneNote">
+        <h2 class="pane-title"><span class="sym">註</span>注疏·集注·点评<span class="pane-sub" id="noteCount"></span></h2>
+        <div class="term-panel" id="termPanel">
+          <div class="term-hint">点击正文朱字术语<br>查看概念释义</div>
+        </div>
+        <div id="noteBody"><div class="cmt-empty">选择典籍后显示历代注疏</div></div>
       </div>
     </div>
+
   </div>
 </div>
 
-<footer class="footer">儒藏本体论 · 原典阅读</footer>
+<footer class="footer">儒藏本体论 · 原典深度阅读</footer>
 
 <script src="data/common.js"></script>
 <script src="data/ontology-enhance.js"></script>
-<script src="data/commentary.js"></script>
 <script>
-// 全局侧边栏（主题切换+主导航+核心典籍）——走统一 initPage，注入汉堡+抽屉
 (function(){
-  function doInit(){
-    if (typeof initPage === 'function') {
-      initPage('reader.html');
-    } else setTimeout(doInit,50);
-  }
+  function doInit(){ if(typeof initPage==='function') initPage('reader.html'); else setTimeout(doInit,50); }
   doInit();
 })();
+</script>
+<script>
+// ===== 深度阅读器主逻辑 =====
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+let curBid = params.get('b') || '';
+let curBook = null;
+let activeLayers = new Set(['经','注','疏','笺','郑笺','集注','集传','御注','象传','眉批','总评','评']);
+let activeTerm = null;
+let readerFs = 18;
+let vertical = false;
 
-// 侧边栏书单（核心典籍优先）
-const CORE_BOOKS=['大学章句','中庸章句','论语','孟子','周易','尚书','诗经','礼记','周礼','仪礼',
-  '春秋左传','春秋公羊传','春秋谷梁传','孝经','朱子语类','传习录','近思录','二程遗书','四书大全'];
-const sidebar=document.getElementById('bookSidebar');
-const catMap={};BOOKS_DATA.forEach(b=>{if(!catMap[b[0]])catMap[b[0]]=[];catMap[b[0]].push(b[1])});
-let html='';
-html+='<h4>核心典籍</h4>';
-CORE_BOOKS.forEach(n=>{html+='<a href="?b='+encodeURIComponent(findPath(n))+'">'+n+'</a>'});
-html+='<h4>全部分类</h4>';
-Object.entries(catMap).forEach(([cat,books])=>{
-  html+='<h4 style="font-size:12px;color:var(--ink-dim);margin-top:14px">'+cat+'（'+books.length+'）</h4>';
-  books.slice(0,20).forEach(n=>{html+='<a href="?b='+encodeURIComponent(cat+'/'+n+'.txt')+'">'+n+'</a>'});
-  if(books.length>20)html+='<a href="library.html?cat='+encodeURIComponent(cat)+'" style="font-size:12px;color:var(--ink-dim)">查看全部 '+books.length+' 部→</a>';
+const LAYER_COLORS = {'注':'#a78b5a','疏':'#c0392b','笺':'#6b8e8e','郑笺':'#6b8e8e','集注':'#7a9e7e','集传':'#7a9e7e','御注':'#b8860b','经':'#d4a853','象传':'#d4a853','眉批':'#9b59b6','总评':'#9b59b6','评':'#9b59b6'};
+
+// 加载索引 → 填下拉 → 加载当前典籍
+fetch('data/reader-data-index.json').then(r=>r.json()).then(idx=>{
+  const sel = $('bookSelect');
+  idx.books.forEach(b=>{
+    const o = document.createElement('option');
+    o.value = b.id; o.textContent = `${b.title}（${b.dynasty}·${b.author.split('；')[0]}）`;
+    sel.appendChild(o);
+  });
+  if(curBid){ sel.value = curBid; loadBook(curBid); }
+  sel.onchange = ()=>{ const v=sel.value; if(v){curBid=v;history.replaceState(null,'',`reader.html?b=${v}`);loadBook(v);} };
+  fillBookSidebar(idx.books);
+}).catch(err=>{
+  $('textBody').innerHTML = '<div class="cmt-empty">索引加载失败，请稍后重试</div>';
 });
-sidebar.innerHTML=html;
-function findPath(name){
-  for(const b of BOOKS_DATA){if(b[1]===name)return b[0]+'/'+b[1]+'.txt'}
-  return '四书/'+name+'.txt';
-}
 
-// 字号切换
-let fs=18;
-function setFs(n){fs=n;document.getElementById('content').style.fontSize=n+'px';
-  ['btnSmall','btnMed','btnLarge'].forEach(id=>document.getElementById(id).classList.remove('active'));
-  document.getElementById(n===16?'btnSmall':n===18?'btnMed':'btnLarge').classList.add('active');
-}
-document.getElementById('btnSmall').onclick=()=>setFs(16);
-document.getElementById('btnMed').onclick=()=>setFs(18);
-document.getElementById('btnLarge').onclick=()=>setFs(22);
-let vertical=false;
-document.getElementById('btnVertical').onclick=()=>{vertical=true;document.getElementById('content').classList.add('reader-vertical');document.getElementById('btnVertical').classList.add('active');document.getElementById('btnHorizontal').classList.remove('active')};
-document.getElementById('btnHorizontal').onclick=()=>{vertical=false;document.getElementById('content').classList.remove('reader-vertical');document.getElementById('btnHorizontal').classList.add('active');document.getElementById('btnVertical').classList.remove('active')};
-
-// 加载书籍
-const params=new URLSearchParams(location.search);
-const book=params.get('b');
-const findQ=params.get('find')||params.get('q')||'';
-const chIdx=parseInt(params.get('ch')||params.get('chIdx')||'-1');
-const content=document.getElementById('content');
-const bookTitle=document.getElementById('bookTitle');
-
-if(book){loadBook(book)}
-function shortName(b){return b.replace('.txt','').split('/').pop()}
-function detectCommentaryBook(short){
-  for(const k of Object.keys(COMMENTARY_LAYERS)){
-    if(short.includes(k)||k.includes(short))return k;
-  }
-  return null;
-}
-function loadBook(path){
-  const short=shortName(path);
-  bookTitle.textContent=short;
-  content.innerHTML='<div style="text-align:center;color:var(--gold);padding:40px"><div class="reader-loading" style="border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;width:32px;height:32px;animation:compassSpin 1s linear infinite;margin:0 auto 16px"></div>正在加载…</div>';
-  // 注疏tab
-  const cmtKey=detectCommentaryBook(short);
-  const tabs=document.getElementById('commentaryTabs');
-  if(cmtKey){
-    tabs.style.display='flex';
-    tabs.innerHTML=COMMENTARY_LAYERS[cmtKey].map((l,i)=>'<button data-layer="'+l.key+'" class="'+(i===0?'active':'')+'">'+l.name+'</button>').join('');
-    tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{tabs.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderLayer(b.dataset.layer)});
-  }else{tabs.style.display='none';tabs.innerHTML=''}
-
-  // 按卷模式检测
-  fetch('books-split/manifest.json').then(r=>r.json()).then(man=>{
-    if(man[path])loadSplitBook(path,man[path]);
-    else loadFullBook(path);
-  }).catch(()=>loadFullBook(path));
-}
-function renderRawText(text){
-  // 段落化
-  const lines=text.split(/\r?\n/);
-  let out='<h1>'+shortName(book)+'</h1>';
-  let chapOpen=false;
-  let curChapterId='';
-  window.__chapterSeq = window.__chapterSeq || 0;
-  lines.forEach(line=>{
-    line=line.trim();
-    if(!line)return;
-    if(/^[卷篇章]+\s*[一二三四五六七八九十百零〇\d]+/.test(line)||/^大学|^中庸|^论语|^孟子/.test(line)&&line.length<20){
-      // 章前先收束：输出上一章的章末总评
-      if(curChapterId){
-        out+=renderEndNotes(book,curChapterId);
-      }
-      window.__chapterSeq++;
-      curChapterId=detectChapterId(book,line,window.__chapterSeq);
-      out+='<div class="chapter-title" id="ch-'+(chapOpen?++window.__ch:0)+'" data-cid="'+curChapterId+'">'+escapeHtml(line)+'</div>';chapOpen=true;
-      out+=renderHeadNotes(book,curChapterId);
-    }else{
-      out+='<p data-cid="'+curChapterId+'">'+escapeHtml(line)+'</p>';
-    }
+function fillBookSidebar(books){
+  const side = $('bookSidebar');
+  const cats = {};
+  books.forEach(b=>{
+    const c = b.cat || '其他';
+    (cats[c]=cats[c]||[]).push(b);
   });
-  // 最后一章章末总评
-  if(curChapterId) out+=renderEndNotes(book,curChapterId);
-  content.innerHTML=out;
-  // 概念标注
-  annotateConceptsIn(content);
-  // 注入夹批/旁批
-  injectInterAndSideNotes(book);
-  // 定位
-  jumpToTarget();
-  // 批注开关
-  setupPingdianToggle();
+  let html = '<div class="sidebar-title">典籍导航</div>';
+  const catName = {'四书':'四書','五经总义':'五經','诗经':'詩經','孝经':'孝經'};
+  Object.keys(cats).forEach(c=>{
+    html += `<div class="sidebar-group"><div class="sidebar-group-title">${catName[c]||c}</div>`;
+    cats[c].forEach(b=>{
+      html += `<a href="reader.html?b=${b.id}" class="sidebar-link" data-b="${b.id}">${b.title}<span class="sidebar-link-meta">${b.chapter_count}章</span></a>`;
+    });
+    html += '</div>';
+  });
+  html += '<div class="sidebar-group" style="margin-top:20px"><div class="sidebar-group-title">更多典籍</div>'+
+          '<a href="library.html" class="sidebar-link">前往典籍库 →</a></div>';
+  side.innerHTML = html;
 }
 
-// 章标题→章节ID简单匹配
-function detectChapterId(bookId,title,seq){
-  const t=title.replace(/\s/g,'');
-  const map={
-    // 论语·学而
-    '学而第一':'xueer-1','學而第一':'xueer-1',
-    '学而':'xueer-1','學而':'xueer-1',
-    // 论语·为政
-    '为政第二':'weizheng-1','為政第二':'weizheng-1',
-    // 论语·里仁
-    '里仁第四':'liren-8','裡仁第四':'liren-8',
-    // 论语·述而
-    '述而第七':'shuer-6','述而':'shuer-6',
-    // 论语·子罕
-    '子罕第九':'zihan-4','子罕':'zihan-4',
-    // 论语·颜渊
-    '颜渊第十二':'yanyuan-1','顏淵第十二':'yanyuan-1','颜渊':'yanyuan-1',
-    // 大学
-    '大学':'jing','大學':'jing','大学章句':'jing','大學章句':'jing','经一章':'jing',
-    // 中庸
-    '中庸':'jing-tiandao','中庸章句':'jing-tiandao',
-    // 孟子
-    '梁惠王上':'lianghuiwang-shang-1','梁惠王上第一章':'lianghuiwang-shang-1',
-    '公孙丑上':'gongsunchou-shang-2','公孫丑上':'gongsunchou-shang-2','公孙丑上第二章':'gongsunchou-shang-2',
-    '告子上':'gaozi-shang-1','告子上第一章':'gaozi-shang-1',
+function loadBook(bid){
+  $('bookName').textContent = '加载中…';
+  fetch(`reader-data/${bid}.json`).then(r=>{
+    if(!r.ok) throw new Error('http '+r.status);
+    return r.json();
+  }).then(data=>{
+    curBook = data;
+    renderBook(data);
+    const md = data.metadata;
+    $('bookName').textContent = md.title;
+    $('bookMeta').innerHTML = `<b>${md.title}</b>${md.dynasty} · ${md.author.split('；')[0]} · ${md.juan_count}卷 ${md.chapter_count}章 ${md.word_count}字`;
+    // 定位章节
+    const ch = params.get('ch');
+    if(ch){ setTimeout(()=>{const el=document.getElementById('ch-'+ch);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},100); }
+    // 定位查询
+    const q = params.get('find')||params.get('q');
+    if(q){ highlightQuery(q); }
+    // 更新侧栏高亮
+    document.querySelectorAll('.sidebar-link[data-b]').forEach(a=>{
+      a.classList.toggle('active', a.dataset.b===bid);
+    });
+    buildLayerToggle(data);
+  }).catch(err=>{
+    $('bookName').textContent = '加载失败';
+    $('textBody').innerHTML = `<div class="cmt-empty">加载 ${bid} 失败：${err.message}<br>该典籍可能尚未入库，或前往 <a href="library.html">典籍库</a> 选择其它。</div>`;
+    $('noteBody').innerHTML = '';
+  });
+}
+
+function buildLayerToggle(data){
+  // 统计实际出现的层
+  const layers = new Set();
+  data.chapters.forEach(c=>c.pericopes.forEach(p=>(p.commentaries||[]).forEach(n=>{if(n.layer)layers.add(n.layer);})));
+  const tog = $('layerToggle');
+  tog.innerHTML = '<span style="font-size:12px;color:var(--ink-3);letter-spacing:2px;margin-right:6px">注疏层</span>';
+  layers.forEach(l=>{
+    const lab = document.createElement('label');
+    lab.className = activeLayers.has(l)?'on':'';
+    lab.innerHTML = `<input type="checkbox" ${activeLayers.has(l)?'checked':''}>${l}`;
+    lab.querySelector('input').onchange = e=>{
+      if(e.target.checked){activeLayers.add(l);lab.classList.add('on')}else{activeLayers.delete(l);lab.classList.remove('on')}
+      renderBook(curBook);
+    };
+    tog.appendChild(lab);
+  });
+}
+
+function renderBook(data){
+  const md = data.metadata;
+  const chapters = data.chapters;
+  const conceptMap = {};
+  (data.concepts||[]).forEach(c=>conceptMap[c.id]=c);
+  const commMap = {};
+  (data.commentators||[]).forEach(c=>commMap[c.id]=c);
+  // 概念反向索引：per-id → concepts
+  const perConcept = {};
+
+  let textHtml = `<div class="book-intro" style="margin-bottom:18px;padding:14px 18px;background:rgba(212,168,83,.05);border-left:3px solid var(--gold);border-radius:0 4px 4px 0">
+    <div style="font-size:16px;color:var(--gold);letter-spacing:4px;margin-bottom:6px">${md.title} <span style="font-size:12px;color:var(--ink-3);letter-spacing:2px">${md.subtitle||''}</span></div>
+    <div style="font-size:12px;color:var(--ink-3);letter-spacing:2px;margin-bottom:8px">${md.dynasty} · ${md.author} · ${md.category}</div>
+    <div style="font-size:13px;line-height:1.9;color:var(--ink-2)">${md.intro||''}</div>
+  </div>`;
+
+  let noteHtml = '';
+  let totalPer=0, totalCmt=0, hitCmt=0;
+
+  chapters.forEach(ch=>{
+    textHtml += `<div class="deep-chapter" id="${ch.id}">
+      <div class="ch-head">
+        <div class="ch-title">${ch.title}</div>
+        <div class="ch-juan">${ch.juan}卷</div>
+      </div>`;
+    if(ch.summary) textHtml += `<div class="ch-summary">${ch.summary}</div>`;
+
+    let chNoteHtml = '';
+    (ch.pericopes||[]).forEach((p,pi)=>{
+      totalPer++;
+      // 渲染正文 + 概念标红
+      let t = escapeHtml(p.text);
+      const cids = p.concepts||[];
+      perConcept[p.id] = cids.map(cid=>conceptMap[cid]).filter(Boolean);
+      cids.forEach(cid=>{
+        const c = conceptMap[cid];
+        if(!c) return;
+        // 找到第一次出现的关键词并标红
+        const keys = [c.name];
+        if(c.related) keys.push(...c.related);
+        for(const k of keys){
+          if(!k) continue;
+          const idx = t.indexOf(k);
+          if(idx>=0){
+            t = t.slice(0,idx) + `<span class="term" data-cid="${cid}" data-per="${p.id}">${k}</span>` + t.slice(idx+k.length);
+            break;
+          }
+        }
+      });
+      textHtml += `<div class="deep-pericope" id="${p.id}">
+        <div class="per-label">${p.label||''}</div>
+        <div class="per-text">${t}</div>
+      </div>`;
+
+      // 注疏
+      const notes = (p.commentaries||[]).filter(n=>activeLayers.has(n.layer));
+      if(notes.length){
+        hitCmt += notes.length;
+        chNoteHtml += `<div class="deep-pericope" data-for="${p.id}">
+          <div class="per-label">${p.label||''} · 注疏</div>
+          <div class="cmt-list">${notes.map(n=>renderCmt(n,commMap)).join('')}</div>
+        </div>`;
+        totalCmt += p.commentaries.length;
+      }
+    });
+
+    // 章末论争/总评
+    if(data.critical_notes && data.critical_notes.length){
+      const chIdx = chapters.indexOf(ch);
+      // 均匀分布论争到章末
+      if(chIdx < data.critical_notes.length){
+        const cn = data.critical_notes[chIdx];
+        chNoteHtml += `<div class="crit-card"><div class="crit-title">【${cn.topic||'章末总评'}】</div><div class="crit-body">${cn.summary||''}</div></div>`;
+      }else if(chIdx === chapters.length-1){
+        // 最后一章补剩余
+        data.critical_notes.forEach(cn=>{
+          chNoteHtml += `<div class="crit-card"><div class="crit-title">【${cn.topic||'章末总评'}】</div><div class="crit-body">${cn.summary||''}</div></div>`;
+        });
+      }
+    }
+
+    textHtml += '</div>';
+    noteHtml += `<div class="deep-chapter-note" data-ch="${ch.id}">
+      <div class="ch-head"><div class="ch-title" style="font-size:16px">${ch.title}</div><div class="ch-juan">${ch.juan}卷</div></div>
+      ${chNoteHtml || '<div class="cmt-empty">本章暂无已收录的注疏</div>'}
+    </div>`;
+  });
+
+  $('textBody').innerHTML = textHtml;
+  $('noteBody').innerHTML = noteHtml;
+  $('textCount').textContent = `${chapters.length}章 / ${totalPer}节`;
+  $('noteCount').textContent = `共录${hitCmt}条注疏`;
+  document.documentElement.style.setProperty('--reader-fs', readerFs+'px');
+  $('readerDeep').classList.toggle('vertical', vertical);
+
+  // 术语点击
+  document.querySelectorAll('.term').forEach(el=>{
+    el.onclick = ()=>{
+      const cid = el.dataset.cid;
+      showTerm(cid, conceptMap);
+      document.querySelectorAll('.term.active').forEach(x=>x.classList.remove('active'));
+      el.classList.add('active');
+    };
+  });
+
+  // 同步滚动
+  bindSyncScroll();
+
+  if(activeTerm){
+    const stillExists = conceptMap[activeTerm];
+    if(stillExists) showTerm(activeTerm, conceptMap);
+    else activeTerm = null;
+  }
+}
+
+function renderCmt(n, commMap){
+  const c = commMap[n.commentator] || {name:n.commentator,dynasty:'',role:''};
+  const color = LAYER_COLORS[n.layer]||'#d4a853';
+  return `<div class="cmt-card cmt-layer-${n.layer}">
+    <div class="cmt-meta">
+      <span class="layer" style="background:${color}22;color:${color};border:1px solid ${color}55">${n.layer||'注'}</span>
+      <span class="author">${c.dynasty?c.dynasty+'·':''}${c.name}</span>
+      ${c.role?`<span style="font-size:11px;color:var(--ink-3)">${c.role}</span>`:''}
+    </div>
+    <div class="cmt-text">${escapeHtml(n.text||'')}</div>
+  </div>`;
+}
+
+function showTerm(cid, conceptMap){
+  activeTerm = cid;
+  const c = conceptMap[cid];
+  if(!c) return;
+  const panel = $('termPanel');
+  let rel = '';
+  if(c.related && c.related.length){
+    rel = '<div class="t-related">相关：'+c.related.map(r=>`<span data-r="${r}">${r}</span>`).join('')+'</div>';
+  }
+  let layers = (c.layers||[]).map(l=>`<span style="background:var(--line);color:var(--ink-3);padding:1px 6px;border-radius:8px;font-size:11px;margin-right:4px">${l}</span>`).join('');
+  panel.innerHTML = `<div class="term-current">
+    <div class="t-name">${c.name}</div>
+    <div class="t-short">${c.short||''} ${layers}</div>
+    <div class="t-explain">${escapeHtml(c.explain||'')}</div>
+    ${rel}
+  </div>`;
+  // 相关词点击：尝试跳转到字典
+  panel.querySelectorAll('.t-related span').forEach(s=>{
+    s.onclick = ()=>{ location.href = `dictionary.html#kw=${encodeURIComponent(s.dataset.r)}`; };
+  });
+  panel.scrollTop = 0;
+}
+
+function bindSyncScroll(){
+  // 右侧注疏滚动时，左侧自动定位到对应节
+  const paneNote = $('paneNote');
+  const paneText = $('paneText');
+  let lock = false;
+  paneNote.onscroll = ()=>{
+    if(lock) return;
+    const noteChaps = paneNote.querySelectorAll('.deep-chapter-note');
+    for(const nc of noteChaps){
+      const r = nc.getBoundingClientRect();
+      if(r.top < 200 && r.bottom > 100){
+        const chid = nc.dataset.ch;
+        const tex = paneText.querySelector('#'+chid);
+        if(tex){
+          const tr = tex.getBoundingClientRect();
+          const pr = paneText.getBoundingClientRect();
+          if(tr.top < pr.top || tr.bottom > pr.bottom-100){
+            lock = true;
+            paneText.scrollTo({top:tex.offsetTop - 80, behavior:'smooth'});
+            setTimeout(()=>lock=false,600);
+          }
+        }
+        break;
+      }
+    }
   };
-  if(map[t]) return map[t];
-  // 含关键字的回退
-  if(t.indexOf('学而')===0||t.indexOf('學而')===0) return 'xueer-'+seq;
-  if(t.indexOf('里仁')===0||t.indexOf('裡仁')===0) return 'liren-'+seq;
-  if(t.indexOf('述而')===0) return 'shuer-'+seq;
-  if(t.indexOf('子罕')===0) return 'zihan-'+seq;
-  if(t.indexOf('颜渊')===0||t.indexOf('顏淵')===0) return 'yanyuan-'+seq;
-  if(t.indexOf('梁惠王上')===0) return 'lianghuiwang-shang-'+seq;
-  if(t.indexOf('公孙丑上')===0||t.indexOf('公孫丑上')===0) return 'gongsunchou-shang-'+seq;
-  if(t.indexOf('告子上')===0) return 'gaozi-shang-'+seq;
-  return '';
 }
 
-function renderHeadNotes(bookId,cid){
-  const notes=(window.getCommentary&&window.getCommentary(bookId,cid)||[]).filter(n=>n.type==='head');
-  if(!notes.length) return '';
-  return '<div class="pingdian-head" data-pd="head"><div class="pd-head-label">【眉批】</div>'+
-    notes.map(n=>'<div class="pd-item"><span class="pd-scholar">【'+n.dynasty+'·'+n.scholar+'】</span><span class="pd-text">'+escapeHtml(n.text)+'</span></div>').join('')+
-    '</div>';
-}
-function renderEndNotes(bookId,cid){
-  const notes=(window.getCommentary&&window.getCommentary(bookId,cid)||[]).filter(n=>n.type==='end');
-  if(!notes.length) return '';
-  return '<div class="pingdian-end" data-pd="end"><div class="pd-end-title">章末总评</div>'+
-    notes.map(n=>'<div class="pd-item pd-end-item"><span class="pd-scholar pd-end-scholar">'+n.dynasty+'·'+n.scholar+'曰：</span><span class="pd-text">'+escapeHtml(n.text)+'</span></div>').join('')+
-    '</div>';
+function highlightQuery(q){
+  // 简单高亮
+  const body = $('textBody');
+  const html = body.innerHTML;
+  try{
+    const re = new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','g');
+    body.innerHTML = html.replace(re, '<mark>$1</mark>');
+  }catch(e){}
 }
 
-function injectInterAndSideNotes(bookId){
-  const all=window.getCommentary?window.getAllCommentaries():[];
-  const notes=all.filter(n=>n.bookId===bookId&&(n.type==='inter'||n.type==='side'));
-  if(!notes.length) return;
-  content.querySelectorAll('p').forEach(p=>{
-    const text=p.textContent;
-    // 夹批：找 anchor 命中的句子
-    notes.forEach(n=>{
-      if(!n.anchor) return;
-      const anchor=n.anchor;
-      if(text.indexOf(anchor)>=0){
-        const jp=document.createElement('span');
-        jp.className='pingdian-inter';
-        jp.setAttribute('data-scholar',n.dynasty+'·'+n.scholar);
-        jp.title=n.dynasty+'·'+n.scholar+' 夹批：'+n.text;
-        jp.innerHTML='<span class="pd-inter-text">'+escapeHtml(n.text)+'</span><span class="pd-inter-author">——'+n.scholar+'</span>';
-        // 把 anchor 替换为 anchor+夹批
-        const esc=anchor.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-        p.innerHTML=p.innerHTML.replace(new RegExp(esc,'g'),anchor+'<span class="pd-anchor"></span>');
-        const anchorEl=p.querySelector('.pd-anchor');
-        if(anchorEl){anchorEl.replaceWith(jp);anchorEl.remove()}
-      }
-    });
-    // 旁批：在段落右侧
-    const sideNotes=notes.filter(n=>n.type==='side'&&text.indexOf(n.anchor||'__NOPE__')<0&&p.textContent.length>10&&!p.dataset.hasSide);
-    // 简化：对有眉批但无夹批命中的段，旁批显示
-  });
-}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
-function setupPingdianToggle(){
-  const t=document.getElementById('pdToggle');if(!t)return;
-  const apply=()=>{document.documentElement.setAttribute('data-pingdian',t.checked?'on':'off')};
-  t.onchange=apply;apply();
-}
-
-function escapeHtml(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-function annotateConceptsIn(el){
-  if(!window.__conceptRe){
-    const keys=Object.keys(CONCEPTS).sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
-    window.__conceptRe=new RegExp('('+keys.join('|')+')','g');
-  }
-  el.querySelectorAll('p,.chapter-title').forEach(p=>{
-    if(p.dataset.annotated)return;
-    p.innerHTML=p.innerHTML.replace(window.__conceptRe,(m)=>{
-      return '<span class="concept-tag" onclick="showConcept(event,\''+m+'\')">'+m+'</span>';
-    });
-    p.dataset.annotated='1';
-  });
-}
-window.showConcept=function(e,name){
-  document.querySelectorAll('.concept-popup').forEach(x=>x.remove());
-  const c=CONCEPTS[name];if(!c)return;
-  const p=document.createElement('div');p.className='concept-popup';
-  p.innerHTML='<h5>'+name+'</h5><div style="color:var(--ink-2);line-height:1.9;margin-bottom:8px">'+c.def+'</div><div style="color:var(--ink-3);font-size:12px">'+c.source+'</div><div style="margin-top:8px;text-align:right"><a href="dictionary.html#'+encodeURIComponent(name)+'" style="color:var(--gold);font-size:12px">查看词条→</a></div>';
-  p.style.left=e.pageX+'px';p.style.top=(e.pageY+20)+'px';
-  document.body.appendChild(p);
-  setTimeout(()=>document.addEventListener('click',()=>p.remove(),{once:true}));
-};
-function loadFullBook(path){
-  fetch('books/'+path).then(r=>r.text()).then(text=>renderRawText(text));
-}
-function loadSplitBook(path,meta){
-  // 拼接所有卷
-  const urls=meta.volumes.map(v=>v.file);
-  Promise.all(urls.slice(0,8).map(u=>fetch(u).then(r=>r.text()))).then(texts=>{
-    renderRawText(texts.join('\n'));
-    // 后台加载剩余
-    urls.slice(8).reduce((p,u)=>p.then(()=>fetch(u).then(r=>r.text())).then(t=>{
-      content.innerHTML+=t.split(/\r?\n/).filter(l=>l.trim()).map(l=>'<p>'+escapeHtml(l.trim())+'</p>').join('');
-      annotateConceptsIn(content);
-    }),Promise.resolve());
-  });
-}
-function jumpToTarget(){
-  if(chIdx>=0){
-    const el=document.getElementById('ch-'+chIdx);if(el){el.scrollIntoView();highlightEl(el);return}
-  }
-  if(findQ){
-    // 搜索首句
-    const all=content.querySelectorAll('p');
-    for(const p of all){
-      if(p.textContent.includes(findQ.slice(0,Math.min(findQ.length,12)))){
-        p.scrollIntoView({behavior:'smooth',block:'center'});highlightEl(p);return;
-      }
-    }
-    // 全文findQ
-    setTimeout(()=>{
-      for(const p of document.querySelectorAll('#content p')){
-        if(p.textContent.includes(findQ.slice(0,6))){p.scrollIntoView({behavior:'smooth',block:'center'});highlightEl(p);return}
-      }
-    },800);
-  }
-}
-function highlightEl(el){
-  el.style.background='rgba(200,66,46,.25)';
-  el.style.padding='6px 10px';el.style.borderRadius='4px';
-  setTimeout(()=>{el.style.transition='background 2s';el.style.background='transparent';el.style.padding='';el.style.borderRadius='';},3000);
-}
-function renderLayer(layerKey){
-  // 注疏层切换（以简单浮层方式呈现注释，按段落匹配）
-  document.querySelectorAll('.commentary-note').forEach(n=>n.remove());
-  if(layerKey==='jing')return;
-  content.querySelectorAll('p').forEach(p=>{
-    // 为演示，仅在含概念名段落后加注疏提示（完整版可加载对应注疏文本）
-    const text=p.textContent;
-    Object.keys(CONCEPTS).forEach(k=>{
-      if(text.includes(k)&&CONCEPTS[k].source){
-        const note=document.createElement('div');note.className='commentary-note';
-        note.innerHTML='<span class="label">注</span>'+CONCEPTS[k].source;
-        p.after(note);
-      }
-    });
-  });
-}
+// 字号/横竖排
+document.querySelectorAll('[data-fs]').forEach(b=>{
+  b.onclick = ()=>{
+    readerFs = parseInt(b.dataset.fs);
+    document.querySelectorAll('[data-fs]').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.documentElement.style.setProperty('--reader-fs', readerFs+'px');
+  };
+});
+$('btnV').onclick = ()=>{vertical=true;$('readerDeep').classList.add('vertical');$('btnV').classList.add('on');$('btnH').classList.remove('on')};
+$('btnH').onclick = ()=>{vertical=false;$('readerDeep').classList.remove('vertical');$('btnH').classList.add('on');$('btnV').classList.remove('on')};
 </script>
 </body>
 </html>
