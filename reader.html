@@ -5,44 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>阅读 · 儒藏本体论</title>
   <link rel="stylesheet" href="style/common.css">
-  <link rel="preload" href="data/books.js" as="script">
-  <link rel="preload" href="data/common.js" as="script">
-  <script>
-  /* 首屏预取：解析到 <head> 就立刻并行请求正文，
-     与样式表、公共脚本的下载同时进行，避免"串行等待" */
-  (function () {
-    var m = new URLSearchParams(location.search).get('b');
-    if (!m) return;
-    var parts = m.split('/').map(encodeURIComponent);
-    var bookUrl = 'books/' + parts.join('/');
-    var bookName = parts[parts.length - 1].replace(/\.txt$/, '');
-    var cat = parts.slice(0, -1).join('/');
-    var splitIdxUrl = 'books-split/' + cat + '/' + bookName + '/index.json';
-    window.__bookPath = m;
-    window.__bookPreloadUrl = bookUrl;
-    /* 整文件请求（小书/未切分书用）带 AbortController：
-       一旦确认存在按卷索引，立即取消整本下载，避免大书整本抢带宽、拖慢按卷加载 */
-    var ac = new AbortController();
-    window.__bookAbort = ac;
-    window.__bookPreload = fetch(bookUrl, { signal: ac.signal })
-      .then(function (r) { return r.ok ? r : null; })
-      .catch(function () { return null; });
-    /* 探测是否有按卷切分索引（几十字节 JSON），命中则走按卷加载，首屏只拉第一卷 */
-    window.__splitPreload = fetch(splitIdxUrl).then(function (r) {
-      // 只有切分索引确实存在（200且有内容）时，才取消整本书预加载
-      if (r.ok) {
-        return r.json().then(function (j) {
-          if (j && j.volumes && j.volumes.length >= 2) {
-            try { ac.abort(); } catch (e) {}
-            return j;
-          }
-          return null;
-        });
-      }
-      return null;
-    }).catch(function () { return null; });
-  })();
-  </script>
   <style>
     .reader-container {
       display: flex;
@@ -97,15 +59,6 @@
       background: var(--accent-light);
       color: var(--accent-color);
     }
-    .chapter-list li.toc-loading {
-      cursor: default;
-      font-style: italic;
-      opacity: 0.7;
-    }
-    .chapter-list li.toc-loading:hover {
-      background: transparent;
-      color: var(--text-secondary);
-    }
     .reader-body {
       flex: 1;
       min-width: 0;
@@ -154,14 +107,6 @@
       margin-top: 10px;
       font-size: 12px;
       opacity: 0.7;
-    }
-    /* split 模式下未加载卷的占位符（"…"） */
-    .reader-content p.volume-placeholder {
-      text-indent: 0;
-      text-align: center;
-      color: var(--text-secondary);
-      padding: 2em 0;
-      font-size: 14px;
     }
     /* 移动端目录按钮 */
     .mobile-toc-btn {
@@ -216,14 +161,6 @@
       background: #d93025;
       color: #fff;
     }
-    /* 章句跳转高亮 */
-    .highlight-target {
-      animation: highlight-fade 2s ease-out;
-    }
-    @keyframes highlight-fade {
-      0% { background: rgba(193, 154, 107, 0.6); }
-      100% { background: transparent; }
-    }
     @media (max-width: 1200px) {
       .chapter-sidebar {
         position: fixed;
@@ -254,7 +191,6 @@
     }
     .toc-mask.show { display: block; }
   </style>
-<link rel="icon" href="favicon.ico">
 </head>
 <body>
   <div class="main-content">
@@ -299,7 +235,6 @@
   <button class="mobile-toc-btn" id="tocBtn" title="目录">☰</button>
   <div class="toc-mask" id="tocMask"></div>
 
-  <script src="data/books.js"></script>
   <script src="data/common.js"></script>
   <script>
     initPage('library.html');
@@ -310,7 +245,6 @@
     const bookPath = params.get('b');
     const [bookCat, bookFile] = bookPath.split('/');
     const bookName = bookFile.replace('.txt', '');
-    const targetAnchor = params.get('anchor'); // 预生成章句索引的锚点参数
 
     // 更新标题和面包屑
     document.getElementById('bookCat').textContent = bookCat;
@@ -320,29 +254,17 @@
 
     let allParagraphs = [];
     let chapters = [];
-    let tocReady = false;   // 全文流式加载完成前，卷次目录可能还不完整
-    // 显式挂 window
-    window.allParagraphs = allParagraphs;
-    window.chapters = chapters;
     let currentChapter = 0;
     let renderedEnd = 0;
     const BATCH_SIZE = 200;
     let BOOKS_INDEX = [];   // 完整书单，用于上/下一部
+    // 精校章句首句锚点
+    const findText = params.get('find') ? decodeURIComponent(params.get('find')).trim() : '';
+    let findMatched = false;
     let currentBookIdx = -1;
     let searchHits = [];
     let currentHitIdx = -1;
     let searchTerm = '';
-
-    /* ========== 按卷加载模式（split mode）状态 ========== */
-    let splitMode = false;
-    let splitIndex = null;       // {volumes:[{id,title,file,size,lines}...]}
-    let loadedVolumes = {};      // {volId: [paragraphs...]} 缓存已加载的卷，避免重复请求
-    let volumeStartIdx = [];     // 每卷在 allParagraphs 里的起始段落索引
-    // 显式挂到 window，方便外部诊断与跨脚本访问
-    window.splitMode = splitMode;
-    window.splitIndex = splitIndex;
-    window.loadedVolumes = loadedVolumes;
-    window.volumeStartIdx = volumeStartIdx;
 
     // ========== 章节标题识别（增强版） ==========
     function isChapterTitle(line) {
@@ -350,6 +272,32 @@
       if (!t) return false;
       // 排除短正文（注疏行首"○"是段落标记，不是标题）
       if (t.length < 2) return false;
+
+      // 0. 四书类："學而第一""學而篇第一"
+      if (/^[學為八裡公雍述泰子鄉先顏子路憲衛季陽微子堯][而政佾仁冶也伯罕黨進淵路問靈氏貨張曰\w]{1,4}篇?第[一二三四五六七八九十百零]+$/.test(t) && t.length<12) return true;
+      // 0.1 孝经类："○開宗明義章第一"
+      if (/^○?\s*[開天諸卿士庶三才孝聖紀五廣感事喪][宗子侯夫章人治孝刑義名應君親][明義章第][義德禮孝本大要道諍君親]*\s*章?第?[一二三四五六七八九十百零]+$/.test(t) && t.length<25) return true;
+      // 0.2 春秋公年："隱公（元年～十一年）""隱公（元年至十一年）""隐公（经一一）元年"（独立行）
+      if (/^[隱桓莊閔僖文宣成襄昭定哀隐桓庄闵僖文宣成襄昭定哀]公[（\(]/.test(t) && t.length<30) return true;
+      // 0.3 公羊/穀梁"公羊传隐公""穀梁傳隱公"
+      if (/^(公羊传|公羊傳|穀梁傳|谷梁传)[隱桓莊閔僖文宣成襄昭定哀隐桓庄闵僖文宣成襄昭定哀]公$/.test(t)) return true;
+      // 0.4 礼经类："曲礼上""檀弓下""士冠礼第一""天官冢宰第一"
+      if (/^(曲禮|檀弓|王制|月令|曾子問|文王世子|禮運|禮器|郊特牲|內則|玉藻|明堂位|喪服小記|大傳|少儀|學記|樂記|雜記|祭法|祭義|祭統|經解|哀公問|仲尼燕居|孔子閒居|坊記|表記|緇衣|奔喪|問喪|服問|間傳|三年問|深衣|投壺|儒行|大學|冠義|昏義|鄉飲酒義|射義|燕義|聘義|喪服四制|曲礼|檀弓|曾子问|礼运|礼器|内则|学记|乐记|杂记|祭法|祭义|祭统|经解|哀公问|仲尼燕居|孔子闲居|坊记|表记|缁衣|奔丧|问丧|服问|间传|三年问|深衣|投壶|儒行|大学|冠义|昏义|乡饮酒义|射义|燕义|聘义|丧服四制)(上|下)?$/.test(t)) return true;
+      // 0.5 周官六官："天官冢宰第一""地官司徒第二"
+      if (/^[天春秋夏冬地]官司[徒馬空寇伯冢宰]+[第]?[一二三四五六七八九十]+$/.test(t)) return true;
+      // 0.6 仪礼："士冠礼第一""士昏礼第二"
+      if (/^(士冠禮|士昏禮|士相見禮|鄉飲酒禮|鄉射禮|燕禮|大射儀|聘禮|公食大夫禮|覲禮|喪服|士喪禮|既夕禮|士虞禮|特牲饋食禮|少牢饋食禮|有司徹|士冠礼|士昏礼|士相见礼|乡饮酒礼|乡射礼|燕礼|大射仪|聘礼|公食大夫礼|觐礼|丧服|士丧礼|既夕礼|士虞礼|特牲馈食礼|少牢馈食礼|有司彻)[第]?[一二三四五六七八九十]+$/.test(t)) return true;
+      // 0.7 诗经国风："国风 周南""国风·周南"（短行）
+      if (/^[國国]風[\s·　]+[周召邶鄘衛王鄭齊魏唐秦陳檜曹豳邶][南北風風風風風風風風風風風風風風]/.test(t) && t.length<12) return true;
+      // 0.8 小雅/大雅/颂："小雅 鹿鸣之什""大雅 文王之什""周颂""鲁颂""商颂"
+      if (/^[大小]雅\s*[\w\u4e00-\u9fa5]*什?\s*$/.test(t) && t.length<15) return true;
+      if (/^[周魯商]頌\s*[\w\u4e00-\u9fa5]*\s*$/.test(t) && t.length<15) return true;
+      // 0.9 尚书"虞书 尧典第一""夏书 禹贡"
+      if (/^[虞夏商周]書\s+[\w\u4e00-\u9fa5]+[第]?[一二三四五六七八九十]*$/.test(t) && t.length<25) return true;
+      // 0.10 传习录"卷上""卷中""卷下"
+      if (/^卷[上中下]$/.test(t)) return true;
+      // 0.11 颜氏家训："《序致第一》"
+      if (/^《[\u4e00-\u9fa5]{1,4}第[一二三四五六七八九十]+》$/.test(t)) return true;
 
       // 1. 卷/篇类标题（优先匹配）
       // 卷X、卷第X、卷X 第X、卷之X、卷X X公
@@ -360,44 +308,23 @@
       if (/^[一二三四五六七八九十百]+[、.．]\s*\S/.test(t) && t.length < 30) return true;
       // 某某篇第X
       if (/篇第[一二三四五六七八九十百\d]+$/.test(t)) return true;
-      // 篇名+序数，如"学而第一""为政第二"（《论语》《孟子》常见，整行短标题）
-      if (/^[\u4e00-\u9fa5]{1,8}第[一二三四五六七八九十百\d]+$/.test(t)) return true;
-      // "梁惠王章句上""公孙丑章句下"
-      if (/^[\u4e00-\u9fa5]{1,8}章句[上下]$/.test(t)) return true;
       return false;
     }
 
     // ========== 章节解析（只解析一次，绝不重排） ==========
-    function parseChapters(paragraphs, partial) {
+    function parseChapters(paragraphs) {
       const chaps = [];
       let currentChapTitle = '卷首';
       let currentStart = 0;
       let foundTitleCount = 0;
-
-      // 识别书前的"全书总目"块：连续 >=6 个卷/篇标题且彼此紧邻（间隔 <=2 段）。
-      // 首屏阶段若命中它，说明正文还没读到，此刻的标题位置并非正文位置，目录暂不可用
-      const _titleIdx = [];
-      for (let i = 0; i < paragraphs.length; i++) {
-        if (isChapterTitle(paragraphs[i].trim())) _titleIdx.push(i);
-      }
-      let _tocRun = 0, _runStart = 0;
-      for (let k = 1; k <= _titleIdx.length; k++) {
-        const gap = (k < _titleIdx.length) ? _titleIdx[k] - _titleIdx[k - 1] : 999;
-        if (gap > 2) {
-          if (k - _runStart >= 6) _tocRun = Math.max(_tocRun, k - _runStart);
-          _runStart = k;
-        }
-      }
-      if (partial && _tocRun >= 6) return [{ title: '__TOC__', start: 0, end: paragraphs.length }];
 
       for (let i = 0; i < paragraphs.length; i++) {
         const p = paragraphs[i].trim();
         if (isChapterTitle(p)) {
           foundTitleCount++;
           if (i > 0) {
-            // 用"上一章的标题"闭合上一章（原实现误配成新标题，会导致目录标题与内容错位、点击跳到错误位置）
             chaps.push({
-              title: currentChapTitle,
+              title: p.replace(/\s+/g, ' ').substring(0, 30),
               start: currentStart,
               end: i
             });
@@ -431,31 +358,10 @@
           }
         }
       } else {
-        // 有真实卷次标题：去重，并剔除"只出现在书前总目里"的条目
-        // （总目位置并非正文位置，若保留会让目录顺序错乱、点击跳不准）
-        const _tocIdx = new Set();
-        { let run = [], seen = new Set();
-          for (let k = 0; k < _titleIdx.length; k++) {
-            const i = _titleIdx[k];
-            const tt = paragraphs[i].trim().replace(/\s+/g, ' ');
-            const prevGap = (k > 0) ? i - _titleIdx[k - 1] : 999;
-            // 与前一标题不相邻、或标题此前已出现过（正文重新开始），即总目块到此为止
-            if (run.length && (prevGap > 2 || seen.has(tt))) {
-              if (run.length >= 6) run.forEach(x => _tocIdx.add(x));
-              run = []; seen = new Set();
-            }
-            run.push(i); seen.add(tt);
-          }
-          if (run.length >= 6) run.forEach(x => _tocIdx.add(x));
-        }
+        // 有真实卷次标题：去除开头"目录"块造成的重复（同一标题只保留最后一次=正文处）
         const _last = {};
-        chaps.forEach((c, i) => { if (!_tocIdx.has(c.start)) _last[c.title] = i; });
-        let filtered = chaps.filter((c, i) => _last[c.title] === i);
-        if (!filtered.length) {   // 兜底：标题全落在总目里（少见），退回纯去重
-          const _l2 = {};
-          chaps.forEach((c, i) => { _l2[c.title] = i; });
-          filtered = chaps.filter((c, i) => _l2[c.title] === i);
-        }
+        chaps.forEach((c, i) => { _last[c.title] = i; });
+        const filtered = chaps.filter((c, i) => _last[c.title] === i);
         for (let i = 0; i < filtered.length; i++) {
           filtered[i].end = (i + 1 < filtered.length) ? filtered[i + 1].start : paragraphs.length;
         }
@@ -466,147 +372,60 @@
 
     // ========== 渲染段落范围 ==========
     function renderRange(start, end, append = true) {
-      const container = document.getElementById('readerContent');
-      if (!append) { container.innerHTML = ''; renderedEnd = 0; }
-      if (start >= end || start >= allParagraphs.length) return;
       const endIdx = Math.min(end, allParagraphs.length);
+      const container = document.getElementById('readerContent');
+
+      if (!append) {
+        container.innerHTML = '';
+        renderedEnd = 0;
+      }
+      if (start >= endIdx) return;
 
       const frag = document.createDocumentFragment();
       for (let i = start; i < endIdx; i++) {
-        const p = allParagraphs[i];
-        if (!p) {
-          // 占位：该段所在卷还没加载，显示"加载中…"
-          const ph = document.createElement('p');
-          ph.className = 'volume-placeholder';
-          ph.id = `p-${i}`;
-          ph.dataset.idx = i;
-          ph.textContent = '…';
-          ph.style.opacity = '0.3';
-          frag.appendChild(ph);
-          continue;
-        }
+        const p = allParagraphs[i].trim();
+        if (!p) continue;
         const el = document.createElement('p');
-        if (isChapterTitle(p)) el.className = 'chapter-heading';
-        el.id = `p-${i}`; el.dataset.idx = i;
+        if (isChapterTitle(p)) {
+          el.className = 'chapter-heading';
+        }
+        el.id = `p-${i}`;
+        el.dataset.idx = i;
+        // 段落内容（带概念标注）
         el.innerHTML = annotateConcepts(p);
         frag.appendChild(el);
       }
       container.appendChild(frag);
-      renderedEnd = Math.max(renderedEnd, endIdx);
+      renderedEnd = endIdx;
 
-      const progress = Math.min(100, (renderedEnd / Math.max(1, allParagraphs.length)) * 100);
+      // 更新进度
+      const progress = Math.min(100, (renderedEnd / allParagraphs.length) * 100);
       document.getElementById('progressBar').style.width = `${progress}%`;
-      if (searchTerm) highlightSearch();
-    }
 
-    // ========== split 模式：按需加载某一卷 ==========
-    async function loadVolume(volIdx) {
-      if (!splitMode || !splitIndex) return;
-      const vol = splitIndex.volumes[volIdx];
-      if (!vol) return;
-      // 已加载过直接返回 resolved Promise
-      if (loadedVolumes[vol.id]) return Promise.resolve();
-
-      // 卷在 allParagraphs 中的起始位置
-      const startP = volumeStartIdx[volIdx];
-      const url = vol.file;
-      try {
-        const r = await fetch(url);
-        if (!r.ok) return;
-        const txt = await r.text();
-        const paras = txt.split(/\n+/).map(s => s.trim()).filter(Boolean);
-        loadedVolumes[vol.id] = paras;
-        window.loadedVolumes = loadedVolumes;
-        // 写入 allParagraphs
-        for (let k = 0; k < paras.length; k++) {
-          allParagraphs[startP + k] = paras[k];
-        }
-        // 把占位段落替换成真实段落（仅替换当前 DOM 中已存在的占位）
-        const container = document.getElementById('readerContent');
-        for (let k = 0; k < paras.length; k++) {
-          const el = document.getElementById(`p-${startP + k}`);
-          if (!el) continue;
-          if (el.classList.contains('volume-placeholder')) {
-            // 是占位，替换
-            const p = paras[k];
-            const newEl = document.createElement('p');
-            if (isChapterTitle(p)) newEl.className = 'chapter-heading';
-            newEl.id = `p-${startP + k}`; newEl.dataset.idx = startP + k;
-            newEl.innerHTML = annotateConcepts(p);
-            el.parentNode.replaceChild(newEl, el);
-          }
-        }
-        // 加载完后更新进度条（段落真实渲染占比）
-        const realParas = allParagraphs.filter(Boolean).length;
-        const progress = Math.min(100, (realParas / Math.max(1, allParagraphs.length)) * 100);
-        document.getElementById('progressBar').style.width = `${progress}%`;
-      } catch (e) { /* ignore */ }
+      // 如果有搜索，重新高亮已渲染段落
+      if (searchTerm) {
+        highlightSearch();
+      }
     }
 
     // ========== 滚动加载 ==========
     function setupScrollLoad() {
       window.addEventListener('scroll', () => {
-        const now = Date.now();
-        if (now - _scrollThrottle < 80) return; // 80ms 节流
-        _scrollThrottle = now;
         const scrollBottom = window.innerHeight + window.scrollY;
         const docHeight = document.body.offsetHeight;
-        if (splitMode && splitIndex) {
-          // split 模式：根据当前滚动位置判断所在卷，确保其及下一卷已加载
-          // 同时如果滚到文档末尾附近，追加渲染下一批段落占位
-          ensureVolumesAroundViewport();
-        } else if (scrollBottom >= docHeight - 800 && renderedEnd < allParagraphs.length) {
+        if (scrollBottom >= docHeight - 500 && renderedEnd < allParagraphs.length) {
           renderRange(renderedEnd, renderedEnd + BATCH_SIZE, true);
         }
         updateActiveChapter();
       }, { passive: true });
-      // 首屏渲染后主动检测一次，让目录激活状态与进度条正确
-      setTimeout(updateActiveChapter, 100);
     }
-
-    let _scrollThrottle = 0;
-    let _lastVolsLoaded = new Set();
-    // ========== split 模式：保证视口附近的卷都已加载 ==========
-    function ensureVolumesAroundViewport() {
-      if (!splitMode || !splitIndex) return;
-      const scrollPos = window.scrollY + 140;
-      // 找到当前所在卷
-      let curVol = 0;
-      for (let i = 0; i < volumeStartIdx.length; i++) {
-        const el = document.getElementById(`p-${volumeStartIdx[i]}`);
-        if (el && absTop(el) <= scrollPos) curVol = i;
-      }
-      // 只加载当前卷，以及紧接的下 1 卷（避免一口气拉完）
-      const toLoad = new Set();
-      toLoad.add(curVol);
-      if (curVol + 1 < splitIndex.volumes.length) toLoad.add(curVol + 1);
-      toLoad.forEach(v => {
-        if (!_lastVolsLoaded.has(v)) {
-          _lastVolsLoaded.add(v);
-          loadVolume(v);
-        }
-      });
-
-      // 如果当前已渲染的末尾距离视口底部不足两屏，补渲染后续段落的占位
-      if (renderedEnd < allParagraphs.length) {
-        const bottomEl = document.getElementById(`p-${Math.max(0, renderedEnd - 1)}`);
-        if (bottomEl) {
-          const bottom = absTop(bottomEl) + window.innerHeight * 2;
-          if (scrollBottom() >= absTop(bottomEl)) {
-            const to = Math.min(renderedEnd + BATCH_SIZE * 2, allParagraphs.length);
-            renderRange(renderedEnd, to, true);
-          }
-        }
-      }
-    }
-    function scrollBottom() { return window.innerHeight + window.scrollY; }
 
     // ========== 当前章节高亮 ==========
     function updateActiveChapter() {
       const scrollPos = window.scrollY + 140;
       for (let i = chapters.length - 1; i >= 0; i--) {
         const el = document.getElementById(`p-${chapters[i].start}`);
-        if (el && absTop(el) <= scrollPos) {
+        if (el && el.offsetTop <= scrollPos) {
           if (currentChapter !== i) {
             currentChapter = i;
             document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
@@ -628,63 +447,42 @@
       }
     }
 
-    // 计算元素相对文档顶部的绝对位置（offsetTop 受 offsetParent 影响，不可靠）
-    function absTop(el) { return el.getBoundingClientRect().top + window.scrollY; }
-
-    // ========== 跳转到章节（保证先加载卷+渲染，再滚动） ==========
+    // ========== 跳转到章节（保证先渲染，再滚动） ==========
     function jumpToChapter(index) {
       const chap = chapters[index];
       if (!chap) return;
       currentChapter = index;
 
-      if (splitMode && splitIndex) {
-        // split 模式：找到该章节所在卷，确保已加载
-        const chapStart = chap.start;
-        let volIdx = 0;
-        for (let i = 0; i < volumeStartIdx.length; i++) {
-          if (volumeStartIdx[i] <= chapStart) volIdx = i;
-        }
-        const volEnd = (volIdx + 1 < splitIndex.volumes.length)
-          ? volumeStartIdx[volIdx + 1]
-          : allParagraphs.length;
-        // 只渲染占位到目标卷末尾（避免一次渲几万个 DOM）
-        const needEnd = Math.min(volEnd, chapStart + BATCH_SIZE * 2);
-        if (renderedEnd < needEnd) renderRange(renderedEnd, needEnd, true);
-        // 加载目标卷（已加载则立即 resolve）
-        loadVolume(volIdx).then(() => {
-          // 等 DOM 替换完成后再滚动
-          requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => {
-            const target = document.getElementById(`p-${chapStart}`);
-            if (target) window.scrollTo({ top: absTop(target) - 130, behavior: 'auto' });
-            document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
-              li.classList.toggle('active', idx === index);
-            });
-            closeMobileToc();
-          }, 50)));
-        });
-      } else {
-        // 原整文件模式
-        const needEnd = Math.min(chap.end + BATCH_SIZE, allParagraphs.length);
-        if (renderedEnd < needEnd) renderRange(renderedEnd, needEnd, true);
-        requestAnimationFrame(() => setTimeout(() => {
+      // 目标位置及后面一段必须已渲染
+      const needEnd = Math.min(chap.end + BATCH_SIZE, allParagraphs.length);
+      if (renderedEnd < needEnd) {
+        // 一次性补渲染到位（不能分批等滚动，否则跳转不准）
+        renderRange(renderedEnd, needEnd, true);
+      }
+
+      // 双保险：等一帧让浏览器完成布局，再滚动
+      requestAnimationFrame(() => {
+        setTimeout(() => {
           const target = document.getElementById(`p-${chap.start}`);
-          if (target) window.scrollTo({ top: absTop(target) - 130, behavior: 'auto' });
+          if (target) {
+            window.scrollTo({
+              top: target.offsetTop - 130,
+              behavior: 'smooth'
+            });
+          }
+          // 高亮
           document.querySelectorAll('.chapter-list li').forEach((li, idx) => {
             li.classList.toggle('active', idx === index);
           });
+          // 移动端：跳完自动收起目录
           closeMobileToc();
-        }, 80));
-      }
+        }, 30);
+      });
     }
 
     // ========== 渲染章节目录 ==========
     function renderChapterList() {
       const list = document.getElementById('chapterList');
-      // 首屏只读到书前总目时，目录位置不可用，先给出提示，待全文读完自动补全
-      if (chapters.length === 1 && chapters[0].title === '__TOC__') {
-        list.innerHTML = '<li class="toc-loading">卷次目录载入中…</li>';
-        return;
-      }
       list.innerHTML = chapters.map((chap, idx) =>
         `<li data-idx="${idx}" title="${chap.title}">${chap.title}</li>`
       ).join('');
@@ -801,110 +599,108 @@
     // ========== 主加载 ==========
     async function loadContent() {
       try {
-        // 先等预取的切分索引结果
-        const splitIdx = window.__splitPreload ? await window.__splitPreload : null;
-        window.__splitPreload = null;
-
-        if (splitIdx && splitIdx.volumes && splitIdx.volumes.length >= 2) {
-          // ========== 按卷加载模式（split mode）==========
-          splitMode = true;
-          splitIndex = splitIdx;
-          loadedVolumes = {};
-          // 同步到 window
-          window.splitMode = true;
-          window.splitIndex = splitIdx;
-          window.loadedVolumes = loadedVolumes;
-          // 预计算每卷在 allParagraphs 里的起始段落位置
-          volumeStartIdx = [];
-          let pCount = 0;
-          for (let i = 0; i < splitIdx.volumes.length; i++) {
-            volumeStartIdx.push(pCount);
-            // 优先用真实行数，没有的话按 size 估算（1个汉字≈3字节，每段约30字≈100字节）
-            const est = splitIdx.volumes[i].lines || Math.ceil(splitIdx.volumes[i].size / 100);
-            pCount += est;
-          }
-          // allParagraphs 初始化为稀疏数组（用 null 占位），长度 = 总段落估算
-          allParagraphs = new Array(pCount).fill(null);
-
-          // 用切分索引直接生成章节目录（100% 精准，无需等待全文）
-          chapters = splitIdx.volumes.map((v, i) => ({
-            title: v.title,
-            start: volumeStartIdx[i],
-            end: (i + 1 < splitIdx.volumes.length) ? volumeStartIdx[i + 1] : pCount,
-            volIdx: i,
-          }));
-          window.chapters = chapters;
-          tocReady = true;
-          renderChapterList();
-
-          // 首屏：立即加载第 1 卷
-          await loadVolume(0);
-          // 渲染第 1 卷的段落（并预留前 2 屏的占位，方便滚动感知）
-          renderRange(0, splitIdx.volumes[0].lines + Math.min(splitIdx.volumes[1] ? splitIdx.volumes[1].lines : 0, BATCH_SIZE), false);
-          setupScrollLoad();
-
-          // 恢复阅读位置
-          restoreReadPos();
-          saveReadPosOnScroll();
-
-          // 静默预加载第 2 卷（仅一次，不链式）
-          if (splitIdx.volumes.length > 1) setTimeout(() => loadVolume(1), 600);
-          return;
-        }
-
-        // ========== 整文件流式加载模式（小书/未切分书） ==========
         const bookUrl = 'books/' + bookPath.split('/').map(encodeURIComponent).join('/');
-        const FIRST_CHARS = 9000;
+        const response = await fetch(bookUrl);
+        if (!response.ok) throw new Error('该典籍未收录');
 
+        const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let receivedText = '';
-        let streamDone = false;
+        let loaded = 0;
 
-        let response = null;
-        // 优先使用预加载结果；预加载失败或被中断则重新发起请求
-        if (window.__bookPreloadUrl === bookUrl && window.__bookPreload) {
-          try {
-            const preResp = await window.__bookPreload;
-            if (preResp && preResp.ok && !preResp.bodyUsed) {
-              response = preResp;
-            }
-          } catch (e) {
-            console.warn('预加载失败，重新请求:', e);
-          }
-        }
-        if (!response) response = await fetch(bookUrl);
-        if (!response.ok) throw new Error(`文件未找到 (HTTP ${response.status})`);
-
-        let reader = response.body.getReader();
-        while (receivedText.length < FIRST_CHARS) {
+        // 1) 先取前50KB用于首屏
+        while (loaded < 50 * 1024) {
           const { done, value } = await reader.read();
-          if (done) { streamDone = true; break; }
+          if (done) break;
           receivedText += decoder.decode(value, { stream: true });
+          loaded += value.length;
         }
         allParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
-        chapters = parseChapters(allParagraphs, true);
-        window.chapters = chapters;
-        window.allParagraphs = allParagraphs;
+        chapters = parseChapters(allParagraphs);
         renderChapterList();
         renderRange(0, Math.min(BATCH_SIZE, allParagraphs.length), false);
         setupScrollLoad();
+        // 恢复阅读位置（localStorage）
+        try {
+          const saved = localStorage.getItem('readPos_' + bookPath);
+          if (saved) {
+            const pos = parseInt(saved);
+            setTimeout(() => window.scrollTo(0, pos), 100);
+          }
+        } catch(e) {}
 
-        restoreReadPos();
-
-        // 后台继续加载剩余部分
+        // 2) 后台继续加载剩余部分 —— 追加，不重排章节
         (async function loadRest() {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             receivedText += decoder.decode(value, { stream: true });
           }
-          allParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
-          chapters = parseChapters(allParagraphs);
-          tocReady = true;
-          renderChapterList();
+          // 全文加载完：补全段落数组，但只在没有识别到章节/章节末尾未覆盖时才刷新目录
+          const newParagraphs = receivedText.split(/\n+/).filter(p => p.trim());
+          const oldLen = allParagraphs.length;
+          allParagraphs = newParagraphs;
+          // 只有原来章节列表最后一章 end 明显没到尾部，才重新解析一次
+          const lastChap = chapters[chapters.length - 1];
+          if (lastChap && lastChap.end < allParagraphs.length - 50) {
+            // 保留已存在的章节，只延伸最后一章的 end 到全书末尾
+            lastChap.end = allParagraphs.length;
+            // 如果新补进的内容里出现了更多卷标题，追加（不重排已有）
+            for (let i = oldLen; i < allParagraphs.length; i++) {
+              const p = allParagraphs[i].trim();
+              if (isChapterTitle(p)) {
+                const title = p.replace(/\s+/g,' ').substring(0,30);
+                // 去重
+                if (chapters[chapters.length-1].title !== title) {
+                  chapters[chapters.length-1].end = i;
+                  chapters.push({ title, start: i, end: allParagraphs.length });
+                }
+              }
+            }
+            // 如果第一版是"卷首/分段"占位，且现在发现了真实卷次，则整体重建一次（仅这种情况）
+            if (chapters[0].title === '卷首' && chapters.length > 1 && chapters[1].title !== '分段 1') {
+              chapters = parseChapters(allParagraphs);
+            }
+            renderChapterList();
+
+            // ========== 精校章句 find 文本锚点定位 ==========
+            if (findText && !findMatched) {
+              // 全文加载完毕后，查找包含 findText 的段落
+              const norm = s => s.replace(/[\s　"'「」『』《》（）()。，、？！…—\-,\.\?\!]/g,'');
+              const target = norm(findText).slice(0,12);
+              let hitIdx = -1;
+              for (let i = 0; i < allParagraphs.length; i++) {
+                if (norm(allParagraphs[i]).includes(target)) { hitIdx = i; break; }
+              }
+              if (hitIdx >= 0) {
+                // 确保目标段落已渲染
+                if (hitIdx >= renderedEnd) {
+                  renderRange(renderedEnd, Math.min(hitIdx + BATCH_SIZE, allParagraphs.length), true);
+                }
+                // 滚动到目标
+                setTimeout(() => {
+                  const el = document.querySelector(`[data-idx="${hitIdx}"]`);
+                  if (el) {
+                    el.scrollIntoView({block:'start', behavior:'smooth'});
+                    // 高亮目标段落
+                    el.style.background = 'rgba(212,175,55,0.25)';
+                    el.style.transition = 'background 1.5s';
+                    setTimeout(()=>{ el.style.background=''; }, 3000);
+                  }
+                }, 200);
+                findMatched = true;
+              }
+            }
+          }
         })();
 
-        saveReadPosOnScroll();
+        // 阅读位置保存
+        window.addEventListener('beforeunload', () => {
+          try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
+        });
+        window.addEventListener('scroll', () => {
+          try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
+        }, { passive: true });
 
       } catch (e) {
         console.error('加载失败:', e);
@@ -915,24 +711,6 @@
           </div>
         `;
       }
-    }
-
-    function restoreReadPos() {
-      try {
-        const saved = localStorage.getItem('readPos_' + bookPath);
-        if (saved) {
-          const pos = parseInt(saved);
-          setTimeout(() => window.scrollTo(0, pos), 150);
-        }
-      } catch(e) {}
-    }
-    function saveReadPosOnScroll() {
-      window.addEventListener('beforeunload', () => {
-        try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
-      });
-      window.addEventListener('scroll', () => {
-        try { localStorage.setItem('readPos_' + bookPath, window.scrollY); } catch(e) {}
-      }, { passive: true });
     }
 
     // ========== 按钮事件 ==========
@@ -952,17 +730,9 @@
       const val = e.target.value.trim();
       searchTimer = setTimeout(() => {
         searchTerm = val;
-        // 搜索前先确保至少渲染到 600 段或当前卷+下一卷
-        if (splitMode && splitIndex) {
-          ensureVolumesAroundViewport();
-          // 追加渲染到至少视口下 1000 段的位置
-          if (renderedEnd < Math.min(volumeStartIdx[Math.min(currentChapter+2, splitIndex.volumes.length-1)] || allParagraphs.length, allParagraphs.length)) {
-            renderRange(renderedEnd, Math.min(renderedEnd + BATCH_SIZE*3, allParagraphs.length), true);
-          }
-        } else {
-          if (renderedEnd < Math.min(600, allParagraphs.length)) {
-            renderRange(renderedEnd, Math.min(600, allParagraphs.length), true);
-          }
+        // 搜索前先把目标附近渲染出来：至少渲染前 600 段
+        if (renderedEnd < Math.min(600, allParagraphs.length)) {
+          renderRange(renderedEnd, Math.min(600, allParagraphs.length), true);
         }
         highlightSearch();
       }, 250);
@@ -981,64 +751,6 @@
     // ========== 启动 ==========
     loadBooksIndex();
     loadContent();
-
-    // 支持从检索页带关键词进入：reader.html?b=xxx&q=关键词 —— 载入后自动高亮
-    const qParam = new URLSearchParams(window.location.search).get('q');
-    if (qParam) {
-      setTimeout(() => {
-        searchInput.value = qParam;
-        searchTerm = qParam;
-        if (renderedEnd < Math.min(600, allParagraphs.length)) {
-          renderRange(renderedEnd, Math.min(600, allParagraphs.length), true);
-        }
-        highlightSearch();
-      }, 900);
-    }
-
-    // 支持从章句导航带anchor进入：reader.html?b=xxx&anchor=xxx
-    if (targetAnchor) {
-      const jumpToAnchor = () => {
-        let targetPos = 0;
-        // 1. 按卷锚点 vol-X
-        if (targetAnchor.startsWith('vol-')) {
-          const volId = parseInt(targetAnchor.replace('vol-',''));
-          if (splitIndex && volumeStartIdx[volId-1] !== undefined) {
-            targetPos = volumeStartIdx[volId-1];
-            // 确保该卷已加载
-            if (!loadedVolumes[volId]) loadVolume(volId);
-          }
-        } 
-        // 2. 字符位置锚点 cXXX / bXXX（按2万字分块）
-        else if (targetAnchor.startsWith('c') || targetAnchor.startsWith('b')) {
-          const charPos = parseInt(targetAnchor.slice(1));
-          if (!isNaN(charPos)) {
-            // 找到对应段落
-            let curChars = 0;
-            for (let i=0; i<allParagraphs.length; i++) {
-              curChars += allParagraphs[i].length;
-              if (curChars >= charPos) {
-                targetPos = i;
-                break;
-              }
-            }
-          }
-        }
-        // 渲染到目标位置并滚动
-        if (targetPos > 0) {
-          renderRange(0, Math.min(targetPos + 50, allParagraphs.length), true);
-          setTimeout(() => {
-            const el = document.getElementById('p-'+targetPos);
-            if (el) {
-              el.scrollIntoView({behavior:'smooth', block:'start'});
-              el.classList.add('highlight-target');
-              setTimeout(()=>el.classList.remove('highlight-target'), 2000);
-            }
-          }, 300);
-        }
-      };
-      // 等内容加载完成后跳转
-      setTimeout(jumpToAnchor, splitMode ? 1200 : 800);
-    }
   </script>
 </body>
 </html>
