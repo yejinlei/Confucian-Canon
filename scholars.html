@@ -47,6 +47,7 @@
 
 <script src="data/common.js"></script>
 <script src="data/ontology-enhance.js"></script>
+<script src="data/commentary.js"></script>
 <script>
 function initTheme(){
   const wrap=document.getElementById('themeDots');
@@ -86,7 +87,12 @@ function render(){
     }
     return true;
   });
-  document.getElementById('scholarGrid').innerHTML=arr.map(([n,s])=>`
+  document.getElementById('scholarGrid').innerHTML=arr.map(([n,s])=>{
+    const quotes=window.getAllCommentaries?getAllCommentaries().filter(c=>c.scholar===n).slice(0,2):[];
+    const commentator=window.COMMENTATORS?COMMENTATORS.find(c=>c.name===n):null;
+    const quoteHtml=quotes.length?'<div style="margin-top:10px;padding:8px 10px;background:linear-gradient(90deg,rgba(192,57,43,.06),transparent);border-left:2px solid var(--cinnabar);font-size:12px;line-height:1.9;color:var(--ink-2);font-style:italic">'+quotes.map(q=>'「'+q.text.slice(0,58)+(q.text.length>58?'…':'')+'」').join('<br>')+'</div>':'';
+    const cmeta=commentator?'<div style="font-size:11px;color:var(--cinnabar);margin-top:8px">'+commentator.role+' · '+commentator.works+'</div>':'';
+    return `
     <div class="school-card" id="${encodeURIComponent(n)}">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
         <div class="name">${n}</div>
@@ -95,8 +101,10 @@ function render(){
       <div style="font-size:12px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;opacity:.85">${s.title||''} · ${s.school||''}</div>
       <div class="desc">${s.bio||s.idea||''}</div>
       ${s.works&&s.works.length?'<div class="masters" style="margin-top:10px">'+s.works.map(w=>'<span class="master-chip">'+w+'</span>').join('')+'</div>':''}
+      ${cmeta}
+      ${quoteHtml}
     </div>
-  `).join('')||'<div class="card" style="grid-column:1/-1;text-align:center;color:var(--ink-3);padding:40px">未检索到匹配儒者</div>';
+  `}).join('')||'<div class="card" style="grid-column:1/-1;text-align:center;color:var(--ink-3);padding:40px">未检索到匹配儒者</div>';
 }
 render();
 function doSearch(){curQ=document.getElementById('q').value.trim();render()}
