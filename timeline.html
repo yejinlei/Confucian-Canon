@@ -28,18 +28,16 @@
   </nav>
   <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
 </header>
+<div class="main-with-sidebar"><div class="main">
 
-<div class="layout">
-<div class="content">
+
+
   <div class="section-head" style="margin-top:24px">
     <div class="en">INTELLECTUAL TIMELINE</div>
     <h2>儒 学 学 术 年 谱</h2>
     <div class="desc">由先秦至清末，儒学两千五百年大事脉络</div>
   </div>
   <div class="timeline" id="tl"></div>
-</div>
-</div>
-
 <footer class="footer">儒藏本体论 · 学术年谱</footer>
 
 <script src="data/common.js"></script>
@@ -95,5 +93,8 @@ document.getElementById('tl').innerHTML=EVENTS.map(e=>`
   </div>
 `).join('');
 </script>
+
+</div></div>
+<script>initPage("timeline.html")</script>
 </body>
 </html>

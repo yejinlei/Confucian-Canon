@@ -28,9 +28,10 @@
   </nav>
   <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
 </header>
+<div class="main-with-sidebar"><div class="main">
 
-<div class="layout">
-<div class="content">
+
+
 
   <div class="section-head" style="margin-top:24px">
     <div class="en">DOCTRINAL DEBATES</div>
@@ -47,9 +48,6 @@
       <p style="margin-top:10px;color:var(--ink-3);font-size:13px">点击卡片内人物名可进入儒者词条，点击论争中涉及的概念名可跳转词典。</p>
     </div>
   </div>
-
-</div>
-</div>
 
 <footer class="footer">儒藏本体论 · 学派论争 · 七场思想公案</footer>
 
@@ -98,5 +96,8 @@ document.getElementById('debateList').innerHTML=DEBATES.map(d=>`
   </div>
 `).join('');
 </script>
+
+</div></div>
+<script>initPage("debate.html")</script>
 </body>
 </html>

@@ -28,18 +28,16 @@
   </nav>
   <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
 </header>
+<div class="main-with-sidebar"><div class="main">
 
-<div class="layout">
-<div class="content">
+
+
   <div class="section-head" style="margin-top:24px">
     <div class="en">CONFUCIAN LINEAGE</div>
     <h2>儒 家 道 统 谱 系</h2>
     <div class="desc">由孔子至清儒，按代际分八组呈现</div>
   </div>
   <div id="gens"></div>
-</div>
-</div>
-
 <footer class="footer">儒藏本体论 · 道统谱系</footer>
 
 <script src="data/common.js"></script>
@@ -85,5 +83,8 @@ document.getElementById('gens').innerHTML=GENS.map(g=>`
   </div>
 `).join('');
 </script>
+
+</div></div>
+<script>initPage("lineage.html")</script>
 </body>
 </html>

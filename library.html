@@ -28,9 +28,10 @@
   </nav>
   <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
 </header>
+<div class="main-with-sidebar"><div class="main">
 
-<div class="layout">
-<div class="content">
+
+
   <div class="section-head" style="margin-top:24px">
     <div class="en">CONFUCIAN CANON LIBRARY</div>
     <h2>儒 藏 典 籍 库</h2>
@@ -42,9 +43,6 @@
   </div>
   <div class="filter-bar" id="catBar"></div>
   <div id="bookGrid" style="margin-top:20px"></div>
-</div>
-</div>
-
 <footer class="footer">儒藏本体论 · 典籍库 · 908部 1.34亿字</footer>
 
 <script src="data/common.js"></script>
@@ -97,5 +95,8 @@ document.querySelectorAll('button[data-cat]').forEach(b=>b.onclick=()=>{
   curCat=b.dataset.cat;render();
 });
 </script>
+
+</div></div>
+<script>initPage("library.html")</script>
 </body>
 </html>

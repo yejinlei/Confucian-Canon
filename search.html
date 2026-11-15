@@ -28,9 +28,10 @@
   </nav>
   <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
 </header>
+<div class="main-with-sidebar"><div class="main">
 
-<div class="layout">
-<div class="content">
+
+
 
   <div class="section-head" style="margin-top:24px">
     <div class="en">FULL-TEXT SEARCH</div>
@@ -55,9 +56,6 @@
 
   <div id="resultCount" style="color:var(--ink-3);font-size:13px;margin-bottom:16px;letter-spacing:1px"></div>
   <div id="results"></div>
-
-</div>
-</div>
 
 <footer class="footer">儒藏本体论 · 全文检索 · 908部 1.34亿字</footer>
 
@@ -171,5 +169,8 @@ if(urlQ){document.getElementById('q').value=urlQ;setTimeout(doSearch,500)}
 // 章句索引加载完再触发一次
 setTimeout(()=>{if(urlQ||document.getElementById('q').value)doSearch()},1200);
 </script>
+
+</div></div>
+<script>initPage("search.html")</script>
 </body>
 </html>

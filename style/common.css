@@ -856,3 +856,50 @@ body[data-theme="bamboo"]{
 }
 /* 主题：星象（即默认）*/
 body[data-theme="star"]{}
+
+/* === 侧边栏内 主题切换面板（展开式）=== */
+.sidebar .theme-toggle{position:relative}
+.sidebar .theme-panel{
+  display:none;
+  background:var(--space-card-solid);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:6px 0;
+  margin:4px 10px 8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+.sidebar .theme-panel.open{display:block}
+.sidebar .theme-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 14px;cursor:pointer;
+  font-size:13px;letter-spacing:2px;
+  color:var(--ink-2);
+  transition:all .15s;
+}
+.sidebar .theme-item:hover{background:var(--chip-gold);color:var(--gold-bright)}
+.sidebar .theme-item.active{color:var(--gold-bright);background:var(--chip-gold)}
+.sidebar .theme-icon{
+  width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:14px;border-radius:50%;
+  background:var(--chip-gold);color:var(--gold);
+  border:1px solid var(--line);
+}
+.sidebar h4{
+  font-size:12px;color:var(--gold);
+  letter-spacing:3px;padding:14px 20px 6px;margin-top:6px;
+  border-top:1px solid var(--line);
+  text-transform:uppercase;
+}
+
+/* === 阅读器双侧边栏：全局导航(窄180px) + 书目录(180px) === */
+.book-sidebar{width:220px;flex-shrink:0;background:var(--space-card-solid);border-right:1px solid var(--line);padding:16px 0;height:calc(100vh - 64px);overflow-y:auto;position:sticky;top:64px;scrollbar-width:none}
+.book-sidebar::-webkit-scrollbar{display:none}
+.book-sidebar .book-group{margin-bottom:12px}
+.book-sidebar .book-group h5{font-size:12px;color:var(--gold);letter-spacing:2px;padding:8px 16px 4px;margin:0}
+.book-sidebar a{display:block;padding:6px 18px;font-size:13px;color:var(--ink-2);letter-spacing:1px;transition:all .15s;border-left:2px solid transparent}
+.book-sidebar a:hover,.book-sidebar a.active{color:var(--gold-bright);background:var(--chip-gold);border-left-color:var(--zhu)}
+
+/* === 响应式：小屏隐藏全局侧栏 === */
+@media (max-width:1100px){
+  .global-sidebar{display:none}
+}

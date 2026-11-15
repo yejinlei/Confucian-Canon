@@ -7,7 +7,7 @@
 <link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="style/common.css">
 </head>
-<body data-theme="star">
+<body>
 
 <header class="topbar">
   <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
@@ -30,7 +30,8 @@
 </header>
 
 <div class="main-with-sidebar">
-  <aside class="sidebar" id="bookSidebar"></aside>
+  <aside class="sidebar global-sidebar" id="globalSidebar"></aside>
+  <aside class="sidebar book-sidebar" id="bookSidebar"></aside>
   <div class="main">
     <div class="reader-controls">
       <button id="btnSmall">小</button>
@@ -63,19 +64,17 @@
 <script src="data/common.js"></script>
 <script src="data/ontology-enhance.js"></script>
 <script>
-// 主题
-function initTheme(){
-  const wrap=document.getElementById('themeDots');
-  const themes=[{k:'star',n:'星象',b:'#e6ca96'},{k:'paper',n:'宣纸',b:'#6a4218'},{k:'ink',n:'水墨',b:'#e0e5ee'},{k:'bamboo',n:'竹简',b:'#e8c888'}];
-  wrap.innerHTML=themes.map(t=>'<span class="theme-dot" data-theme="'+t.k+'" style="background:radial-gradient(circle,'+t.b+',#2a1e12)" title="'+t.n+'"></span>').join('');
-  const saved=localStorage.getItem('rz_theme')||'star';document.body.setAttribute('data-theme',saved);
-  wrap.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.theme===saved));
-  wrap.querySelectorAll('.theme-dot').forEach(d=>d.onclick=()=>{
-    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);localStorage.setItem('rz_theme',t);
-    wrap.querySelectorAll('.theme-dot').forEach(x=>x.classList.toggle('active',x===d));
-  });
-}
-initTheme();
+// 全局侧边栏（主题切换+主导航+核心典籍）
+(function(){
+  // 等common.js加载完再调
+  function doInit(){
+    if (typeof renderSidebar === 'function') {
+      renderSidebar('reader.html');
+      bindTopThemeDots();
+    } else setTimeout(doInit,50);
+  }
+  doInit();
+})();
 
 // 侧边栏书单（核心典籍优先）
 const CORE_BOOKS=['大学章句','中庸章句','论语','孟子','周易','尚书','诗经','礼记','周礼','仪礼',

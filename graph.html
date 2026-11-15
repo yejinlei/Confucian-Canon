@@ -29,9 +29,10 @@
   </nav>
   <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
 </header>
+<div class="main-with-sidebar"><div class="main">
 
-<div class="layout">
-<div class="content">
+
+
 
   <div class="section-head" style="margin-top:24px">
     <div class="en">ONTOLOGY GRAPH</div>
@@ -79,9 +80,6 @@
       线颜色对应关系谓词，虚线为"对立/批判"，实线为"师承/衍生/注解"等。
     </div>
   </div>
-
-</div>
-</div>
 
 <footer class="footer">
   儒藏本体论 · CONFUCIAN CANON ONTOLOGY · 义理关系图
@@ -255,5 +253,8 @@ chart.on('click',p=>{
 });
 function focusNode(n){chart.dispatchAction({type:'focusNodeAdjacency',seriesIndex:0,name:n});chart.dispatchAction({type:'highlight',seriesIndex:0,name:n})}
 </script>
+
+</div></div>
+<script>initPage("graph.html")</script>
 </body>
 </html>

@@ -28,18 +28,16 @@
   </nav>
   <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
 </header>
+<div class="main-with-sidebar"><div class="main">
 
-<div class="layout">
-<div class="content">
+
+
   <div class="section-head" style="margin-top:24px">
     <div class="en">CONFUCIAN SCHOOLS</div>
     <h2>儒 家 学 派 流 脉</h2>
     <div class="desc">先秦至清代，21个主要学派</div>
   </div>
   <div class="grid-3" id="schoolGrid" style="margin-top:20px"></div>
-</div>
-</div>
-
 <footer class="footer">儒藏本体论 · 学派流脉 · 21派</footer>
 
 <script src="data/common.js"></script>
@@ -76,5 +74,8 @@ document.getElementById('schoolGrid').innerHTML=Object.entries(SCHOOLS).map(([n,
   </div>
 `).join('');
 </script>
+
+</div></div>
+<script>initPage("schools.html")</script>
 </body>
 </html>

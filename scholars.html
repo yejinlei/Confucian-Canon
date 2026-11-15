@@ -28,9 +28,10 @@
   </nav>
   <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
 </header>
+<div class="main-with-sidebar"><div class="main">
 
-<div class="layout">
-<div class="content">
+
+
   <div class="section-head" style="margin-top:24px">
     <div class="en">SCHOLARS OF CONFUCIANISM</div>
     <h2>历 代 儒 者</h2>
@@ -42,9 +43,6 @@
   </div>
   <div class="filter-bar" id="eraBar"></div>
   <div id="scholarGrid" class="grid-3" style="margin-top:20px"></div>
-</div>
-</div>
-
 <footer class="footer">儒藏本体论 · 历代儒者 · 91位</footer>
 
 <script src="data/common.js"></script>
@@ -110,5 +108,8 @@ document.querySelectorAll('button[data-era]').forEach(b=>b.onclick=()=>{
 // URL锚点
 if(location.hash.slice(1))setTimeout(()=>{const el=document.getElementById(location.hash.slice(1));if(el)el.scrollIntoView()},300);
 </script>
+
+</div></div>
+<script>initPage("scholars.html")</script>
 </body>
 </html>

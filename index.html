@@ -7,7 +7,7 @@
 <link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="style/common.css">
 </head>
-<body data-theme="star">
+<body >
 
 <!-- 顶部导航 -->
 <header class="topbar">
@@ -28,14 +28,11 @@
     <a href="timeline.html">年谱</a>
   </nav>
   <div class="topbar-right">
-    <div class="theme-dots" id="themeDots">
-      <span class="theme-dot active" data-theme="star" style="background:radial-gradient(circle,#e6ca96,#2a1e12)" title="星象"></span>
-      <span class="theme-dot" data-theme="paper" style="background:radial-gradient(circle,#6a4218,#ece0c5)" title="宣纸"></span>
-      <span class="theme-dot" data-theme="ink" style="background:radial-gradient(circle,#e0e5ee,#121620)" title="水墨"></span>
-      <span class="theme-dot" data-theme="bamboo" style="background:radial-gradient(circle,#e8c888,#2a2010)" title="竹简"></span>
-    </div>
+    <div class="theme-dots" id="themeDots"></div>
   </div>
 </header>
+<div class="main-with-sidebar"><div class="main">
+
 
 <!-- Hero -->
 <section class="hero">
@@ -49,8 +46,7 @@
   </div>
 </section>
 
-<div class="layout">
-<div class="content">
+
 
   <!-- 统计 -->
   <div class="stats-grid fade-up">
@@ -379,32 +375,11 @@
     </div>
   </div>
 
-</div>
-</div>
 
-<footer class="footer">
-  <a href="index.html">总纲</a>·
-  <a href="ontology.html">本体</a>·
-  <a href="graph.html">关系</a>·
-  <a href="zhangju.html">章句</a>·
-  <a href="library.html">典籍</a><br>
-  儒藏本体论 · CONFUCIAN CANON ONTOLOGY · 以本体论方法重构经学
-</footer>
 
 <script src="data/common.js"></script>
 <script src="data/ontology-enhance.js"></script>
 <script>
-// 主题切换
-(function(){
-  const dots=document.querySelectorAll('.theme-dot');
-  const saved=localStorage.getItem('rz_theme');
-  if(saved){document.body.setAttribute('data-theme',saved);dots.forEach(d=>d.classList.toggle('active',d.dataset.theme===saved))}
-  dots.forEach(d=>d.addEventListener('click',()=>{
-    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);
-    localStorage.setItem('rz_theme',t);
-    dots.forEach(x=>x.classList.toggle('active',x===d));
-  }));
-})();
 
 // 本体七层
 const grid=document.getElementById('ontGrid');
@@ -438,5 +413,16 @@ document.getElementById('classicGrid').innerHTML=core.map(c=>`
   </a>
 `).join('');
 </script>
+
+<footer class="footer">
+  <a href="index.html">总纲</a>·
+  <a href="ontology.html">本体</a>·
+  <a href="graph.html">关系</a>·
+  <a href="zhangju.html">章句</a>·
+  <a href="library.html">典籍</a><br>
+  儒藏本体论 · CONFUCIAN CANON ONTOLOGY · 以本体论方法重构经学
+</footer>
+</div></div>
+<script>initPage("index.html")</script>
 </body>
 </html>

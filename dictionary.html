@@ -28,9 +28,10 @@
   </nav>
   <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
 </header>
+<div class="main-with-sidebar"><div class="main">
 
-<div class="layout">
-<div class="content">
+
+
 
   <div class="section-head" style="margin-top:24px">
     <div class="en">CONCEPT DICTIONARY</div>
@@ -54,9 +55,6 @@
 
   <!-- 词条列表 -->
   <div id="dictList"></div>
-
-</div>
-</div>
 
 <footer class="footer">儒藏本体论 · 概念词典 · 115 义理范畴</footer>
 
@@ -205,5 +203,8 @@ document.querySelectorAll('button[data-initial]').forEach(b=>b.onclick=()=>{
   currentInitial=b.dataset.initial;render();
 });
 </script>
+
+</div></div>
+<script>initPage("dictionary.html")</script>
 </body>
 </html>
