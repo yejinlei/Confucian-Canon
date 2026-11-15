@@ -64,13 +64,11 @@
 <script src="data/common.js"></script>
 <script src="data/ontology-enhance.js"></script>
 <script>
-// 全局侧边栏（主题切换+主导航+核心典籍）
+// 全局侧边栏（主题切换+主导航+核心典籍）——走统一 initPage，注入汉堡+抽屉
 (function(){
-  // 等common.js加载完再调
   function doInit(){
-    if (typeof renderSidebar === 'function') {
-      renderSidebar('reader.html');
-      bindTopThemeDots();
+    if (typeof initPage === 'function') {
+      initPage('reader.html');
     } else setTimeout(doInit,50);
   }
   doInit();
