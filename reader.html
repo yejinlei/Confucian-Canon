@@ -84,8 +84,8 @@
 .reader-toolbar .book-name{font-size:14px;color:var(--gold);letter-spacing:4px}
 
 /* 响应式 */
-@media(max-width:1100px){
-  .reader-deep{grid-template-columns:1fr}
+@media(max-width:1200px){
+  .reader-deep{grid-template-columns:1fr !important}
   .term-panel{position:static;max-height:none}
 }
 
@@ -280,11 +280,27 @@ function renderBook(data){
   const md = data.metadata;
   const chapters = data.chapters;
   const conceptMap = {};
-  (data.concepts||[]).forEach(c=>conceptMap[c.id]=c);
+  const conceptByName = {};
+  (data.concepts||[]).forEach(c=>{
+    conceptMap[c.id]=c;
+    if(c.name) conceptByName[c.name]=c;
+  });
   const commMap = {};
   (data.commentators||[]).forEach(c=>commMap[c.id]=c);
-  // 概念反向索引：per-id → concepts
   const perConcept = {};
+
+  // 辅助：把pericope的concepts统一解析为概念对象数组
+  function normConcepts(arr){
+    if(!arr) return [];
+    return arr.map(x=>{
+      if(typeof x==='string') return conceptMap[x] || conceptByName[x] || null;
+      if(x && typeof x==='object'){
+        // 按id查，找不到就按name查，都找不到就把它本身当作一个临时概念
+        return conceptMap[x.id] || conceptByName[x.name] || x;
+      }
+      return null;
+    }).filter(Boolean);
+  }
 
   let textHtml = `<div class="book-intro" style="margin-bottom:18px;padding:14px 18px;background:rgba(212,168,83,.05);border-left:3px solid var(--gold);border-radius:0 4px 4px 0">
     <div style="font-size:16px;color:var(--gold);letter-spacing:4px;margin-bottom:6px">${md.title} <span style="font-size:12px;color:var(--ink-3);letter-spacing:2px">${md.subtitle||''}</span></div>
@@ -308,19 +324,23 @@ function renderBook(data){
       totalPer++;
       // 渲染正文 + 概念标红
       let t = escapeHtml(p.text);
-      const cids = p.concepts||[];
-      perConcept[p.id] = cids.map(cid=>conceptMap[cid]).filter(Boolean);
-      cids.forEach(cid=>{
-        const c = conceptMap[cid];
-        if(!c) return;
-        // 找到第一次出现的关键词并标红
+      const cs = normConcepts(p.concepts||[]);
+      perConcept[p.id] = cs;
+      // 给每个概念在正文中第一次出现处标红（用唯一cid，即使原concepts里是临时对象也能命中）
+      cs.forEach(c=>{
+        if(!c || !c.name) return;
         const keys = [c.name];
-        if(c.related) keys.push(...c.related);
+        if(Array.isArray(c.related)) keys.push(...c.related.slice(0,2));
+        // 生成本地cid，兼容拼音id和中文名id
+        const localCid = c.id || ('c_'+c.name);
+        // 把概念加入conceptMap，保证showTerm能查到
+        if(!conceptMap[localCid]) conceptMap[localCid] = c;
         for(const k of keys){
           if(!k) continue;
-          const idx = t.indexOf(k);
+          const idx = t.indexOf(escapeHtml(k));
           if(idx>=0){
-            t = t.slice(0,idx) + `<span class="term" data-cid="${cid}" data-per="${p.id}">${k}</span>` + t.slice(idx+k.length);
+            const ek = escapeHtml(k);
+            t = t.slice(0,idx) + `<span class="term" data-cid="${localCid}" data-per="${p.id}">${ek}</span>` + t.slice(idx+ek.length);
             break;
           }
         }
