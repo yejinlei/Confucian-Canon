@@ -7,7 +7,7 @@
 <link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="style/common.css">
 </head>
-<body data-theme="star">
+<body>
 
 <header class="topbar">
   <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
@@ -30,12 +30,10 @@
 </header>
 <div class="main-with-sidebar"><div class="main">
 
-
-
   <div class="section-head" style="margin-top:24px">
     <div class="en">CHAPTER NAVIGATION</div>
     <h2>儒 藏 章 句 导 航</h2>
-    <div class="desc">22部精校核心典籍 · 394章 · 逐章主旨与概念标签</div>
+    <div class="desc" id="zjDesc">精校核心典籍 · 逐章主旨与概念标签</div>
   </div>
 
   <div class="filter-bar" id="bookBar"></div>
@@ -44,71 +42,64 @@
 <footer class="footer">儒藏本体论 · 章句导航 · 精校章句</footer>
 
 <script src="data/common.js"></script>
+<script src="data/ontology.js"></script>
 <script src="data/ontology-enhance.js"></script>
 <script>
-function initTheme(){
-  const wrap=document.getElementById('themeDots');
-  const themes=[{k:'star',n:'星象',b:'#e6ca96'},{k:'paper',n:'宣纸',b:'#6a4218'},{k:'ink',n:'水墨',b:'#e0e5ee'},{k:'bamboo',n:'竹简',b:'#e8c888'}];
-  wrap.innerHTML=themes.map(t=>'<span class="theme-dot" data-theme="'+t.k+'" style="background:radial-gradient(circle,'+t.b+',#2a1e12)" title="'+t.n+'"></span>').join('');
-  const saved=localStorage.getItem('rz_theme')||'star';document.body.setAttribute('data-theme',saved);
-  wrap.querySelectorAll('.theme-dot').forEach(d=>d.classList.toggle('active',d.dataset.theme===saved));
-  wrap.querySelectorAll('.theme-dot').forEach(d=>d.onclick=()=>{
-    const t=d.dataset.theme;document.body.setAttribute('data-theme',t);localStorage.setItem('rz_theme',t);
-    wrap.querySelectorAll('.theme-dot').forEach(x=>x.classList.toggle('active',x===d));
+/* 章句导航：数据源与阅读器同源（reader-data），点章直达 reader.html 对应章 */
+fetch('data/reader-data-index.json').then(function(r){ return r.json(); }).then(function(idx){
+  var books = idx.books || [];
+  document.getElementById('zjDesc').textContent =
+    books.length + ' 部精校核心典籍 · ' +
+    books.reduce(function(a,b){ return a + (b.chapter_count||0); }, 0) + ' 章 · 逐章主旨与概念标签';
+  var bar = document.getElementById('bookBar');
+  bar.innerHTML = books.map(function(b, i){
+    return '<button class="btn btn-ghost ' + (i===0?'active':'') + '" data-bid="' + b.id + '" data-cat="' + (b.cat||'其他') +
+      '" style="padding:4px 14px;font-size:12px">' + b.title + '</button>';
+  }).join('');
+  bar.querySelectorAll('button[data-bid]').forEach(function(btn){
+    btn.onclick = function(){
+      bar.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); });
+      btn.classList.add('active');
+      loadBook(btn.dataset.bid);
+    };
   });
-}
-initTheme();
-
-const BOOKS=['大学章句','中庸章句','论语集注','孟子集注','大学','中庸','论语','孟子',
-  '诗经','尚书','礼记','周礼','仪礼','春秋左传','春秋公羊传','春秋谷梁传',
-  '孝经','传习录','近思录','二程遗书','颜氏家训','诗集传'];
-document.getElementById('bookBar').innerHTML=BOOKS.map((b,i)=>
-  '<button class="btn btn-ghost '+(i===0?'active':'')+'" data-book="'+b+'" style="padding:4px 14px;font-size:12px">'+b+'</button>'
-).join('');
-
-function pathFor(b){
-  for(const x of BOOKS_DATA)if(x[1]===b)return x[0]+'/'+x[1]+'.txt';
-  const alias={'大学章句':'四书/大学章句.txt','中庸章句':'四书/中庸章句.txt','论语集注':'四书/论语集注.txt','孟子集注':'四书/孟子集注.txt',
-    '春秋左传':'春秋/春秋左传.txt','春秋公羊传':'春秋/春秋公羊传.txt','春秋谷梁传':'春秋/春秋谷梁传.txt',
-    '二程遗书':'语录/二程遗书.txt','颜氏家训':'修身治家/颜氏家训.txt','诗集传':'诗经/诗集传.txt'};
-  if(alias[b])return alias[b];
-  if(['诗经','尚书','礼记','周礼','仪礼'].includes(b)){const map={诗经:'诗经',尚书:'尚书',礼记:'礼经',周礼:'礼经',仪礼:'礼经'};return map[b]+'/'+b+'.txt'}
-  if(['大学','中庸','论语','孟子','孝经'].includes(b)){const map={大学:'四书',中庸:'四书',论语:'四书',孟子:'四书',孝经:'孝经'};return map[b]+'/'+b+'.txt'}
-  if(['传习录','近思录'].includes(b))return '语录/'+b+'.txt';
-  return '四书/'+b+'.txt';
-}
-
-function loadBook(b){
-  const idx='zhangju-index/'+b+'.json';
-  fetch(idx).then(r=>r.json()).then(data=>{
-    let html='<div class="card" style="margin-bottom:20px"><div style="font-size:20px;color:var(--gold-bright);letter-spacing:4px;margin-bottom:6px">'+b+'</div>';
-    if(data.desc)html+='<div style="font-size:13px;color:var(--ink-3);line-height:1.9">'+data.desc+'</div>';
-    html+='<div style="margin-top:10px;font-size:12px;color:var(--ink-dim)">共 '+data.chapters.length+' 章 · '+(data.source==='curated'?'<span style="color:var(--zhu)">精校</span>':'自动识别')+'</div>';
-    html+='</div>';
-    const path=pathFor(b);
-    data.chapters.forEach((c,i)=>{
-      const url='reader.html?b='+encodeURIComponent(path)+'&ch='+i+(c.incipit?'&find='+encodeURIComponent(c.incipit.slice(0,20)):'');
-      html+='<div class="dict-entry">';
-      html+='<div class="head"><span class="han" style="font-size:18px"><a href="'+url+'" style="color:var(--gold-bright)">'+(i+1)+'. '+(c.title||'第'+(i+1)+'章')+'</a></span></div>';
-      if(c.summary)html+='<div class="def">'+c.summary+'</div>';
-      else if(c.incipit)html+='<div class="def" style="color:var(--ink-3)">首句：'+c.incipit.slice(0,60)+'…</div>';
-      if(c.concepts&&c.concepts.length)html+='<div class="related">'+c.concepts.slice(0,8).map(k=>'<a href="dictionary.html#'+encodeURIComponent(k)+'">'+k+'</a>').join('')+'</div>';
-      html+='</div>';
-    });
-    document.getElementById('chapterList').innerHTML=html;
-  }).catch(e=>{
-    document.getElementById('chapterList').innerHTML='<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">章句索引加载失败：'+b+'</div>';
-  });
-}
-loadBook(BOOKS[0]);
-document.querySelectorAll('button[data-book]').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('button[data-book]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
-  loadBook(b.dataset.book);
+  if (books.length) loadBook(books[0].id);
+}).catch(function(){
+  document.getElementById('chapterList').innerHTML =
+    '<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">典籍索引加载失败</div>';
 });
-if(location.hash.slice(1)){
-  const h=decodeURIComponent(location.hash.slice(1));
-  const btn=[...document.querySelectorAll('button[data-book]')].find(x=>x.dataset.book===h);
-  if(btn)btn.click();
+
+function loadBook(bid){
+  var list = document.getElementById('chapterList');
+  list.innerHTML = '<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">章句加载中…</div>';
+  fetch('reader-data/' + bid + '.json').then(function(r){ return r.json(); }).then(function(d){
+    var md = d.metadata || {};
+    var html = '<div class="card" style="margin-bottom:20px">'
+      + '<div style="font-size:20px;color:var(--gold);letter-spacing:4px;margin-bottom:6px">' + (md.title||bid) + '</div>'
+      + (md.intro ? '<div style="font-size:13px;color:var(--ink-3);line-height:1.9">' + md.intro + '</div>' : '')
+      + '<div style="margin-top:10px;font-size:12px;color:var(--ink-3)">共 ' + d.chapters.length + ' 章 · '
+      + (md.pericope_count||0) + ' 节 · ' + (md.word_count||0) + ' 字 · <span style="color:var(--zhu)">精校章句</span></div>'
+      + '</div>';
+    d.chapters.forEach(function(ch){
+      var chip = String(ch.id).replace(/^ch-/, '');
+      var url = 'reader.html?b=' + encodeURIComponent(bid) + '&ch=' + encodeURIComponent(chip);
+      html += '<div class="dict-entry">';
+      html += '<div class="head"><span class="han" style="font-size:18px"><a href="' + url +
+        '" style="color:var(--gold)">' + ch.title + '</a></span>' +
+        '<span style="font-size:12px;color:var(--ink-3);margin-left:10px">' + ch.pericopes.length + ' 节</span></div>';
+      if (ch.summary) html += '<div class="def" style="color:var(--ink-3)">' + ch.summary + '</div>';
+      var cs = {};
+      ch.pericopes.forEach(function(p){ (p.concepts||[]).forEach(function(c){ if(c && c.name) cs[c.name] = 1; }); });
+      var ks = Object.keys(cs).slice(0, 8);
+      if (ks.length) html += '<div class="related">' + ks.map(function(k){
+        return '<a href="ontology.html#' + encodeURIComponent(k) + '">' + k + '</a>';
+      }).join('') + '</div>';
+      html += '</div>';
+    });
+    list.innerHTML = html;
+  }).catch(function(){
+    list.innerHTML = '<div class="card" style="text-align:center;color:var(--ink-3);padding:40px">章句数据加载失败：' + bid + '</div>';
+  });
 }
 </script>
 
