@@ -10,7 +10,7 @@
 /* ===== 深度阅读器专用样式 ===== */
 .reader-deep{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;margin-top:12px}
 .reader-deep.single{grid-template-columns:minmax(0,1fr)}
-.reader-deep .pane{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px 22px;min-height:400px;position:relative}
+.reader-deep .pane{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px 22px;min-height:400px;position:relative;min-width:0;overflow-x:hidden}
 .reader-deep .pane h2.pane-title{font-size:14px;letter-spacing:4px;color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:8px;margin:0 0 14px 0;display:flex;align-items:center;gap:8px}
 .reader-deep .pane h2.pane-title .sym{font-size:16px}
 .reader-deep .pane .pane-sub{font-size:12px;color:var(--ink-3);margin-left:auto;letter-spacing:1px}
@@ -87,6 +87,11 @@
 @media(max-width:1200px){
   .reader-deep{grid-template-columns:1fr !important}
   .term-panel{position:static;max-height:none}
+}
+@media(max-width:768px){
+  .book-sidebar{display:none !important}
+  .global-sidebar{display:none !important}
+  .main-with-sidebar{padding-left:0 !important}
 }
 
 /* 竖排模式 */
@@ -186,7 +191,7 @@ const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let curBid = params.get('b') || '';
 let curBook = null;
-let activeLayers = new Set(['经','注','疏','笺','郑笺','集注','集传','御注','象传','眉批','总评','评']);
+let activeLayers = new Set(['经','注','疏','笺','郑笺','集注','集传','御注','章句','本义','象传','眉批','总评','评']);
 let activeTerm = null;
 let readerFs = 18;
 let vertical = false;
