@@ -682,9 +682,13 @@ function initConceptPopup() {
 
 // 初始化页面通用元素
 function initPage(activePage) {
+  // 1. 注入汉堡菜单按钮 + 抽屉遮罩（所有页面统一）
+  injectHamburger();
   // 所有页面统一使用手写的 header.topbar，不再 JS 生成顶部导航（避免重复导航条）
   // renderTopNav 已禁用，字号/竖排按钮只在 reader 页由页面自行处理
   renderSidebar(activePage);
+  // 2. 绑定汉堡-侧边栏抽屉逻辑
+  bindDrawer();
   // 渲染完 sidebar 之后绑定顶部主题圆点（让5个圆点出现）
   if (typeof bindTopThemeDots === 'function') bindTopThemeDots();
   initConceptPopup();
@@ -702,6 +706,56 @@ function initPage(activePage) {
   const navButtons = document.querySelectorAll('.nav-tools button');
   if (navButtons[0]) navButtons[0].textContent = `字号 ${fontSize}`;
   if (navButtons[1]) navButtons[1].textContent = localStorage.getItem('vertical') === 'true' ? '横排' : '竖排';
+}
+
+function injectHamburger(){
+  // 避免重复注入
+  if (document.getElementById('appHamburger')) return;
+  const logo = document.querySelector('.topbar-logo');
+  if (!logo) return;
+  const btn = document.createElement('button');
+  btn.id = 'appHamburger';
+  btn.className = 'hamburger';
+  btn.setAttribute('aria-label','菜单');
+  btn.innerHTML = '☰';
+  logo.parentNode.insertBefore(btn, logo);
+  // 遮罩
+  if (!document.getElementById('sidebarMask')){
+    const mask = document.createElement('div');
+    mask.id = 'sidebarMask';
+    mask.className = 'sidebar-mask';
+    document.body.appendChild(mask);
+  }
+}
+function bindDrawer(){
+  const btn = document.getElementById('appHamburger');
+  const sb = document.querySelector('.sidebar.global-sidebar');
+  const mask = document.getElementById('sidebarMask');
+  if (!btn || !sb || !mask) return;
+  function open(){
+    sb.classList.add('drawer-open');
+    mask.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    sb.classList.remove('drawer-open');
+    mask.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  btn.addEventListener('click', ()=>{
+    if (sb.classList.contains('drawer-open')) close(); else open();
+  });
+  mask.addEventListener('click', close);
+  // 点击侧边栏链接后自动关闭抽屉（窄屏场景）
+  sb.querySelectorAll('a').forEach(a=>{
+    a.addEventListener('click', ()=>{
+      if (window.innerWidth <= 1100) close();
+    });
+  });
+  // 窗口变宽时自动关闭抽屉、重置
+  window.addEventListener('resize', ()=>{
+    if (window.innerWidth > 1100) close();
+  });
 }
 
 // 加载典籍列表（动态生成，避免硬编码908条）
