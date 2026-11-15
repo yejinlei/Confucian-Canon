@@ -122,6 +122,34 @@ img{max-width:100%;display:block}
   padding:0 var(--gutter);
   transition:background .3s,border-color .3s;
 }
+.hamburger{
+  display:none;
+  width:40px;height:40px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:transparent;
+  color:var(--ink-1);
+  font-size:20px;line-height:1;
+  align-items:center;justify-content:center;
+  margin-right:12px;flex-shrink:0;
+  cursor:pointer;
+}
+.hamburger:hover{color:var(--gold-bright);border-color:var(--gold)}
+.sidebar-mask{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.5);
+  z-index:800;
+}
+.sidebar-mask.show{display:block}
+.sidebar.drawer-open{
+  position:fixed!important;
+  top:64px!important;left:0!important;
+  z-index:900!important;
+  display:block!important;
+  height:calc(100vh - 64px)!important;
+  box-shadow:4px 0 20px rgba(0,0,0,.4);
+}
 .topbar-logo{
   font-family:var(--font-serif);
   font-size:20px;font-weight:700;
@@ -791,7 +819,7 @@ button{cursor:pointer}
 
 /* === 响应式 === */
 @media(max-width:980px){
-  :root{--gutter:20px}
+  :root{--gutter:16px}
   .stats-grid{grid-template-columns:repeat(3,1fr)}
   .wuchang-grid{grid-template-columns:repeat(2,1fr)}
   .sangang-grid{grid-template-columns:1fr}
@@ -802,12 +830,18 @@ button{cursor:pointer}
   .hero h1{font-size:28px;letter-spacing:5px}
   .hero-compass{width:500px;height:500px}
   .reader-content{padding:28px 20px;font-size:16px}
-  .sidebar,.chapter-sidebar{display:none}
   .main-with-sidebar .main{padding:20px}
   .timeline::before{left:20px}
   .tl-item{width:100%;left:0!important;text-align:left!important;padding:14px 14px 14px 48px}
   .tl-item::before{left:14px!important;right:auto!important}
-  .topbar-nav{display:none}
+  /* 窄屏：隐藏常驻全局侧边栏，显示汉堡按钮 */
+  .global-sidebar{display:none}
+  .hamburger{display:inline-flex}
+  /* 顶部导航收窄字号，仍然保留 */
+  .topbar-logo{margin-right:12px;font-size:16px;letter-spacing:2px}
+  .topbar-logo .sym{font-size:18px}
+  .topbar-nav a{padding:6px 8px;font-size:13px}
+  .theme-dot{width:16px;height:16px}
 }
 @media(max-width:640px){
   .stats-grid{grid-template-columns:repeat(2,1fr)}
@@ -923,6 +957,7 @@ html[data-theme="bamboo"]{
 /* === 响应式：小屏隐藏全局侧栏 === */
 @media (max-width:1100px){
   .global-sidebar{display:none}
+  .hamburger{display:inline-flex}
 }
 
 
