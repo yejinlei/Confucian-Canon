@@ -1027,3 +1027,78 @@ html[data-theme="bamboo"] body::after{
     radial-gradient(1px 1px at 45% 65%, rgba(220,180,80,.35),transparent 50%),
     radial-gradient(1px 1px at 75% 40%, rgba(220,180,80,.3),transparent 50%);
 }
+
+/* ====== 古籍评点·批注样式（仿离骚页）====== */
+.pingdian-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:10px 0 16px;flex-wrap:wrap}
+.commentary-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.commentary-tabs button{background:transparent;border:1px solid var(--border);color:var(--ink-2);padding:5px 12px;border-radius:16px;font-size:12px;cursor:pointer;transition:.2s;font-family:inherit}
+.commentary-tabs button:hover{border-color:var(--gold);color:var(--gold)}
+.commentary-tabs button.active{background:var(--gold);color:#1a0f05;border-color:var(--gold)}
+.pd-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer;user-select:none}
+.pd-toggle input{accent-color:var(--gold)}
+html[data-pingdian="off"] .pingdian-head,
+html[data-pingdian="off"] .pingdian-inter,
+html[data-pingdian="off"] .pingdian-side,
+html[data-pingdian="off"] .pingdian-end{display:none !important}
+
+/* 眉批：章节标题上方，淡黄色（古籍朱批+贴签风）*/
+.pingdian-head{background:linear-gradient(180deg,rgba(212,168,83,.08),transparent);border-left:3px solid var(--gold);padding:12px 18px;margin:8px 0 20px;border-radius:0 4px 4px 0;font-size:13px;line-height:2;color:var(--ink-2);position:relative}
+.pd-head-label{font-size:11px;color:var(--cinnabar);letter-spacing:3px;margin-bottom:6px;font-weight:500}
+.pd-item{margin:6px 0;position:relative}
+.pd-scholar{color:var(--gold);font-size:12px;margin-right:6px;font-weight:500;white-space:nowrap}
+.pd-text{color:var(--ink-2)}
+
+/* 夹批：正文行中插入的双行小字（古籍双行夹注风格）*/
+.pingdian-inter{display:inline-flex;flex-direction:column;vertical-align:middle;font-size:11px;line-height:1.5;color:#a88c5a;background:rgba(212,168,83,.08);border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);padding:3px 8px;margin:0 4px;max-width:240px;border-radius:2px;position:relative;top:-1px}
+.pd-inter-text{font-size:11px;line-height:1.5}
+.pd-inter-author{font-size:10px;color:var(--cinnabar);text-align:right;margin-top:1px;font-style:italic}
+.pingdian-inter::before{content:"夹批";position:absolute;top:-8px;left:6px;background:var(--bg);padding:0 4px;font-size:9px;color:var(--cinnabar);letter-spacing:1px}
+
+/* 章末总评：古籍篇末评点卡片*/
+.pingdian-end{margin:30px 0 40px;padding:20px 24px;background:linear-gradient(135deg,rgba(192,57,43,.06),rgba(212,168,83,.08));border:1px solid var(--border);border-top:3px solid var(--cinnabar);border-radius:4px;position:relative}
+.pd-end-title{font-size:13px;color:var(--cinnabar);letter-spacing:4px;font-weight:500;margin-bottom:14px;padding-bottom:8px;border-bottom:1px dashed var(--border)}
+.pd-end-item{padding:10px 0;border-bottom:1px dashed rgba(212,168,83,.18);font-size:14px;line-height:2;color:var(--ink-1);position:relative;padding-left:12px}
+.pd-end-item:last-child{border-bottom:none}
+.pd-end-item::before{content:"";position:absolute;left:0;top:18px;width:4px;height:4px;border-radius:50%;background:var(--cinnabar)}
+.pd-end-scholar{color:var(--gold);font-weight:500;margin-right:4px}
+
+/* 旁批（右侧圈点）预留*/
+.pingdian-side{position:absolute;right:-160px;top:0;width:140px;font-size:11px;color:var(--gold);border-right:2px solid var(--cinnabar);padding-right:6px;line-height:1.7}
+
+/* 评点汇总页专用*/
+.pd-page-section{margin:28px 0}
+.pd-page-title{font-size:20px;color:var(--gold);margin-bottom:6px;letter-spacing:3px}
+.pd-page-sub{color:var(--ink-3);font-size:13px;margin-bottom:20px}
+.pd-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:4px;padding:18px 22px;margin-bottom:16px;transition:.2s}
+.pd-card:hover{border-color:var(--gold);transform:translateX(2px)}
+.pd-card-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.pd-card-book{font-size:12px;color:var(--cinnabar);letter-spacing:2px}
+.pd-card-meta{font-size:12px;color:var(--ink-3)}
+.pd-card-scholar{display:inline-block;font-size:13px;color:var(--gold);font-weight:500;margin-right:10px;padding:2px 10px;background:rgba(212,168,83,.1);border-radius:10px}
+.pd-card-text{font-size:15px;line-height:2;color:var(--ink-1);font-style:italic;position:relative;padding-left:14px}
+.pd-card-text::before{content:"「";position:absolute;left:-2px;top:-2px;color:var(--gold);font-size:20px;font-style:normal}
+.pd-card-text::after{content:"」";color:var(--gold);font-size:20px;font-style:normal}
+.pd-card-goto{margin-top:12px;text-align:right}
+.pd-card-goto a{color:var(--gold);font-size:12px;text-decoration:none;border:1px solid var(--gold);padding:4px 12px;border-radius:14px;transition:.2s}
+.pd-card-goto a:hover{background:var(--gold);color:#1a0f05}
+
+.pd-scholar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin:16px 0 30px}
+.pd-scholar-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;transition:.2s;cursor:default}
+.pd-scholar-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.pd-scholar-name{font-size:18px;color:var(--gold);font-weight:500;margin-bottom:4px}
+.pd-scholar-meta{font-size:12px;color:var(--ink-3);margin-bottom:8px;letter-spacing:1px}
+.pd-scholar-works{font-size:12px;color:var(--cinnabar);margin-bottom:8px}
+.pd-scholar-desc{font-size:13px;color:var(--ink-2);line-height:1.8}
+
+/* 评点筛选栏*/
+.pd-filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:6px;align-items:center}
+.pd-filter-bar label{font-size:12px;color:var(--ink-3);margin-right:4px}
+.pd-filter-bar select,.pd-filter-bar input{background:var(--bg-input);border:1px solid var(--border);color:var(--ink-1);padding:6px 10px;border-radius:4px;font-size:13px;font-family:inherit}
+.pd-filter-bar select:focus,.pd-filter-bar input:focus{outline:none;border-color:var(--gold)}
+.pd-count{font-size:12px;color:var(--ink-3);margin-left:auto}
+
+@media (max-width:768px){
+  .pingdian-inter{max-width:160px;font-size:10px;padding:2px 5px}
+  .pingdian-head,.pingdian-end{padding:12px 14px}
+  .pd-card-text{font-size:14px;padding-left:10px}
+}
