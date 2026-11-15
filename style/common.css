@@ -824,7 +824,7 @@ button{cursor:pointer}
 .fade-up:nth-child(6){animation-delay:.55s}
 
 /* === 主题覆盖：宣纸 === */
-body[data-theme="paper"]{
+html[data-theme="paper"]{
   --space:#f4ecd8;--space-2:#ece0c5;--space-3:#e0d0ac;
   --space-card:rgba(255,248,230,.85);--space-card-solid:#f8efd8;
   --space-deep:#ebe0c5;
@@ -835,7 +835,7 @@ body[data-theme="paper"]{
   color-scheme:light;
 }
 /* 主题：水墨 */
-body[data-theme="ink"]{
+html[data-theme="ink"]{
   --space:#0a0c10;--space-2:#121620;--space-3:#1c2230;
   --space-card:rgba(28,34,48,.82);--space-card-solid:#1c2230;
   --space-deep:#05070a;
@@ -845,7 +845,7 @@ body[data-theme="ink"]{
   --song:#6a9080;
 }
 /* 主题：竹简 */
-body[data-theme="bamboo"]{
+html[data-theme="bamboo"]{
   --space:#1f1808;--space-2:#2a2010;--space-3:#3a2e18;
   --space-card:rgba(58,46,24,.82);--space-card-solid:#3a2e18;
   --space-deep:#140f05;
@@ -855,7 +855,7 @@ body[data-theme="bamboo"]{
   --song:#5a8060;
 }
 /* 主题：星象（即默认）*/
-body[data-theme="star"]{}
+
 
 /* === 侧边栏内 主题切换面板（展开式）=== */
 .sidebar .theme-toggle{position:relative}
@@ -902,4 +902,67 @@ body[data-theme="star"]{}
 /* === 响应式：小屏隐藏全局侧栏 === */
 @media (max-width:1100px){
   .global-sidebar{display:none}
+}
+
+
+/* === 星象罗盘（与默认青铜同基调但更偏深空星象）=== */
+html[data-theme="starry"]{
+  --space:#060810;--space-2:#0a0e1a;--space-3:#141a2a;
+  --space-card:rgba(20,26,42,.85);--space-card-solid:#0f1525;
+  --space-deep:#03050a;
+  --line:rgba(180,200,230,.15);--line-strong:rgba(200,220,255,.3);--line-soft:rgba(180,200,230,.08);
+  --ink:#e6ecf5;--ink-2:#b0bcd0;--ink-3:#6a7a95;--ink-dim:#4a5570;
+  --zhu:#c8422e;--gold:#c9b56e;--gold-bright:#f0e0a0;--gold-deep:#8a7530;
+  --copper:#a89060;--jade:#5e9680;--bronze:#605040;--silver:#d0d5e0;
+  --song:#6a9aa0;
+}
+html[data-theme="starry"] body::before{
+  background:
+    radial-gradient(ellipse 1200px 800px at 50% 50%, rgba(80,100,150,.25) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, #0a0e1a 0%, #03050a 100%);
+}
+
+/* === 宣纸古籍（浅底）：重置伪元素星点与光晕 === */
+html[data-theme="paper"] body::before{
+  background:
+    radial-gradient(ellipse 900px 600px at 30% 20%, rgba(180,140,80,.18) 0%,transparent 60%),
+    radial-gradient(circle at 50% 50%, #ece0c5 0%, #e0d0ac 100%);
+}
+html[data-theme="paper"] body::after{
+  background-image:
+    radial-gradient(1px 1px at 13% 22%, rgba(120,80,40,.35),transparent 50%),
+    radial-gradient(1px 1px at 28% 56%, rgba(120,80,40,.25),transparent 50%),
+    radial-gradient(1px 1px at 60% 72%, rgba(120,80,40,.3),transparent 50%),
+    radial-gradient(1px 1px at 85% 36%, rgba(120,80,40,.22),transparent 50%);
+  animation:none;opacity:.5;
+}
+html[data-theme="paper"]{color-scheme:light}
+
+/* === 水墨山水：重置伪元素为墨色晕染 === */
+html[data-theme="ink"] body::before{
+  background:
+    radial-gradient(ellipse 1000px 700px at 70% 30%, rgba(80,100,130,.3) 0%,transparent 60%),
+    radial-gradient(ellipse 800px 600px at 25% 75%, rgba(40,60,90,.4) 0%,transparent 55%),
+    radial-gradient(circle at 50% 50%, #121620 0%, #05070a 100%);
+}
+html[data-theme="ink"] body::after{
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(220,225,240,.5),transparent 50%),
+    radial-gradient(1px 1px at 50% 60%, rgba(220,225,240,.4),transparent 50%),
+    radial-gradient(1.5px 1.5px at 75% 25%, rgba(200,210,230,.7),transparent 50%),
+    radial-gradient(1px 1px at 85% 70%, rgba(220,225,240,.35),transparent 50%);
+}
+
+/* === 竹简汉简：竹简底色 + 竖纹 === */
+html[data-theme="bamboo"] body::before{
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0, rgba(0,0,0,.08) 2px, transparent 2px, transparent 40px),
+    radial-gradient(ellipse 1000px 700px at 50% 30%, rgba(140,100,40,.3) 0%,transparent 60%),
+    radial-gradient(circle at 50% 50%, #2a2010 0%, #140f05 100%);
+}
+html[data-theme="bamboo"] body::after{
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgba(220,180,80,.4),transparent 50%),
+    radial-gradient(1px 1px at 45% 65%, rgba(220,180,80,.35),transparent 50%),
+    radial-gradient(1px 1px at 75% 40%, rgba(220,180,80,.3),transparent 50%);
 }
