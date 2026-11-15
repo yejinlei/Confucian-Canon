@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>历代名家评点 · 儒藏本体论</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style/common.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-logo"><span class="sym">儒</span>儒藏</div>
+  <nav class="topbar-nav">
+    <a href="index.html">总纲</a>
+    <a href="ontology.html">本体</a>
+    <a href="graph.html">关系</a>
+    <a href="dictionary.html">词典</a>
+    <a href="zhangju.html">章句</a>
+    <a href="scholars.html">儒者</a>
+    <a href="schools.html">学派</a>
+    <a href="debate.html">论争</a>
+    <a href="library.html">典籍</a>
+    <a href="search.html">检索</a>
+    <a href="reader.html">阅读</a>
+    <a href="lineage.html">谱系</a>
+    <a href="timeline.html">年谱</a>
+  </nav>
+  <div class="topbar-right"><div class="theme-dots" id="themeDots"></div></div>
+</header>
+
+<div class="main-with-sidebar">
+  <aside class="sidebar global-sidebar" id="globalSidebar"></aside>
+  <div class="main">
+    <div class="hero-small">
+      <h1 class="page-title"><span class="seal-red">评</span>历代名家评点</h1>
+      <p class="page-sub">汉唐宋明清以至近代，十九位大儒对《四书》核心章句的眉批、夹批、章末总评汇览</p>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="pd-filter-bar">
+      <label>典籍：</label>
+      <select id="fBook"><option value="">全部典籍</option></select>
+      <label>批注者：</label>
+      <select id="fScholar"><option value="">全部名家</option></select>
+      <label>类型：</label>
+      <select id="fType">
+        <option value="">全部类型</option>
+        <option value="head">眉批</option>
+        <option value="inter">夹批</option>
+        <option value="side">旁批</option>
+        <option value="end">章末总评</option>
+      </select>
+      <label>关键词：</label>
+      <input id="fKw" placeholder="如：仁、良知、浩然">
+      <span class="pd-count" id="pdCount"></span>
+    </div>
+
+    <!-- 评点者卡片 -->
+    <div class="pd-page-section">
+      <h3 class="pd-page-title">历代评点家</h3>
+      <p class="pd-page-sub">自汉郑玄至当代牟宗三，十九位注疏与义理大家</p>
+      <div class="pd-scholar-grid" id="scholarGrid"></div>
+    </div>
+
+    <!-- 批注列表 -->
+    <div class="pd-page-section">
+      <h3 class="pd-page-title">批摘录</h3>
+      <p class="pd-page-sub">点击"阅读原文"可跳转至对应章节阅读</p>
+      <div id="pdList"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">儒藏本体论 · 历代名家评点</footer>
+
+<script src="data/common.js"></script>
+<script src="data/ontology-enhance.js"></script>
+<script src="data/commentary.js"></script>
+<script>
+(function(){
+  function doInit(){if(window.initPage)window.initPage({active:'pingdian.html'})}
+  if(window.initPage)doInit();else document.addEventListener('DOMContentLoaded',doInit);
+
+  const BOOK_NAMES={lunyu:'论语',mengzi:'孟子',daxue:'大学',zhongyong:'中庸'};
+  const TYPE_NAMES={head:'眉批',inter:'夹批',side:'旁批',end:'章末总评'};
+  const TYPE_COLOR={head:'#c0392b',inter:'#d4a853',side:'#8e8878',end:'#8e44ad'};
+
+  function fillSelects(){
+    const fb=document.getElementById('fBook');
+    Object.keys(BOOK_NAMES).forEach(b=>{const o=document.createElement('option');o.value=b;o.textContent=BOOK_NAMES[b];fb.appendChild(o)});
+    const fs=document.getElementById('fScholar');
+    COMMENTATORS.forEach(c=>{const o=document.createElement('option');o.value=c.name;o.textContent='('+c.dynasty+') '+c.name;fs.appendChild(o)});
+  }
+
+  function renderScholars(){
+    const g=document.getElementById('scholarGrid');
+    g.innerHTML=COMMENTATORS.map(c=>{
+      const cnt=getAllCommentaries().filter(n=>n.scholar===c.name).length;
+      return '<div class="pd-scholar-card">'+
+        '<div class="pd-scholar-name">'+c.name+'</div>'+
+        '<div class="pd-scholar-meta">'+c.dynasty+' · '+c.years+' · '+c.role+' · 评点'+cnt+'条</div>'+
+        '<div class="pd-scholar-works">著：'+c.works+'</div>'+
+        '<div class="pd-scholar-desc">'+c.desc+'</div>'+
+        '</div>';
+    }).join('');
+  }
+
+  function chapterName(bid,cid){
+    const map={
+      'lunyu/xueer-1':'论语·学而·第一章（学而时习之）',
+      'lunyu/xueer-2':'论语·学而·第二章（其为人也孝弟）',
+      'lunyu/xueer-3':'论语·学而·第三章（巧言令色）',
+      'lunyu/xueer-4':'论语·学而·第四章（吾日三省吾身）',
+      'lunyu/xueer-5':'论语·学而·第五章（道千乘之国）',
+      'lunyu/xueer-6':'论语·学而·第六章（弟子入则孝）',
+      'lunyu/xueer-7':'论语·学而·第七章（贤贤易色）',
+      'lunyu/xueer-8':'论语·学而·第八章（君子不重）',
+      'lunyu/xueer-9':'论语·学而·第九章（慎终追远）',
+      'lunyu/xueer-11':'论语·学而·第十一章（父在观其志）',
+      'lunyu/xueer-12':'论语·学而·第十二章（礼之用和为贵）',
+      'lunyu/xueer-13':'论语·学而·第十三章（信近于义）',
+      'lunyu/liren-5':'论语·里仁·第五章（君子喻于义）',
+      'lunyu/liren-8':'论语·里仁·第八章（朝闻道）',
+      'lunyu/shuer-6':'论语·述而·第六章（志于道）',
+      'lunyu/shuer-16':'论语·述而·第十六章（饭疏食饮水）',
+      'lunyu/zihan-4':'论语·子罕·第四章（子绝四）',
+      'lunyu/yanyuan-1':'论语·颜渊·第一章（克己复礼）',
+      'mengzi/lianghuiwang-shang-1':'孟子·梁惠王上·第一章（王何必曰利）',
+      'mengzi/lianghuiwang-shang-3':'孟子·梁惠王上·第三章（五十步笑百步）',
+      'mengzi/lianghuiwang-shang-7':'孟子·梁惠王上·第七章（齐桓晋文之事）',
+      'mengzi/gongsunchou-shang-2':'孟子·公孙丑上·第二章（知言养气）',
+      'mengzi/gaozi-shang-1':'孟子·告子上·第一章（性犹杞柳）',
+      'mengzi/gaozi-shang-6':'孟子·告子上·第六章（性犹湍水）',
+      'daxue/jing':'大学·经一章（三纲领八条目）',
+      'zhongyong/jing-tiandao':'中庸·第一章（天命之谓性）',
+      'zhongyong/jing-rencheng':'中庸·第二十章（诚者天之道）',
+    };
+    return map[bid+'/'+cid]||BOOK_NAMES[bid]+'·'+cid;
+  }
+
+  function renderList(){
+    const fb=document.getElementById('fBook').value;
+    const fs=document.getElementById('fScholar').value;
+    const ft=document.getElementById('fType').value;
+    const fkw=document.getElementById('fKw').value.trim();
+    let all=getAllCommentaries();
+    if(fb)all=all.filter(n=>n.bookId===fb);
+    if(fs)all=all.filter(n=>n.scholar===fs);
+    if(ft)all=all.filter(n=>n.type===ft);
+    if(fkw)all=all.filter(n=>(n.text||'').includes(fkw)||(n.anchor||'').includes(fkw));
+    document.getElementById('pdCount').textContent='共 '+all.length+' 条';
+    const html=all.map(n=>{
+      const readerLink='reader.html?book='+encodeURIComponent(bookPath(n.bookId))+'&ch='+encodeURIComponent(n.chapterId);
+      return '<div class="pd-card">'+
+        '<div class="pd-card-head">'+
+          '<div><span class="pd-card-scholar" style="border-left-color:'+TYPE_COLOR[n.type]+'">'+TYPE_NAMES[n.type]+'</span><span style="color:var(--ink-1);font-weight:500">'+n.dynasty+'·'+n.scholar+'</span></div>'+
+          '<div class="pd-card-meta">'+chapterName(n.bookId,n.chapterId)+(n.anchor?' · 评「<span style="color:var(--cinnabar)">'+n.anchor+'</span>」':'')+'</div>'+
+        '</div>'+
+        '<div class="pd-card-text">'+escapeHtml(n.text)+'</div>'+
+        '<div class="pd-card-goto"><a href="'+readerLink+'">阅读原文 →</a></div>'+
+      '</div>';
+    }).join('');
+    document.getElementById('pdList').innerHTML=html||'<div style="text-align:center;padding:40px;color:var(--ink-3)">无匹配批注</div>';
+  }
+
+  function bookPath(bid){
+    return {daxue:'四书/大学章句.txt',zhongyong:'四书/中庸章句.txt',lunyu:'四书/论语.txt',mengzi:'四书/孟子.txt'}[bid]||'';
+  }
+
+  function escapeHtml(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+
+  fillSelects();renderScholars();renderList();
+  ['fBook','fScholar','fType','fKw'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',renderList);
+    document.getElementById(id).addEventListener('change',renderList);
+  });
+})();
+</script>
+</body>
+</html>
