@@ -480,6 +480,7 @@ const SIDEBAR_LINKS = [
   { icon: '派', text: '学派流派', href: 'schools.html' },
   { icon: '脈', text: '儒门道脉', href: 'lineage.html' },
   { icon: '辭', text: '儒学词典', href: 'dictionary.html' },
+  { icon: '評', text: '历代评点', href: 'pingdian.html' },
   { icon: '儒', text: '儒者谱系', href: 'scholars.html' },
   { icon: '籍', text: '古籍全文库', href: 'library.html' },
   { icon: '檢', text: '全文检索', href: 'search.html' },
@@ -686,6 +687,7 @@ function initPage(activePage) {
   injectHamburger();
   // 所有页面统一使用手写的 header.topbar，不再 JS 生成顶部导航（避免重复导航条）
   // renderTopNav 已禁用，字号/竖排按钮只在 reader 页由页面自行处理
+  ensureTopNavPingdian(activePage);
   renderSidebar(activePage);
   // 2. 绑定汉堡-侧边栏抽屉逻辑
   bindDrawer();
@@ -706,6 +708,18 @@ function initPage(activePage) {
   const navButtons = document.querySelectorAll('.nav-tools button');
   if (navButtons[0]) navButtons[0].textContent = `字号 ${fontSize}`;
   if (navButtons[1]) navButtons[1].textContent = localStorage.getItem('vertical') === 'true' ? '横排' : '竖排';
+}
+
+function ensureTopNavPingdian(activePage){
+  const nav=document.querySelector('.topbar-nav');if(!nav)return;
+  // 如果已有"评点"链接则跳过
+  if(nav.querySelector('a[href="pingdian.html"]'))return;
+  const a=document.createElement('a');
+  a.href='pingdian.html';a.textContent='评点';
+  if(activePage==='pingdian.html')a.className='active';
+  // 插在"论争"之后、"典籍"之前
+  const target=Array.from(nav.querySelectorAll('a')).find(x=>x.textContent==='典籍'||x.textContent==='阅读');
+  if(target)nav.insertBefore(a,target);else nav.appendChild(a);
 }
 
 function injectHamburger(){
