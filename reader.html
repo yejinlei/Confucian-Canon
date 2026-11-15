@@ -43,8 +43,13 @@
       <span id="bookTitle" style="font-size:14px;color:var(--gold);letter-spacing:2px"></span>
     </div>
 
-    <!-- 注疏切换 -->
-    <div class="commentary-tabs" id="commentaryTabs" style="display:none"></div>
+    <!-- 注疏/批注切换 -->
+    <div class="pingdian-toolbar">
+      <div class="commentary-tabs" id="commentaryTabs"></div>
+      <label class="pd-toggle"><input type="checkbox" id="pdToggle" checked> 显示名家批注</label>
+    </div>
+    <!-- 章末总评容器 -->
+    <div class="chapter-pingdian-area" id="chapterPingdian"></div>
 
     <!-- 章节目录（小侧边） -->
     <div class="chapter-sidebar" id="chapterSidebar" style="position:fixed;right:0;top:64px;width:0;padding:0;border:none;transition:width .3s;z-index:5"></div>
@@ -63,6 +68,7 @@
 
 <script src="data/common.js"></script>
 <script src="data/ontology-enhance.js"></script>
+<script src="data/commentary.js"></script>
 <script>
 // 全局侧边栏（主题切换+主导航+核心典籍）——走统一 initPage，注入汉堡+抽屉
 (function(){
@@ -147,21 +153,126 @@ function renderRawText(text){
   const lines=text.split(/\r?\n/);
   let out='<h1>'+shortName(book)+'</h1>';
   let chapOpen=false;
+  let curChapterId='';
+  window.__chapterSeq = window.__chapterSeq || 0;
   lines.forEach(line=>{
     line=line.trim();
     if(!line)return;
     if(/^[卷篇章]+\s*[一二三四五六七八九十百零〇\d]+/.test(line)||/^大学|^中庸|^论语|^孟子/.test(line)&&line.length<20){
-      out+='<div class="chapter-title" id="ch-'+(chapOpen?++window.__ch:0)+'">'+escapeHtml(line)+'</div>';chapOpen=true;
+      // 章前先收束：输出上一章的章末总评
+      if(curChapterId){
+        out+=renderEndNotes(book,curChapterId);
+      }
+      window.__chapterSeq++;
+      curChapterId=detectChapterId(book,line,window.__chapterSeq);
+      out+='<div class="chapter-title" id="ch-'+(chapOpen?++window.__ch:0)+'" data-cid="'+curChapterId+'">'+escapeHtml(line)+'</div>';chapOpen=true;
+      out+=renderHeadNotes(book,curChapterId);
     }else{
-      out+='<p>'+escapeHtml(line)+'</p>';
+      out+='<p data-cid="'+curChapterId+'">'+escapeHtml(line)+'</p>';
     }
   });
+  // 最后一章章末总评
+  if(curChapterId) out+=renderEndNotes(book,curChapterId);
   content.innerHTML=out;
   // 概念标注
   annotateConceptsIn(content);
+  // 注入夹批/旁批
+  injectInterAndSideNotes(book);
   // 定位
   jumpToTarget();
+  // 批注开关
+  setupPingdianToggle();
 }
+
+// 章标题→章节ID简单匹配
+function detectChapterId(bookId,title,seq){
+  const t=title.replace(/\s/g,'');
+  const map={
+    // 论语·学而
+    '学而第一':'xueer-1','學而第一':'xueer-1',
+    '学而':'xueer-1','學而':'xueer-1',
+    // 论语·为政
+    '为政第二':'weizheng-1','為政第二':'weizheng-1',
+    // 论语·里仁
+    '里仁第四':'liren-8','裡仁第四':'liren-8',
+    // 论语·述而
+    '述而第七':'shuer-6','述而':'shuer-6',
+    // 论语·子罕
+    '子罕第九':'zihan-4','子罕':'zihan-4',
+    // 论语·颜渊
+    '颜渊第十二':'yanyuan-1','顏淵第十二':'yanyuan-1','颜渊':'yanyuan-1',
+    // 大学
+    '大学':'jing','大學':'jing','大学章句':'jing','大學章句':'jing','经一章':'jing',
+    // 中庸
+    '中庸':'jing-tiandao','中庸章句':'jing-tiandao',
+    // 孟子
+    '梁惠王上':'lianghuiwang-shang-1','梁惠王上第一章':'lianghuiwang-shang-1',
+    '公孙丑上':'gongsunchou-shang-2','公孫丑上':'gongsunchou-shang-2','公孙丑上第二章':'gongsunchou-shang-2',
+    '告子上':'gaozi-shang-1','告子上第一章':'gaozi-shang-1',
+  };
+  if(map[t]) return map[t];
+  // 含关键字的回退
+  if(t.indexOf('学而')===0||t.indexOf('學而')===0) return 'xueer-'+seq;
+  if(t.indexOf('里仁')===0||t.indexOf('裡仁')===0) return 'liren-'+seq;
+  if(t.indexOf('述而')===0) return 'shuer-'+seq;
+  if(t.indexOf('子罕')===0) return 'zihan-'+seq;
+  if(t.indexOf('颜渊')===0||t.indexOf('顏淵')===0) return 'yanyuan-'+seq;
+  if(t.indexOf('梁惠王上')===0) return 'lianghuiwang-shang-'+seq;
+  if(t.indexOf('公孙丑上')===0||t.indexOf('公孫丑上')===0) return 'gongsunchou-shang-'+seq;
+  if(t.indexOf('告子上')===0) return 'gaozi-shang-'+seq;
+  return '';
+}
+
+function renderHeadNotes(bookId,cid){
+  const notes=(window.getCommentary&&window.getCommentary(bookId,cid)||[]).filter(n=>n.type==='head');
+  if(!notes.length) return '';
+  return '<div class="pingdian-head" data-pd="head"><div class="pd-head-label">【眉批】</div>'+
+    notes.map(n=>'<div class="pd-item"><span class="pd-scholar">【'+n.dynasty+'·'+n.scholar+'】</span><span class="pd-text">'+escapeHtml(n.text)+'</span></div>').join('')+
+    '</div>';
+}
+function renderEndNotes(bookId,cid){
+  const notes=(window.getCommentary&&window.getCommentary(bookId,cid)||[]).filter(n=>n.type==='end');
+  if(!notes.length) return '';
+  return '<div class="pingdian-end" data-pd="end"><div class="pd-end-title">章末总评</div>'+
+    notes.map(n=>'<div class="pd-item pd-end-item"><span class="pd-scholar pd-end-scholar">'+n.dynasty+'·'+n.scholar+'曰：</span><span class="pd-text">'+escapeHtml(n.text)+'</span></div>').join('')+
+    '</div>';
+}
+
+function injectInterAndSideNotes(bookId){
+  const all=window.getCommentary?window.getAllCommentaries():[];
+  const notes=all.filter(n=>n.bookId===bookId&&(n.type==='inter'||n.type==='side'));
+  if(!notes.length) return;
+  content.querySelectorAll('p').forEach(p=>{
+    const text=p.textContent;
+    // 夹批：找 anchor 命中的句子
+    notes.forEach(n=>{
+      if(!n.anchor) return;
+      const anchor=n.anchor;
+      if(text.indexOf(anchor)>=0){
+        const jp=document.createElement('span');
+        jp.className='pingdian-inter';
+        jp.setAttribute('data-scholar',n.dynasty+'·'+n.scholar);
+        jp.title=n.dynasty+'·'+n.scholar+' 夹批：'+n.text;
+        jp.innerHTML='<span class="pd-inter-text">'+escapeHtml(n.text)+'</span><span class="pd-inter-author">——'+n.scholar+'</span>';
+        // 把 anchor 替换为 anchor+夹批
+        const esc=anchor.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        p.innerHTML=p.innerHTML.replace(new RegExp(esc,'g'),anchor+'<span class="pd-anchor"></span>');
+        const anchorEl=p.querySelector('.pd-anchor');
+        if(anchorEl){anchorEl.replaceWith(jp);anchorEl.remove()}
+      }
+    });
+    // 旁批：在段落右侧
+    const sideNotes=notes.filter(n=>n.type==='side'&&text.indexOf(n.anchor||'__NOPE__')<0&&p.textContent.length>10&&!p.dataset.hasSide);
+    // 简化：对有眉批但无夹批命中的段，旁批显示
+  });
+}
+
+function setupPingdianToggle(){
+  const t=document.getElementById('pdToggle');if(!t)return;
+  const apply=()=>{document.documentElement.setAttribute('data-pingdian',t.checked?'on':'off')};
+  t.onchange=apply;apply();
+}
+
 function escapeHtml(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
 function annotateConceptsIn(el){
   if(!window.__conceptRe){
